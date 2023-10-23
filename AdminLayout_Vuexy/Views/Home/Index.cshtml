@@ -1,0 +1,654 @@
+﻿@using Bus_backUpData.Models;
+@using Bus_backUpData.ViewModels;
+@using AdminLayout_Vuexy.Models;
+@model ConfigurationBackUpViewModel;
+
+<div class="row row-main">
+    <div class="card col-2 " style="width: 17%;">
+        <div class="card-body">
+            <div class="tab-jobs tab">
+                <div class="tab-tilte border-bottom"> <span>Jobs</span> <a asp-action="Index" asp-controller="Home" asp-route-JobName=""><i class="fas fa-plus icon-add icon-right float-end"></i></a></div>
+                <div class="pt-1">
+                    <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                        @{
+                            foreach (var item in Model.BackUpViewModels)
+                            {
+                                if (item.Id == Model.Id)
+                                {
+                                    <li class="job-item list-group-item" style="background:#f8f8f8;border-radius:0.428rem;"> @Html.ActionLink(item.Name,"Index", new{jobname = item.Name}) </li>
+                                }
+                                else
+                                {
+                                    <li class="job-item list-group-item"> @Html.ActionLink(item.Name,"Index", new{jobname = item.Name})</li>
+                                }
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card  col-8" style="width: 64%;margin-left: 10px;margin-right: 10px;">
+        <div class="card-body">
+            <div class="main">
+
+
+
+                <div>
+                    @using (Html.BeginForm("Backup", "Home", FormMethod.Post, new { id = "form-brands", enctype = "multipart/form-data" }))
+                    {
+                        <div class="tab-setting tab">
+                            <div class="tab-tilte border-bottom" style="position:relative">
+                                <label id="nameLabel">
+                                    @Model.BackupName
+                                </label>
+                                @Html.HiddenFor(x => x.BackupName)
+                                @Html.HiddenFor(x => x.Id)
+                                @{
+                                    if (Model.MessageBusViewModel.MessageStatus == MessageStatus.Error)
+                                    {
+                                        <div class="invalid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
+                                    }
+                                    else if (Model.MessageBusViewModel.MessageStatus == MessageStatus.Success)
+                                    {
+                                        <div class="valid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
+                                    }
+                                }
+
+                                <i class="fas fa-pen icon-blue text-success" id="editButton" style="position:absolute; right:0; z-index:10; top:0;"></i>
+                            </div>
+
+                        </div>
+
+
+                        <div>
+                            <div class="mb row" style=" margin-top: 10px; font:bold;">
+                                <label style="margin-left: 10px; font-size: 1.1rem;" for="staticEmail" class="col-sm-2 col-form-label">Active Job</label>
+                                <div class="form-check form-switch col-sm-6" style="padding-left: 65px;">
+                                    @Html.RadioButtonFor(x => x.IsEnabled, true, new {@class="form-check-input", type="checkbox", id="flexSwitchCheckChecked"})
+                                </div>
+
+                            </div>
+                            <div class="accordion accordion-flush" id="accordionFlushExample">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-headingOne">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                                            <i class="fas fa-cloud-upload-alt icon-black"></i>
+                                            <span style="margin-left: 10px;">Backup Setting</span>
+                                        </button>
+                                    </h2>
+                                    <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body">
+                                            <div class="modal-body">
+
+                                                <div class="mb-1 row">
+                                                    @Html.LabelFor(x => x.BackUpSetting.Name, new{@class="col-sm-4 col-form-label"})
+                                                    <div class="col-sm-8">
+                                                        @Html.TextBoxFor(x => x.BackUpSetting.Name,new{@class="form-control", @readonly="true"})
+                                                    </div>
+                                                </div>
+                                                <div class="mb-1 row">
+                                                    @Html.LabelFor(x => x.BackUpSetting.BackUpType, new{@class="col-sm-4 col-form-label"})
+                                                    <div class="col-sm-8">
+                                                        @Html.DropDownListFor(x => x.BackUpSetting.BackUpType, Html.GetEnumSelectList<BackUpType>(), new{@class="form-select"})
+                                                    </div>
+                                                </div>
+                                                <div class="mb-1 row">
+                                                    @Html.LabelFor(x => x.BackUpSetting.Path, new{@class="col-sm-4 col-form-label"})
+                                                    <div class="col-sm-8">
+                                                        @Html.TextBoxFor(x => x.BackUpSetting.Path, new {@class="form-control", @readonly="true"})
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-headingTwo">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                                            <i class="fa-brands fa-connectdevelop icon-black"></i>
+                                            <span style="margin-left: 10px;">FTP Setting</span>
+                                        </button>
+                                    </h2>
+                                    <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body">
+                                            <div class="modal-body">
+
+                                                <div class="accordion" id="accordionPanelsStayOpenExample">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                                                <b>  Setting</b>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                                                            <div class="accordion-body">
+                                                                <div class="mb-1 row">
+                                                                    @Html.LabelFor(x => x.FTPSetting.HostName, new{@class="col-sm-4 col-form-label"})
+                                                                    <div class="col-sm-8">
+                                                                        @Html.TextBoxFor(x => x.FTPSetting.HostName, new { @class="form-control"})
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb row">
+                                                                    @Html.LabelFor(x => x.FTPSetting.Protocol, new{@class="col-sm-4 col-form-label"})
+                                                                    <div class="col-sm-5">
+                                                                        @{
+                                                                            var tem = Html.GetEnumSelectList<Protocol>();
+                                                                        }
+                                                                        @Html.DropDownListFor(x => x.FTPSetting.Protocol, Html.GetEnumSelectList<Protocol>(), new{@class="form-select"})
+
+                                                                    </div>
+                                                                    <div class="col-sm-3">
+                                                                        <div class="mb-1 row">
+                                                                            @Html.LabelFor(x => x.FTPSetting.Port, new{@class="col-sm-4 col-form-label"})
+                                                                            <div class="col-sm-8">
+                                                                                @Html.TextBoxFor(x => x.FTPSetting.Port, new { @class="form-control", type="number"})
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                    </div>
+
+                                                                </div>
+                                                                <div class="mb-1 row">
+
+                                                                    @Html.LabelFor(x => x.FTPSetting.UserName, new{@class="col-sm-4 col-form-label"})
+                                                                    <div class="col-sm-8">
+                                                                        @Html.TextBoxFor(x => x.FTPSetting.UserName, new { @class="form-control"})
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-1 row">
+                                                                    @Html.LabelFor(x => x.FTPSetting.PassWord, new{@class="col-sm-4 col-form-label"})
+                                                                    <div class="col-sm-8">
+                                                                        @Html.TextBoxFor(x => x.FTPSetting.PassWord, new { @class="form-control", type="PassWord"})
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-1 row">
+                                                                    @Html.LabelFor(x => x.FTPSetting.Path, new{@class="col-sm-4 col-form-label"})
+                                                                    <div class="col-sm-8">
+                                                                        @Html.TextBoxFor(x => x.FTPSetting.Path, new { @class="form-control"})
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-1 row">
+                                                                    @Html.LabelFor(x => x.FTPSetting.IsAutoDelete, new{@class="col-sm-4 col-form-label"})
+                                                                    <div class="col-sm-8">
+                                                                        <div class="form-check form-switch col-sm-6">
+                                                                            @Html.RadioButtonFor(x => x.FTPSetting.IsAutoDelete, true, new {@class="form-check-input", type="checkbox", id="flexSwitchCheckChecked"})
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-1 row">
+                                                                    <label for="staticEmail" class="col-sm-4 col-form-label">Auto delete old backups after</label>
+
+                                                                    <div class="col-sm-4">
+                                                                        @Html.LabelFor(x => x.FTPSetting.Months)
+                                                                        @Html.TextBoxFor(x => x.FTPSetting.Months, new {type="number", @class="form-control"})
+
+                                                                    </div>
+                                                                    <div class="col-sm-4">
+                                                                        @Html.LabelFor(x => x.FTPSetting.Days)
+                                                                        @{
+                                                                            var listDays = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
+                                                                        }
+                                                                        @Html.DropDownListFor(x => x.FTPSetting.Days, new SelectList(listDays), new{@class="form-select"})
+
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item" style="display:none">
+                                                        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                                                                <b> Backup setting</b>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+                                                            <div class="accordion-body">
+                                                                <div class="mb-1 row">
+                                                                    <label for="staticEmail" class="col-sm-4 col-form-label">Send backup types</label>
+                                                                    <div class="col-sm-4">
+                                                                        <div class="form-check">
+                                                                            <label class="form-check-label col-form-label">
+
+                                                                                @Html.CheckBoxFor(x => x.FTPSetting.SendBackupTypesFull, new {@class="form-check-input"})
+                                                                                Full
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-sm-4">
+                                                                        <div class="form-check">
+                                                                            <label class="form-check-label col-form-label">
+                                                                                @Html.CheckBoxFor(x => x.FTPSetting.SendBackupTypesFolder, new {@class="form-check-input"})
+                                                                                Folder
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-1 row">
+                                                                    <div class="form-check">
+                                                                        <label class="form-check-label">
+                                                                            @Html.CheckBoxFor(x => x.FTPSetting.VerifyBackup, new {@class="form-check-input"})
+                                                                            Verify backup files on the destination after uploading
+                                                                        </label>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div class="mb-1 row">
+                                                                    <div class="form-check">
+                                                                        <label class="form-check-label">
+                                                                            @Html.CheckBoxFor(x => x.FTPSetting.Emergency, new {@class="form-check-input"})
+                                                                            Emergency destination - use only if others have failed
+                                                                        </label>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item" style="display:none">
+                                                        <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+                                                                <b>Advanced FTP Server settings</b>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+                                                            <div class="accordion-body">
+                                                                <div class="mb-1 row">
+                                                                    <div class="col-sm-6">
+                                                                        <div class="mb-1 row">
+                                                                            @Html.LabelFor(x => x.FTPSetting.DataConnection, new{@class="col-sm-4 col-form-label"})
+                                                                            <div class="col-sm-8">
+                                                                                @Html.DropDownListFor(x => x.FTPSetting.DataConnection, Html.GetEnumSelectList<DataConnection>(), new{@class="form-select"})
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-sm-6">
+                                                                        <div class="mb-1 row">
+                                                                            @Html.LabelFor(x => x.FTPSetting.Speed, new{@class="col-sm-3 col-form-label"})
+                                                                            <div class="col-sm-6">
+                                                                                @Html.TextBoxFor(x => x.FTPSetting.Speed, new { @class="form-control",type="number"})
+                                                                            </div>
+                                                                            <label for="staticEmail" class="col-sm-3 col-form-label">Kb/sec</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-1 row">
+                                                                    <div class="col-sm-6">
+                                                                        <div class="mb-1 row">
+                                                                            <label for="staticEmail" class="col-sm-4 col-form-label"></label>
+                                                                            <div class="col-sm-8">
+                                                                                <div class="form-check">
+                                                                                    <label class="form-check-label col-form-label">
+                                                                                        @Html.CheckBoxFor(x => x.FTPSetting.KeepAlive, new {@class="form-check-input"})
+                                                                                        Keep alive
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-sm-6">
+                                                                        <div class="mb-1 row">
+                                                                            @Html.LabelFor(x => x.FTPSetting.Interval, new{@class="col-sm-3 col-form-label"})
+                                                                            <div class="col-sm-6">
+                                                                                @Html.TextBoxFor(x => x.FTPSetting.Interval, new { @class="form-control",type="number"})
+                                                                            </div>
+                                                                            <label for="staticEmail" class="col-sm-3 col-form-label">ms</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-headingThree">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                                            <i class="fa-solid fa-calendar-days icon-black"></i>
+                                            <span style="margin-left: 10px;">Schedule Backup</span>
+                                        </button>
+                                    </h2>
+                                    <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body">
+                                            <div class="modal-body">
+                                                <div class="mb-1">
+                                                    <div class="mb row">
+                                                        <label for="staticEmail" class="col-sm-2 col-form-label">Active</label>
+                                                        <div class="form-check form-switch col-sm-6" style="padding-left: 65px;">
+                                                            @Html.RadioButtonFor(x => x.IsScheduleBackup, true, new {@class="form-check-input", type="checkbox", id="flexSwitchCheckChecked"})
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="Frequency-tile">  <label><b>Frequency</b></label></div>
+
+                                                <div class="Frequency">
+                                                    <div class="mb-1 row">
+                                                        @Html.LabelFor(x => x.ScheduleBackup.Occurs, new{@class="col-sm-2 col-form-label"})
+                                                        <div class="col-sm-10">
+                                                            @Html.DropDownListFor(x => x.ScheduleBackup.Occurs, Html.GetEnumSelectList<Occurs>(), new{@class="form-select select-Occurs"})
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-1 row Day-Group  Occurs-Group">
+                                                        @Html.LabelFor(x => x.ScheduleBackup.RecursEveryDay, new{@class="col-sm-2 col-form-label"})
+                                                        <div class="col-sm-10">
+                                                            @Html.TextBoxFor(x => x.ScheduleBackup.RecursEveryDay, new {type="number", @class="form-control"})
+                                                        </div>
+                                                    </div>
+                                                    <div class="Weekly-Group Occurs-Group" style="display:none;">
+                                                        <div class="mb-1 row">
+                                                            @Html.LabelFor(x => x.ScheduleBackup.RecursEveryWeekly, new{@class="col-sm-2 col-form-label"})
+                                                            <div class="col-sm-10">
+                                                                <div class="mb row">
+                                                                    <div class="col-sm-3">
+                                                                        @Html.TextBoxFor(x => x.ScheduleBackup.RecursEveryWeekly, new {type="number", @class="form-control"})
+                                                                    </div>
+                                                                    <div class="col-sm-9">
+                                                                        <div class="mb row">
+                                                                            <div class="col-sm-4 col-form-label">
+                                                                                <div class="form-check">
+                                                                                    <label class="form-check-label">
+                                                                                        <input class="form-check-input" name="ScheduleBackup.Weeklies" type="checkbox" value="2">
+                                                                                        Monday
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-4 col-form-label">
+                                                                                <div class="form-check ">
+                                                                                    <label class="form-check-label">
+                                                                                        <input class="form-check-input" name="ScheduleBackup.Weeklies" type="checkbox" value="4">
+                                                                                        Tuesday
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-4 col-form-label">
+                                                                                <div class="form-check">
+                                                                                    <label class="form-check-label">
+                                                                                        <input class="form-check-input" name="ScheduleBackup.Weeklies" type="checkbox" value="8">
+                                                                                        Webnesday
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-1 row">
+                                                            <label for="staticEmail" class="col-sm-2 col-form-label"></label>
+                                                            <div class="col-sm-10">
+                                                                <div class="mb row">
+                                                                    <div class="col-sm-3">
+                                                                    </div>
+                                                                    <div class="col-sm-9">
+                                                                        <div class="mb row">
+                                                                            <div class="col-sm-4">
+                                                                                <div class="form-check">
+                                                                                    <label class="form-check-label">
+                                                                                        <input class="form-check-input" name="ScheduleBackup.Weeklies" type="checkbox" value="16">
+                                                                                        Thursday
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-4">
+                                                                                <div class="form-check">
+                                                                                    <label class="form-check-label">
+                                                                                        <input class="form-check-input" name="ScheduleBackup.Weeklies" type="checkbox" value="32">
+                                                                                        Friday
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-4">
+                                                                                <div class="form-check">
+                                                                                    <label class="form-check-label ">
+                                                                                        <input class="form-check-input" name="ScheduleBackup.Weeklies" type="checkbox" value="64">
+                                                                                        Saturday
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-1 row">
+                                                            <label for="staticEmail" class="col-sm-2 col-form-label"></label>
+                                                            <div class="col-sm-10">
+                                                                <div class="mb row">
+                                                                    <div class="col-sm-3">
+                                                                    </div>
+                                                                    <div class="col-sm-9">
+                                                                        <div class="mb row">
+                                                                            <div class="col-sm-4">
+                                                                                <div class="form-check">
+                                                                                    <label class="form-check-label col-form-label">
+                                                                                        <input class="form-check-input" name="ScheduleBackup.Weeklies" type="checkbox" value="8">
+                                                                                        Sunday
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-4">
+                                                                            </div>
+                                                                            <div class="col-sm-4">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="Monthly-Group  Occurs-Group" style="display:none;">
+                                                        <div class="mb-1 row">
+                                                            <div class="col-sm-2">
+                                                                <div>
+
+                                                                    <label class="form-check-label col-form-label">
+                                                                        @{
+                                                                            Model.ScheduleBackup.MonthlyDay = true;
+                                                                        }
+                                                                        @Html.RadioButtonFor(x => x.ScheduleBackup.MonthlyDay,true,new {@class="form-check-input select-Day-radio", type="radio", style="display:none"})
+                                                                        Day
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-10">
+                                                                <div class="mb row">
+                                                                    <div class="col-sm-9">
+                                                                        <div class="mb row">
+                                                                            <div class="col-sm-6">
+                                                                                <div class="mb row">
+                                                                                    <div class="col-sm-8">
+                                                                                        @Html.TextBoxFor(x => x.ScheduleBackup.DayEvery, new {@class="form-control select-Day", type="number"})
+                                                                                    </div>
+                                                                                    <label for="staticEmail" class="col-sm-4 col-form-label ps-0"> of every</label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-6">
+                                                                                <div class="mb-1 row">
+
+                                                                                    <div class="col-sm-8">
+
+                                                                                        @Html.TextBoxFor(x => x.ScheduleBackup.DayMonth, new {@class="form-control select-Day", type="number"})
+                                                                                    </div>
+                                                                                    <label for="staticEmail" class="col-sm-4 col-form-label ps-0"> month</label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+
+
+                                                                    <div class="col-sm-3">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-1 row" style="display:none">
+                                                            <div class="col-sm-2">
+                                                                <div class="form-check">
+
+                                                                    <label class="form-check-label col-form-label">
+                                                                        @Html.RadioButtonFor(x => x.ScheduleBackup.MonthlyDay,false,new {@class="form-check-input select-The-radio", type="radio"})
+                                                                        The
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-10">
+                                                                <div class="mb row">
+                                                                    <div class="col-sm-9">
+                                                                        <div class="mb row">
+                                                                            <div class="col-sm-6">
+                                                                                @Html.DropDownListFor(x => x.ScheduleBackup.TheOrder, Html.GetEnumSelectList<TheOrder>(), new{@class="form-select select-The", disabled=true})
+
+                                                                            </div>
+                                                                            <div class="col-sm-6">
+                                                                                <div class="mb row">
+
+                                                                                    <div class="col-sm-8">
+                                                                                        @Html.DropDownListFor(x => x.ScheduleBackup.TheWeekly, Html.GetEnumSelectList<TheWeekly>(), new{@class="form-select select-The", disabled=true})
+                                                                                    </div>
+                                                                                    <label for="staticEmail" class="col-sm-4 col-form-label ps-0"> of every</label>
+                                                                                </div>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-sm-3">
+                                                                        <div class="mb row">
+
+                                                                            <div class="col-sm-7 ps-0 ">
+                                                                                @Html.TextBoxFor(x => x.ScheduleBackup.TheMonth, new {@class="form-control select-The", type="number"})
+                                                                            </div>
+                                                                            <label for="staticEmail" class="col-sm-5 col-form-label ps-0"> month</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="Frequency-tile">  <label><b>Daily frequency</b></label></div>
+                                                <div class="Frequency">
+                                                    <div class="mb-1 row">
+                                                        <label for="staticEmail" class="col-sm-2 col-form-label">First Date</label>
+                                                        <div class="col-sm-10">
+                                                            <input class="form-control" type="datetime-local" id="html5-datetime-local-input" name="ScheduleBackup.FirstDate" value="@Model.ScheduleBackup.FirstDate.ToString("yyyy-MM-dd HH:mm:ss")" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-headingFour">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFour" aria-expanded="false" aria-controls="flush-collapseFour">
+                                            <i class="fa-regular fa-envelope icon-black"></i>
+                                            <span style="margin-left: 10px;">Email Confirmation</span>
+                                        </button>
+                                    </h2>
+                                    <div id="flush-collapseFour" class="accordion-collapse collapse" aria-labelledby="flush-headingFour" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body">
+
+                                            <div class="config-email">
+                                                <div class="mb-1">
+                                                    <div class="mb row">
+                                                        <label for="staticEmail" class="col-sm-2 col-form-label">Active</label>
+                                                        <div class="form-check form-switch col-sm-6" style="padding-left: 65px;">
+
+                                                            @Html.CheckBoxFor(x => x.IsEmailConfirmation, new {@class="form-check-input",id="flexSwitchCheckChecked",})
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="mb-1 ">
+                                                    <div class="mb row">
+                                                        <label for="staticEmail" class="col-sm-2 col-form-label">On success email to</label>
+                                                        <div class="col-sm-6">
+                                                            @Html.TextBoxFor(x => x.EmailConfirmation.EmailSuccess, new {@class="form-control", type="email" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-1">
+
+
+                                                    <div class="mb row">
+                                                        <label for="staticEmail" class="col-sm-2 col-form-label">On failure email to</label>
+                                                        <div class="col-sm-6">
+                                                            @Html.TextBoxFor(x => x.EmailConfirmation.EmailFailure, new {@class="form-control", type="email"  })
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary float-end">Apply</button>
+                       
+                        if (Model.Id != Guid.Empty)
+                        {
+                            <a asp-action="DeleteJob" asp-controller="Home" asp-route-JobName="@Model.BackupName" class="btn btn-danger waves-effect waves-light float-end mx-1">Delete</a>
+                            <a asp-action="RunJobNow" asp-controller="Home" asp-route-JobName="@Model.BackupName" class="btn btn-success waves-effect waves-light float-end mx-1">Run Now</a>
+
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card col-2 " style="width: 17%;">
+        <div class="card-body">
+
+            <div class="tab-history  tab">
+                <div class="tab-tilte border-bottom">  <span>History backup</span></div>
+                <div class="pt-1">
+                    <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                        @{
+                            if (Model.JobHistoryViewModels != null)
+                            {
+                                foreach (var item in Model.JobHistoryViewModels)
+                                {
+                                    if (item.run_status == 1)
+                                    {
+                                        <li class="history-item list-group-item"><div><label> <i class="fa-solid fa-clock-rotate-left fa-bounce"></i> @item.run_date-@item.run_time  </label><i class="fa-solid fa-check float-end" style="color:#3d9e3f;"></i></div></li>
+                                    }
+                                    else
+                                    {
+                                        <li class="history-item list-group-item"><div><label> <i class="fa-solid fa-clock-rotate-left fa-bounce"></i> @item.run_date-@item.run_time </label><i class="fa-solid fa-xmark float-end" style="color: #fa0000;"></i></div></li>
+
+                                    }
+
+                                }
+                            }
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

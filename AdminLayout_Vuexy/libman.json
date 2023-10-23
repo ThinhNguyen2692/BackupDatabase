@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "i18next@23.5.1",
+      "destination": "wwwroot/i18next/"
+    }
+  ]
+}

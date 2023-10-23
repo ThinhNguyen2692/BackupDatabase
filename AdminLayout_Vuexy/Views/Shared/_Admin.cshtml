@@ -1,0 +1,31 @@
+﻿
+<!DOCTYPE html>
+<html class="loading" lang="en" data-textdirection="ltr">
+<!-- BEGIN: Head-->
+
+<head>
+    @await Html.PartialAsync("_AD_Header")
+</head>
+<!-- END: Head-->
+<!-- BEGIN: Body-->
+
+<body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="">
+
+    @await Html.PartialAsync("_AD_layout_head")
+    @await Html.PartialAsync("_AD_MainMenu")
+    <!-- BEGIN: Content-->
+    <div class="app-content content ">
+        @RenderBody()
+    </div>
+    <!-- END: Content-->
+
+    <div class="sidenav-overlay"></div>
+    <div class="drag-target"></div>
+
+    @await Html.PartialAsync("_AD_footer")
+
+    @await Html.PartialAsync("_AD_Scripts")
+</body>
+<!-- END: Body-->
+
+</html>

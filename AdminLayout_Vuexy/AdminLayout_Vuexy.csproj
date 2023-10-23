@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\davn_production\SVR-HCM-DEMO%24SQL2019_SEHRM_davn_production_FULL_20231005_141030.bak" />
+    <Content Include="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\davn_production\SVR-HCM-DEMO%24SQL2019_SEHRM_davn_production_FULL_20231006_090515.bak" />
+    <Content Include="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\davn_production\SVR-HCM-DEMO%24SQL2019_SEHRM_davn_production_FULL_20231006_090700.bak" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bus_backUpData\Bus_backUpData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logs\LogStartUp\" />
+    <Folder Include="Logs\Task\" />
+    <Folder Include="Logs\Task\" />
+  </ItemGroup>
+
+</Project>
