@@ -23,8 +23,9 @@ namespace Bus_backUpData.Services
         private readonly IBusConfigurationBackUp _busConfigurationBackUp;
         private readonly IBusHistoryFTP _busHistoryFTP;
 
-        public BusFTP(IBusConfigViewModel busConfig, IBusConfigurationBackUp busConfigurationBackUp, IBusHistoryFTP busHistoryFTP)
+        public BusFTP( IBusConfigViewModel busConfig, IBusConfigurationBackUp busConfigurationBackUp, IBusHistoryFTP busHistoryFTP)
         {
+           
             _BusConfig = busConfig;
             _busConfigurationBackUp = busConfigurationBackUp;
             _busHistoryFTP = busHistoryFTP;
@@ -49,23 +50,31 @@ namespace Bus_backUpData.Services
             WriteLogFile.WriteLog(LogName, string.Format("JobTask_PushFPT__DataRun__Jobname: {0}. Data: {1}", ConfigurationBackUp.BackupName, fTPSettingJoson), Setting.FoderTask);
 
             if (string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.UserName) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.PassWord) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.Path) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.HostName)) return true;
-            string pathLocation = Path.GetFullPath( Setting.DatabaseName);
-            var directory = new DirectoryInfo(pathLocation);
-            string fileNamePush = $"{Setting.DatabaseName}_{ConfigurationBackUp.BackUpSetting.BackUpType}_{ConfigurationBackUp.ScheduleBackup.FirstDate.ToString("yyyyMMdd")}_{ConfigurationBackUp.ScheduleBackup.FirstDate.ToString("HHmm")}";
-            var myFile = directory.GetFiles()
-             .OrderByDescending(f => f.Name.Contains(fileNamePush))
-             .First();
             try
             {
+                var ServerName = _BusConfig.GetServerName();
+            if (string.IsNullOrEmpty(ServerName.Result)) return false;
+                var ServerNameStr = ServerName.Result;
+                ServerNameStr = ServerNameStr.Replace("\\", "$");
+            string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{Setting.DatabaseName}";
+            var directory = new DirectoryInfo(pathLocation);
+            string fileNamePush = $"{Setting.DatabaseName}_{ConfigurationBackUp.BackUpSetting.BackUpType}_{ConfigurationBackUp.ScheduleBackup.FirstDate.ToString("yyyyMMdd")}_{ConfigurationBackUp.ScheduleBackup.FirstDate.ToString("HHmm")}";
+                var myFiledirectory = directory.GetFiles()                 
+                .ToList();
+                var myFile = myFiledirectory.Where(x => x.Name.ToString().ToLower().Contains(fileNamePush.ToLower())).FirstOrDefault();
+
+
                 var FileName = ConfigurationBackUp.FTPSetting.Path + "\\" + myFile.Name;
                 WriteLogFile.WriteLog(LogName, string.Format("JobTask_PushFPT___DataPush__JobName: {0}. FileName: {1}. FullName: {2}. UserName: {3}. Pass: {4}", ConfigurationBackUp.BackupName, FileName, myFile.FullName, ConfigurationBackUp.FTPSetting.UserName, ConfigurationBackUp.FTPSetting.PassWord), Setting.FoderTask);
                 UploadFile(ConfigurationBackUp.FTPSetting.UserName, ConfigurationBackUp.FTPSetting.PassWord, FileName, myFile.FullName);
                 HistoryFTP historyFTP = new HistoryFTP();
                 SaveFileFTP(ConfigurationBackUp.BackupName, FileName);
-
+                DeleteFTP(ConfigurationBackUp.BackupName);
             }
-            catch (Exception)
-            {         
+            catch (Exception ex)
+            {
+                WriteLogFile.WriteLog(LogName, string.Format("JobTask_PushFPT___{0}__Error: {1}", ConfigurationBackUp.BackupName, ex.Message), Setting.FoderTask);
+
                 return false;
             }
             return true;
@@ -115,12 +124,13 @@ namespace Bus_backUpData.Services
         {
             try
             {
-               
+                WriteLogFile.WriteLog(string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy")), "JobTask_PushFPT_UploadFile: start" , Setting.FoderTask);
                 using (WebClient client = new WebClient())
                 {
                     client.Credentials = new NetworkCredential(UserName, Pass);
                     client.UploadFile(host, WebRequestMethods.Ftp.UploadFile, From);
                 }
+                WriteLogFile.WriteLog(string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy")), "JobTask_PushFPT_UploadFile: End", Setting.FoderTask);
             }
             catch (Exception ex)
             {

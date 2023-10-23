@@ -14,5 +14,6 @@ namespace Bus_backUpData.Interface
         public ConfigurationBackUpViewModel GetConfigurationBackUpViewModelByJobName(string JobName);
         public List<JobHistoryViewModel> GetJobHistoryViewModels(string jobname);
         public bool IsJob(string JobName);
+        public Task<string> GetServerName();
     }
 }

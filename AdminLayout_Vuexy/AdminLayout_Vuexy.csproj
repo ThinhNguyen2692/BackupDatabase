@@ -7,9 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\davn_production\SVR-HCM-DEMO%24SQL2019_SEHRM_davn_production_FULL_20231005_141030.bak" />
-    <Content Include="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\davn_production\SVR-HCM-DEMO%24SQL2019_SEHRM_davn_production_FULL_20231006_090515.bak" />
-    <Content Include="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\davn_production\SVR-HCM-DEMO%24SQL2019_SEHRM_davn_production_FULL_20231006_090700.bak" />
+    <Compile Remove="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\**" />
+    <Content Remove="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\**" />
+    <EmbeddedResource Remove="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\**" />
+    <None Remove="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="BackUpSql\" />
     <Folder Include="Logs\LogStartUp\" />
     <Folder Include="Logs\Task\" />
     <Folder Include="Logs\Task\" />

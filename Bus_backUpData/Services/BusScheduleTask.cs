@@ -20,41 +20,13 @@ namespace Bus_backUpData.Services
 {
     public class BusScheduleTask : IBusScheduleTask
     {
-        private readonly IBusFTP _busFTP;
-        private readonly IMyScheduler _myScheduler;
-        public BusScheduleTask(IBusFTP _busFTP, IMyScheduler myScheduler)
-        {
-            this._busFTP = _busFTP;
-            _myScheduler = myScheduler;
-        }
         public async Task<bool> CreateScheduleTaskAsync(ScheduleBackup ScheduleBackup, string JobName)
         {
             // construct a scheduler factory
             try
             {
-                // StdSchedulerFactory factory = new StdSchedulerFactory();
-                // IScheduler scheduler = await factory.GetScheduler();
-                //await scheduler.Start();
                 string CronString = LibrarySchedule.GetCronString(ScheduleBackup);
-                WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")), string.Format("CreateScheduleTaskAsync__{0}__CronString :{1}", JobName, CronString), Setting.FoderBackUp);
-              
-               // IJobDetail job = JobBuilder.Create<JobTask>()
-               // .UsingJobData("jobName", JobName)
-               // .WithIdentity(JobName)
-               // .StoreDurably(true)
-               // .Build();
-               // ITrigger trigger = TriggerBuilder.Create()
-               //.WithIdentity("trigger1")
-               // .StartNow()
-               // .WithSimpleSchedule(x => x
-               //     .WithIntervalInSeconds(10)
-               //     .RepeatForever())
-               // .Build();
-                //await scheduler.ScheduleJob(job, trigger);
-                //  await Task.Delay(TimeSpan.FromSeconds(60));
-
-
-
+                WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")), string.Format("CreateScheduleTaskAsync__{0}__CronString :{1}", JobName, CronString), Setting.FoderBackUp);        
                 var kernel = Nin.InitializeNinjectKernel();
                 var scheduler = kernel.Get<IScheduler>();
                 await scheduler.ScheduleJob(
@@ -83,28 +55,31 @@ namespace Bus_backUpData.Services
             return true;
         }
 
-       
-
         public async Task<bool> UpdateScheduleTaskAsync(ScheduleBackup ScheduleBackup, string JobName)
         {
             try
             {
 
-                StdSchedulerFactory factory = new StdSchedulerFactory();
-                IScheduler scheduler = await factory.GetScheduler();
-                scheduler.Start();
+
+
                 string CronString = LibrarySchedule.GetCronString(ScheduleBackup);
                 WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")), string.Format("UpdateScheduleTaskAsync__{0}__CronString :{1}", JobName, CronString), Setting.FoderBackUp);
+                var kernel = Nin.InitializeNinjectKernel();
+                var scheduler = kernel.Get<IScheduler>();
                 ITrigger newTrigger = TriggerBuilder.Create()
                 .WithIdentity(JobName + "-Trigger")
+                 .StartAt(ScheduleBackup.FirstDate)
                 .WithCronSchedule(CronString)
                 .Build();
-                scheduler.RescheduleJob(new TriggerKey(JobName + "-trigger"), newTrigger);
+
+               await scheduler.RescheduleJob(new TriggerKey(JobName + "-trigger"), newTrigger);
+                await scheduler.Start();
 
             }
             catch (Exception ex)
             {
                 WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")), string.Format("UpdateScheduleTaskAsync__{0}__Error: {1}", JobName, ex.Message), Setting.FoderBackUp);
+
                 return false;
             }
             return true;
@@ -117,9 +92,8 @@ namespace Bus_backUpData.Services
             try
             {
                 string CronStringDetele = LibrarySchedule.GetCronString(month, day);
-                StdSchedulerFactory factory = new StdSchedulerFactory();
-                IScheduler scheduler = await factory.GetScheduler();
-                scheduler.Start();
+                var kernel = Nin.InitializeNinjectKernel();
+                var scheduler = kernel.Get<IScheduler>();
                 var jobKeyDelete = JobName + "DeleteFTP";
 
                 IJobDetail job = JobBuilder.Create<JobTaskDeleteFTP>()
@@ -128,9 +102,11 @@ namespace Bus_backUpData.Services
                 .Build();
                 ITrigger trigger = TriggerBuilder.Create()
                 .WithIdentity(jobKeyDelete + "-Trigger")
+                .StartAt(DateTime.Now)
                 .WithCronSchedule(CronStringDetele)
                 .Build();
-                scheduler.ScheduleJob(job, trigger);
+                 await scheduler.ScheduleJob(job, trigger);
+                await scheduler.Start();
             }
             catch (Exception ex)
             {
@@ -146,17 +122,18 @@ namespace Bus_backUpData.Services
         {
             try
             {
-                StdSchedulerFactory factory = new StdSchedulerFactory();
-                IScheduler scheduler = await factory.GetScheduler();
-                scheduler.Start();
+                var kernel = Nin.InitializeNinjectKernel();
+                var scheduler = kernel.Get<IScheduler>();
                 var jobKeyDelete = JobName + "DeleteFTP";
                 string CronStringDetele = LibrarySchedule.GetCronString(month, day);
                 WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")), string.Format("UpdateScheduleTaskDeleteFTPAsync__{0}__CronStringDetele: {1}", JobName, CronStringDetele), Setting.FoderBackUp);
                 ITrigger newTrigger = TriggerBuilder.Create()
                 .WithIdentity(jobKeyDelete + "-Trigger")
                 .WithCronSchedule(CronStringDetele)
+                .StartAt(DateTime.Now)
                 .Build();
-                scheduler.RescheduleJob(new TriggerKey(CronStringDetele + "-trigger"), newTrigger);
+                await scheduler.RescheduleJob(new TriggerKey(CronStringDetele + "-trigger"), newTrigger);
+                await scheduler.Start();
 
             }
             catch (Exception ex)
@@ -166,12 +143,5 @@ namespace Bus_backUpData.Services
             return true;
         }
 
-    }
-    public class HelloJob : IJob
-    {
-        public async Task Execute(IJobExecutionContext context)
-        {
-            await Console.Out.WriteLineAsync("Greetings from HelloJob!");
-        }
     }
 }

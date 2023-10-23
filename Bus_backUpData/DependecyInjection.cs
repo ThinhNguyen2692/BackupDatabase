@@ -30,9 +30,8 @@ namespace Bus_backUpData
             services.AddSingleton<IBusConfigurationBackUp, BusConfigurationBackUp>();
             services.AddSingleton<IBusHistoryFTP, BusHistoryFTP>();
             services.AddSingleton<IBusScheduleTask, BusScheduleTask>();
-            services.AddSingleton<IMyScheduler, MyScheduler>();
-            services.AddTransient<IJobFactory, MyJobFactory>();
             services.AddScoped<JobTask>();
+            services.AddSingleton<JobTaskDeleteFTP>();
             services.AddSingleton<JobTaskDeleteFTP>();
 
             Setting.TypeConfigbackup = "config.json";

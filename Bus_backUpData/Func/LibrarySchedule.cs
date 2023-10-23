@@ -12,8 +12,9 @@ namespace Bus_backUpData.Func
         public static string GetCronString(ScheduleBackup ScheduleBackup)
         {
             string CronString = "";
-            ScheduleBackup.FirstDate = ScheduleBackup.FirstDate.AddMinutes(3);
-            CronString = ScheduleBackup.FirstDate.ToString("ss mm HH");
+            var FirstDate = ScheduleBackup.FirstDate;
+            FirstDate = FirstDate.AddMinutes(3);
+            CronString = FirstDate.ToString("ss mm HH");
             if (ScheduleBackup.Occurs == Occurs.Day)
             {
                 string templ = ScheduleBackup.RecursEveryDay > 1 ? " */" + ScheduleBackup.RecursEveryDay : " *";

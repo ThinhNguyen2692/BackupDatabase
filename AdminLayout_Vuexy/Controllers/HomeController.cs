@@ -25,7 +25,6 @@ namespace AdminLayout_Vuexy.Controllers
         [HttpGet]
         public IActionResult Index(string JobName = "")
        {
-
                 ConfigurationBackUpViewModel configurationBackUpViewModel = new ConfigurationBackUpViewModel();
                 if (!string.IsNullOrEmpty(JobName))
                 {

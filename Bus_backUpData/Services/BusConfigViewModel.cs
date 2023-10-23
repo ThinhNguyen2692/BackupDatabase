@@ -112,6 +112,11 @@ namespace Bus_backUpData.Services
             return true;
         }
         
+        public async Task<string> GetServerName()
+        {
+            var servername = await _context.Database.SqlQueryRaw<string>("SELECT @@servername").ToListAsync();
+            return servername.FirstOrDefault() ?? string.Empty;
+        }
         
     }
 }
