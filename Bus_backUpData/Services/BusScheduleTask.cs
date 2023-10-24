@@ -66,15 +66,24 @@ namespace Bus_backUpData.Services
                 WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")), string.Format("UpdateScheduleTaskAsync__{0}__CronString :{1}", JobName, CronString), Setting.FoderBackUp);
                 var kernel = Nin.InitializeNinjectKernel();
                 var scheduler = kernel.Get<IScheduler>();
+                await scheduler.Start();
+
+                var jobKey = new JobKey(JobName);
+                await scheduler.UnscheduleJob(new TriggerKey(JobName + "-Trigger"));
+                await scheduler.DeleteJob(jobKey);
+                
+
+                var Job = JobBuilder.Create<JobTask>()
+                .UsingJobData("jobName", JobName)
+                .WithIdentity(JobName)
+                .StoreDurably(true)
+                .Build();
                 ITrigger newTrigger = TriggerBuilder.Create()
                 .WithIdentity(JobName + "-Trigger")
                  .StartAt(ScheduleBackup.FirstDate)
                 .WithCronSchedule(CronString)
                 .Build();
-
-               await scheduler.RescheduleJob(new TriggerKey(JobName + "-trigger"), newTrigger);
-                await scheduler.Start();
-
+                await scheduler.ScheduleJob(Job,newTrigger);
             }
             catch (Exception ex)
             {
@@ -99,14 +108,16 @@ namespace Bus_backUpData.Services
                 IJobDetail job = JobBuilder.Create<JobTaskDeleteFTP>()
                 .UsingJobData("jobName", JobName)
                 .WithIdentity(jobKeyDelete)
+                .StoreDurably(true)
                 .Build();
                 ITrigger trigger = TriggerBuilder.Create()
                 .WithIdentity(jobKeyDelete + "-Trigger")
                 .StartAt(DateTime.Now)
                 .WithCronSchedule(CronStringDetele)
                 .Build();
-                 await scheduler.ScheduleJob(job, trigger);
                 await scheduler.Start();
+                await scheduler.ScheduleJob(job, trigger);
+                
             }
             catch (Exception ex)
             {
@@ -124,16 +135,28 @@ namespace Bus_backUpData.Services
             {
                 var kernel = Nin.InitializeNinjectKernel();
                 var scheduler = kernel.Get<IScheduler>();
+                await scheduler.Start();
                 var jobKeyDelete = JobName + "DeleteFTP";
+
+                var jobKey = new JobKey(jobKeyDelete);
+                await scheduler.UnscheduleJob(new TriggerKey(jobKeyDelete + "-Trigger"));
+                await scheduler.DeleteJob(jobKey);
+
+
                 string CronStringDetele = LibrarySchedule.GetCronString(month, day);
                 WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")), string.Format("UpdateScheduleTaskDeleteFTPAsync__{0}__CronStringDetele: {1}", JobName, CronStringDetele), Setting.FoderBackUp);
+                var Job = JobBuilder.Create<JobTaskDeleteFTP>()
+               .UsingJobData("jobName", JobName)
+               .WithIdentity(jobKeyDelete)
+               .StoreDurably(true)
+               .Build();
                 ITrigger newTrigger = TriggerBuilder.Create()
                 .WithIdentity(jobKeyDelete + "-Trigger")
                 .WithCronSchedule(CronStringDetele)
                 .StartAt(DateTime.Now)
                 .Build();
-                await scheduler.RescheduleJob(new TriggerKey(CronStringDetele + "-trigger"), newTrigger);
-                await scheduler.Start();
+                await scheduler.ScheduleJob(Job, newTrigger);
+                
 
             }
             catch (Exception ex)
@@ -142,6 +165,19 @@ namespace Bus_backUpData.Services
             }
             return true;
         }
+        public async Task<bool> DeleteScheduleTask(string JobName)
+        {
+            var jobKey = new JobKey(JobName);
+            var jobKeyDelete = new JobKey(JobName+ "DeleteFTP");
+            var kernel = Nin.InitializeNinjectKernel();
+            var scheduler = kernel.Get<IScheduler>();
+            await scheduler.Start();
+            await scheduler.UnscheduleJob(new TriggerKey(JobName + "-Trigger"));
+            await scheduler.DeleteJob(jobKey);
 
+            await scheduler.UnscheduleJob(new TriggerKey(JobName + "DeleteFTP" + "-Trigger"));
+            await scheduler.DeleteJob(jobKeyDelete);
+            return true;
+        }
     }
 }

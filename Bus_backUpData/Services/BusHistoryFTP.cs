@@ -17,10 +17,11 @@ namespace Bus_backUpData.Services
         {
             try
             {
-                string pathLocation = Path.GetFullPath("Config\\" + Setting.TypeConfigbackup);
+                string pathLocation = Path.GetFullPath("Config\\" + Setting.TypeConfigFileFTP);
                 using (StreamReader r = new StreamReader(pathLocation))
                 {
                     string json = r.ReadToEnd();
+                    if(string.IsNullOrEmpty(json)) return new List<HistoryFTP>();
                     List<HistoryFTP> items = JsonConvert.DeserializeObject<List<HistoryFTP>>(json);
                     if (items == null) items = new List<HistoryFTP>();
                     return items;

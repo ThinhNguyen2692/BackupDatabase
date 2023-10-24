@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <Reference Include="HRM.SC.Core.Security">
-      <HintPath>E:\HRM.SC.Core.Security.dll</HintPath>
+      <HintPath>..\..\..\HRM\HRM.SC.Core.Security.dll</HintPath>
     </Reference>
   </ItemGroup>
 

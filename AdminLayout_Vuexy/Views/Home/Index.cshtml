@@ -53,9 +53,13 @@
                                     {
                                         <div class="valid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
                                     }
-                                }
 
-                                <i class="fas fa-pen icon-blue text-success" id="editButton" style="position:absolute; right:0; z-index:10; top:0;"></i>
+                                    if(Model.Id == Guid.Empty){
+                                        <i class="fas fa-pen icon-blue text-success" id="editButton" style="position:absolute; right:0; z-index:10; top:0;"></i>
+                                    }
+                                }
+                                
+                               
                             </div>
 
                         </div>
@@ -131,7 +135,7 @@
                                                                         @Html.TextBoxFor(x => x.FTPSetting.HostName, new { @class="form-control"})
                                                                     </div>
                                                                 </div>
-                                                                <div class="mb row">
+                                                                <div class="mb row" style="display:none;">
                                                                     @Html.LabelFor(x => x.FTPSetting.Protocol, new{@class="col-sm-4 col-form-label"})
                                                                     <div class="col-sm-5">
                                                                         @{

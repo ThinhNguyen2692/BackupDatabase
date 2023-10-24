@@ -13,5 +13,6 @@ namespace Bus_backUpData.Interface
         public Task<bool> UpdateScheduleTaskAsync(ScheduleBackup ScheduleBackup, string JobName);
         public Task<bool> CreateScheduleTaskDeleteFTPAsync(int month, int day, string JobName);
         public Task<bool> UpdateScheduleTaskDeleteFTPAsync(int month, int day, string JobName);
+        public Task<bool> DeleteScheduleTask(string JobName);
     }
 }

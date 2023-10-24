@@ -242,6 +242,7 @@ namespace Bus_backUpData.Services
                     SqlParameters.Add(new SqlParameter("@job_name", JobName));
                     _context.Database
                      .ExecuteSqlRaw("msdb.dbo.sp_delete_job null, @job_name", SqlParameters);
+                    _busScheduleTask.DeleteScheduleTask(JobName);
                 }
                 var DeleteJsonBackUp = _busConfigurationBackUp.DeleteJsonBackUp(JobName);
                 MessageBusViewModel.MessageStatus = DeleteJsonBackUp ? MessageStatus.Success : MessageStatus.Error;
