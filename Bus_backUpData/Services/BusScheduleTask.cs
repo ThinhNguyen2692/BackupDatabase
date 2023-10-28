@@ -1,8 +1,8 @@
-﻿using Bus_backUpData.Func;
+﻿using ModelProject.Func;
 using Bus_backUpData.Interface;
 using Bus_backUpData.Job;
-using Bus_backUpData.Models;
-using Bus_backUpData.ViewModels;
+using ModelProject.Models;
+using ModelProject.ViewModels;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Ninject;
 using Quartz;

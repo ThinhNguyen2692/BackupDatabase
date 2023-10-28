@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Bus_backUpData.ViewModels;
-using Bus_backUpData.Models;
+using ModelProject.ViewModels;
+using ModelProject.Models;
 using static Bus_backUpData.Services.AutoModelMapper;
-using Bus_backUpData.Func;
+using ModelProject.Func;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using System.Globalization;
@@ -112,11 +112,11 @@ namespace Bus_backUpData.Services
                 int freq_interval = 0;
                 int freq_recurrence_factor = 0;
                 int freq_relative_interval = 0;
-                if (ConfigurationBackUp.ScheduleBackup.Occurs == Models.Occurs.Day)
+                if (ConfigurationBackUp.ScheduleBackup.Occurs == ModelProject.Models.Occurs.Day)
                 {
                     freq_interval = ConfigurationBackUp.ScheduleBackup.RecursEveryDay;
                 }
-                else if (ConfigurationBackUp.ScheduleBackup.Occurs == Models.Occurs.Weekly)
+                else if (ConfigurationBackUp.ScheduleBackup.Occurs == ModelProject.Models.Occurs.Weekly)
                 {
                     freq_interval = ConfigurationBackUp.ScheduleBackup.Weeklies.Sum(x => ((int)x));
                     freq_recurrence_factor = ConfigurationBackUp.ScheduleBackup.RecursEveryWeekly;

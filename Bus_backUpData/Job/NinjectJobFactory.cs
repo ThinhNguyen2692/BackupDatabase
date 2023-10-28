@@ -10,7 +10,7 @@ using Ninject;
 using Quartz.Impl;
 using Bus_backUpData.Interface;
 using Bus_backUpData.Services;
-using Bus_backUpData.Models;
+using ModelProject.Models;
 using Microsoft.Extensions.Options;
 
 namespace Bus_backUpData.Job

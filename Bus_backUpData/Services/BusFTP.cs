@@ -1,8 +1,8 @@
 ﻿using Bus_backUpData.Data;
-using Bus_backUpData.Func;
+using ModelProject.Func;
 using Bus_backUpData.Interface;
-using Bus_backUpData.Models;
-using Bus_backUpData.ViewModels;
+using ModelProject.Models;
+using ModelProject.ViewModels;
 using HRM.SC.Core.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

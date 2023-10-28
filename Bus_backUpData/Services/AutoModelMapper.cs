@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Bus_backUpData.Models;
-using Bus_backUpData.ViewModels;
+using ModelProject.Models;
+using ModelProject.ViewModels;
 
 namespace Bus_backUpData.Services
 {

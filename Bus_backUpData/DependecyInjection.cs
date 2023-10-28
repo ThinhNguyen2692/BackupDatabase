@@ -1,10 +1,10 @@
 ﻿using Bus_backUpData.Data;
-using Bus_backUpData.Func;
+using ModelProject.Func;
 using Bus_backUpData.Interface;
 using Bus_backUpData.Job;
-using Bus_backUpData.Models;
+using ModelProject.Models;
 using Bus_backUpData.Services;
-using Bus_backUpData.ViewModels;
+using ModelProject.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
