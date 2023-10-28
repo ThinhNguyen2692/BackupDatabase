@@ -1,13 +1,15 @@
 ﻿using AdminLayout_Vuexy.Models;
-using Bus_backUpData.Func;
+using ModelProject.Func;
 using Bus_backUpData.Interface;
-using Bus_backUpData.Models;
-using Bus_backUpData.ViewModels;
+using ModelProject.Models;
+using ModelProject.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AdminLayout_Vuexy.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -24,44 +26,38 @@ namespace AdminLayout_Vuexy.Controllers
         [Route("/{JobName?}")]
         [HttpGet]
         public IActionResult Index(string JobName = "")
-       {
-                ConfigurationBackUpViewModel configurationBackUpViewModel = new ConfigurationBackUpViewModel();
-                if (!string.IsNullOrEmpty(JobName))
-                {
-                    configurationBackUpViewModel = _BusConfig.GetConfigurationBackUpViewModelByJobName(JobName);
-                }
-                if(configurationBackUpViewModel.Id  == Guid.Empty)
-                {
-                    var ListConfig = _BusConfig.GetConfigurationBackUpViewModel().ToList();
-                    var BackUpViewModel = new BackUpViewModel();
-                    BackUpViewModel.Name = string.IsNullOrEmpty(JobName) ? "JobNew" : JobName;
-                    BackUpViewModel.Id = Guid.Empty;
-                    BackUpViewModel.IsSelect = false;
-                    configurationBackUpViewModel.ScheduleBackup.RecursEveryWeekly = 1;
-                    configurationBackUpViewModel.ScheduleBackup.RecursEveryDay = 1;
-                    configurationBackUpViewModel.ScheduleBackup.DayEvery = 1;
-                    configurationBackUpViewModel.ScheduleBackup.DayMonth = 1;
-                    configurationBackUpViewModel.FTPSetting.Months = 1;
-                    configurationBackUpViewModel.BackUpSetting.Name = Setting.DatabaseName;
-                    configurationBackUpViewModel.BackUpSetting.Path = Setting.PathbackUp;
-                    configurationBackUpViewModel.BackupName = BackUpViewModel.Name;
-                    configurationBackUpViewModel.IsEnabled = true;
-                    configurationBackUpViewModel.IsScheduleBackup = true;
-                    configurationBackUpViewModel.BackUpViewModels.Add(BackUpViewModel);
-                    configurationBackUpViewModel.BackUpViewModels.AddRange(ListConfig.Select(x => new BackUpViewModel() { Id = x.Id, Name = x.BackupName }).ToList());
-                    configurationBackUpViewModel.MessageBusViewModel.MessageStatus = MessageStatus.None;
-
-                }
-                return View("Index", configurationBackUpViewModel);
-           
-        }
-
-        public IActionResult Privacy()
         {
-            return View();
-        }
+            ConfigurationBackUpViewModel configurationBackUpViewModel = new ConfigurationBackUpViewModel();
+            if (!string.IsNullOrEmpty(JobName))
+            {
+                configurationBackUpViewModel = _BusConfig.GetConfigurationBackUpViewModelByJobName(JobName);
+            }
+            if (configurationBackUpViewModel.Id == Guid.Empty)
+            {
+                var ListConfig = _BusConfig.GetConfigurationBackUpViewModel().ToList();
+                var BackUpViewModel = new BackUpViewModel();
+                BackUpViewModel.Name = string.IsNullOrEmpty(JobName) ? "JobNew" : JobName;
+                BackUpViewModel.Id = Guid.Empty;
+                BackUpViewModel.IsSelect = false;
+                configurationBackUpViewModel.ScheduleBackup.RecursEveryWeekly = 1;
+                configurationBackUpViewModel.ScheduleBackup.RecursEveryDay = 1;
+                configurationBackUpViewModel.ScheduleBackup.DayEvery = 1;
+                configurationBackUpViewModel.ScheduleBackup.DayMonth = 1;
+                configurationBackUpViewModel.FTPSetting.Months = 1;
+                configurationBackUpViewModel.BackUpSetting.Name = Setting.DatabaseName;
+                configurationBackUpViewModel.BackUpSetting.Path = Setting.PathbackUp;
+                configurationBackUpViewModel.BackupName = BackUpViewModel.Name;
+                configurationBackUpViewModel.IsEnabled = true;
+                configurationBackUpViewModel.IsScheduleBackup = true;
+                configurationBackUpViewModel.BackUpViewModels.Add(BackUpViewModel);
+                configurationBackUpViewModel.BackUpViewModels.AddRange(ListConfig.Select(x => new BackUpViewModel() { Id = x.Id, Name = x.BackupName }).ToList());
+                configurationBackUpViewModel.MessageBusViewModel.MessageStatus = MessageStatus.None;
 
-        [Route("Login")]
+            }
+            return View("Index", configurationBackUpViewModel);
+
+        }
+        [Route("/demo")]
         public IActionResult Login()
         {
             return View();

@@ -1,4 +1,8 @@
-﻿﻿@{
+﻿@using ModelProject.ViewModels.ViewModelIdentity
+@model LoginViewModel
+
+
+@{
     Layout = null;
 }
 
@@ -91,27 +95,32 @@
                             <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
                                 <h2 class="card-title fw-bold mb-1">Welcome to Vuexy! 👋</h2>
                                 <p class="card-text mb-2">Please sign-in to your account and start the adventure</p>
-                                <form class="auth-login-form mt-2" action="index.html" method="POST">
-                                    <div class="mb-1">
-                                        <label class="form-label" for="login-email">Email</label>
-                                        <input class="form-control" id="login-email" type="text" name="login-email" placeholder="john@example.com" aria-describedby="login-email" autofocus="" tabindex="1" />
-                                    </div>
-                                    <div class="mb-1">
-                                        <div class="d-flex justify-content-between">
-                                            <label class="form-label" for="login-password">Password</label><a href="auth-forgot-password-cover.html"><small>Forgot Password?</small></a>
+                                @using (Html.BeginForm("Index", "Login", FormMethod.Post, new {@class = "auth-login-form mt-2" }))
+                                {
+                                    @Html.ValidationMessage("InvalidAuth", new { @class = "text-danger" })
+                                        @Html.HiddenFor(x => x.ReturnUrl);
+                                        <div class="mb-1">
+                                        @Html.LabelFor(x => x.Username, new {@class="form-label", @for="login-email"})
+                                        @Html.TextBoxFor(x => x.Username, new{@class="form-control", id="login-email", type="text", placeholder="john@example.com", autofocus="", tabindex="1"})
                                         </div>
-                                        <div class="input-group input-group-merge form-password-toggle">
-                                            <input class="form-control form-control-merge" id="login-password" type="password" name="login-password" placeholder="············" aria-describedby="login-password" tabindex="2" /><span class="input-group-text cursor-pointer"><i data-feather="eye"></i></span>
+                                        <div class="mb-1">
+                                            <div class="d-flex justify-content-between">
+                                                @Html.LabelFor(x => x.Password, new {@class="form-label", @for="login-password"})
+                                            </div>
+                                            <div class="input-group input-group-merge form-password-toggle">
+                                                @Html.TextBoxFor(x => x.Password, new{@class="form-control form-control-merge", id="login-password", type="password",  placeholder="············" , autofocus="", tabindex="2"})
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="mb-1">
-                                        <div class="form-check">
-                                            <input class="form-check-input" id="remember-me" type="checkbox" tabindex="3" />
-                                            <label class="form-check-label" for="remember-me"> Remember Me</label>
+                                        <div class="mb-1">
+                                            <div class="form-check">
+                                                <input class="form-check-input" id="remember-me" type="checkbox" tabindex="3" />
+                                                @Html.CheckBoxFor(x => x.RememberMe, new{@class="form-check-input", id="remember-me", tabindex="3"})
+                                                <label class="form-check-label" for="remember-me"> Remember Me</label>
+                                                @Html.LabelFor(x => x.RememberMe, new {@class="form-check-label", @for="remember-me"})
+                                            </div>
                                         </div>
-                                    </div>
-                                    <button class="btn btn-primary w-100" tabindex="4">Sign in</button>
-                                </form>
+                                        <button class="btn btn-primary w-100" type="submit" tabindex="4">Login</button>
+                                }
                                 <p class="text-center mt-2"><span>New on our platform?</span><a href="auth-register-cover.html"><span>&nbsp;Create an account</span></a></p>
                                 <div class="divider my-2">
                                     <div class="divider-text">or</div>

@@ -1,6 +1,6 @@
-﻿using Bus_backUpData.Func;
+﻿using ModelProject.Func;
 using Bus_backUpData.Interface;
-using Bus_backUpData.Models;
+using ModelProject.Models;
 using Quartz;
 using System;
 using System.Collections.Generic;

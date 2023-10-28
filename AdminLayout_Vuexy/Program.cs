@@ -1,19 +1,35 @@
-using Bus_backUpData;
-using Bus_backUpData.Models;
+﻿using Bus_backUpData;
+using Bus_IdentityUser;
+using ModelProject.Models;
+using ModelProject.EmailIdentity;
 using Microsoft.Extensions.Options;
 using Quartz;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using AdminLayout_Vuexy;
+using Dal_IdentityUser.Data;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Bus_IdentityUser.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 Setting.ConnectionStrings = builder.Configuration.GetConnectionString("Connection");
+var connectionString = builder.Configuration.GetConnectionString("AdminLayout_VuexyContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication6ContextConnection' not found.");
+
+
 
 SettingEmail.Email = builder.Configuration.GetValue<string>("SettingEmail:Email") ?? string.Empty;
 SettingEmail.PassEmail = builder.Configuration.GetValue<string>("SettingEmail:PassEmail") ?? string.Empty;
 SettingEmail.SubjectEmailNoti = builder.Configuration.GetValue<string>("SettingEmail:SubjectEmailNoti") ?? string.Empty;
 
 builder.Services.serviceDescriptorsAsync(builder.Configuration);
+builder.Services.serviceDescriptorsAsync(builder.Configuration, connectionString);
+
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,5 +51,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+app.MapRazorPages();
 app.Run();

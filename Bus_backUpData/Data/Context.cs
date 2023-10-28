@@ -1,4 +1,4 @@
-﻿using Bus_backUpData.Models;
+﻿using ModelProject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 
