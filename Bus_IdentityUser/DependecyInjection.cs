@@ -35,7 +35,6 @@ namespace Bus_IdentityUser
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                 options.LoginPath = "/login";
                 options.LogoutPath = "/logout";
-                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.SlidingExpiration = true;
             });
             services.AddOptions();                                        // Kích hoạt Options

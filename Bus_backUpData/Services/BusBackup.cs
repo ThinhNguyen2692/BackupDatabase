@@ -112,9 +112,15 @@ namespace Bus_backUpData.Services
                 int freq_interval = 0;
                 int freq_recurrence_factor = 0;
                 int freq_relative_interval = 0;
+                int freq_subday_interval = 0;
+                int freq_subday_type = 1;
                 if (ConfigurationBackUp.ScheduleBackup.Occurs == ModelProject.Models.Occurs.Day)
                 {
                     freq_interval = ConfigurationBackUp.ScheduleBackup.RecursEveryDay;
+                    if (ConfigurationBackUp.ScheduleBackup.ActionType == true) {
+                        freq_subday_interval = ConfigurationBackUp.ScheduleBackup.FreqSubdayInterval;
+                        int.TryParse(ConfigurationBackUp.ScheduleBackup.FreqSubdayType.ToString(), out freq_subday_type);
+                    }
                 }
                 else if (ConfigurationBackUp.ScheduleBackup.Occurs == ModelProject.Models.Occurs.Weekly)
                 {
@@ -165,6 +171,8 @@ namespace Bus_backUpData.Services
                 SqlParameters.Add(new SqlParameter("@end_date", EndDate));
                 SqlParameters.Add(new SqlParameter("@start_time", runtime));
                 SqlParameters.Add(new SqlParameter("@IsenabledJob", IsenabledJob));
+                SqlParameters.Add(new SqlParameter("@freqSubdayInterval", freq_subday_interval));
+                SqlParameters.Add(new SqlParameter("@freqSubdayType", freq_subday_type));
                 var temp = SqlParameters.Select(x => x.SqlValue.ToString()).ToList();
 
                 if (temp != null)
@@ -178,7 +186,7 @@ namespace Bus_backUpData.Services
                     if (ConfigurationBackUp.Id != Guid.Empty) //update
                     {
                         _context.Database
-                        .ExecuteSqlRaw("BackupUpdate @DatabaseName , @BackupName , @BackupType, @BackupPath , @enabled, @Occurs_freq_type, @freq_relative_interval_parameters, @Day_Recurs_every , @freq_recurrence_factor1, @start_date , @end_date, @start_time, @IsenabledJob",
+                        .ExecuteSqlRaw("BackupUpdate @DatabaseName , @BackupName , @BackupType, @BackupPath , @enabled, @Occurs_freq_type, @freq_relative_interval_parameters, @Day_Recurs_every , @freq_recurrence_factor1, @start_date , @end_date, @start_time, @IsenabledJob", "@freqSubdayInterval", "@freqSubdayType",
                         SqlParameters);
                     }
                     else //create
@@ -192,7 +200,7 @@ namespace Bus_backUpData.Services
                             return MessageBus;
                         }
                        _context.Database
-                      .ExecuteSqlRaw("BackupDemo @DatabaseName , @BackupName , @BackupType, @BackupPath , @enabled, @Occurs_freq_type, @freq_relative_interval_parameters, @Day_Recurs_every , @freq_recurrence_factor1, @start_date , @end_date, @start_time, @IsenabledJob",
+                      .ExecuteSqlRaw("BackupDemo @DatabaseName , @BackupName , @BackupType, @BackupPath , @enabled, @Occurs_freq_type, @freq_relative_interval_parameters, @Day_Recurs_every , @freq_recurrence_factor1, @start_date , @end_date, @start_time, @IsenabledJob", "@freqSubdayInterval", "@freqSubdayType",
                       SqlParameters);
                     }
                 }

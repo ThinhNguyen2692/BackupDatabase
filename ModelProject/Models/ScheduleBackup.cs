@@ -62,6 +62,13 @@ namespace ModelProject.Models
         last = 16
     }
 
+    public enum FreqSubdayType
+    {
+        Seconds = 2,
+        Minutes = 4,
+        Hours = 8
+    }
+
     public class ScheduleBackup
     {
         public Occurs Occurs { get; set; }
@@ -76,5 +83,8 @@ namespace ModelProject.Models
         public TheWeekly TheWeekly { get; set; }
         public int TheMonth { get; set; }
         public DateTime FirstDate { get; set; }
+        public bool ActionType { get; set; }
+        public FreqSubdayType FreqSubdayType { get; set; }
+        public int FreqSubdayInterval { get; set; }
     }
 }

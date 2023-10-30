@@ -25,5 +25,9 @@ namespace ModelProject.ViewModels
         public TheWeekly TheWeekly { get; set; }
         public int TheMonth { get; set; }
         public DateTime FirstDate { get; set; }
+        [DisplayName("Occurs every")]
+        public bool ActionType { get; set; }
+        public FreqSubdayType FreqSubdayType { get; set; }
+        public int FreqSubdayInterval { get; set; }
     }
 }
