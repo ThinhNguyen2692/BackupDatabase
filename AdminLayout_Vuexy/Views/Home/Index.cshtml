@@ -342,12 +342,35 @@
                                                             @Html.DropDownListFor(x => x.ScheduleBackup.Occurs, Html.GetEnumSelectList<Occurs>(), new{@class="form-select select-Occurs"})
                                                         </div>
                                                     </div>
-                                                    <div class="mb-1 row Day-Group  Occurs-Group">
-                                                        @Html.LabelFor(x => x.ScheduleBackup.RecursEveryDay, new{@class="col-sm-2 col-form-label"})
-                                                        <div class="col-sm-10">
-                                                            @Html.TextBoxFor(x => x.ScheduleBackup.RecursEveryDay, new {type="number", @class="form-control"})
+                                                    <div class="Day-Group  Occurs-Group">
+                                                        <div class="mb-1 row ">
+                                                            @Html.LabelFor(x => x.ScheduleBackup.RecursEveryDay, new{@class="col-sm-2 col-form-label"})
+                                                            <div class="col-sm-10">
+                                                                @Html.TextBoxFor(x => x.ScheduleBackup.RecursEveryDay, new {type="number", @class="form-control"})
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-1">
+                                                            <div class="mb row">
+                                                                @Html.LabelFor(x => x.ScheduleBackup.ActionType, new{@class="col-sm-2 col-form-label"})
+                                                                <div class="form-check form-switch col-sm-10 " style="padding-left: 65px;">
+                                                                    <div class="mb row">
+                                                                    <div class="col-sm-4">
+                                                                        @Html.RadioButtonFor(x => x.ScheduleBackup.ActionType, true, new {@class="form-check-input", type="checkbox"})
+                                                                    </div>
+                                                                    <div class="col-sm-4">
+                                                                        @Html.TextBoxFor(x => x.ScheduleBackup.FreqSubdayInterval, new {type="number", @class="form-control"})
+                                                                    </div>
+                                                                    <div class="col-sm-4">
+                                                                        @Html.DropDownListFor(x => x.ScheduleBackup.FreqSubdayType, Html.GetEnumSelectList<FreqSubdayType>(), new{@class="form-select"})
+                                                                    </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
                                                         </div>
                                                     </div>
+                                                   
                                                     <div class="Weekly-Group Occurs-Group" style="display:none;">
                                                         <div class="mb-1 row">
                                                             @Html.LabelFor(x => x.ScheduleBackup.RecursEveryWeekly, new{@class="col-sm-2 col-form-label"})

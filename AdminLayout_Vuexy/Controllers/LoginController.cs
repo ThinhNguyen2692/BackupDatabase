@@ -99,11 +99,12 @@ namespace AdminLayout_Vuexy.Controllers
             return View(viewModel);
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize]
         [Route("/ChangePassword")]
         public async Task<IActionResult> ChangePassword(ChangeUserPasswordViewModel changeUserPasswordViewModel)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var result = await _busUserManager.ChangePassWordAsync(changeUserPasswordViewModel);
                 if (!result.Succeeded)

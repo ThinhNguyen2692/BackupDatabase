@@ -13,7 +13,6 @@ namespace ModelProject.Func
         {
             string CronString = "";
             var FirstDate = ScheduleBackup.FirstDate;
-            FirstDate = FirstDate.AddMinutes(3);
             CronString = FirstDate.ToString("ss mm HH");
             if (ScheduleBackup.Occurs == Occurs.Day)
             {
