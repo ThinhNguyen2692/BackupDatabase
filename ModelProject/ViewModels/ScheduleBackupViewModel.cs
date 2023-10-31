@@ -29,5 +29,7 @@ namespace ModelProject.ViewModels
         public bool ActionType { get; set; }
         public FreqSubdayType FreqSubdayType { get; set; }
         public int FreqSubdayInterval { get; set; }
+        [DisplayName("End Time")]
+        public TimeOnly EndTime { get; set; }
     }
 }

@@ -355,7 +355,7 @@
                                                                 <div class="form-check form-switch col-sm-10 " style="padding-left: 65px;">
                                                                     <div class="mb row">
                                                                     <div class="col-sm-4">
-                                                                        @Html.RadioButtonFor(x => x.ScheduleBackup.ActionType, true, new {@class="form-check-input", type="checkbox"})
+                                                                            @Html.RadioButtonFor(x => x.ScheduleBackup.ActionType, true, new {@class="form-check-input Day-ActionType", type="checkbox"})
                                                                     </div>
                                                                     <div class="col-sm-4">
                                                                         @Html.TextBoxFor(x => x.ScheduleBackup.FreqSubdayInterval, new {type="number", @class="form-control"})
@@ -365,9 +365,13 @@
                                                                     </div>
                                                                     </div>
                                                                 </div>
-
                                                             </div>
-
+                                                        </div>
+                                                        <div class="mb-1 row EndTime-Only" style="display:none;">
+                                                            @Html.LabelFor(x => x.ScheduleBackup.EndTime, new{@class="col-sm-2 col-form-label"})
+                                                            <div class="col-sm-10">
+                                                                @Html.TextBoxFor(x => x.ScheduleBackup.EndTime, new {type="time", id="html5-time-input",@class="form-control" })
+                                                            </div>
                                                         </div>
                                                     </div>
                                                    

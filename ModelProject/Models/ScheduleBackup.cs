@@ -86,5 +86,6 @@ namespace ModelProject.Models
         public bool ActionType { get; set; }
         public FreqSubdayType FreqSubdayType { get; set; }
         public int FreqSubdayInterval { get; set; }
+        public TimeOnly EndTime { get; set; }
     }
 }

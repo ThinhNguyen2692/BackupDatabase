@@ -17,6 +17,34 @@ namespace ModelProject.Func
             if (ScheduleBackup.Occurs == Occurs.Day)
             {
                 string templ = ScheduleBackup.RecursEveryDay > 1 ? " */" + ScheduleBackup.RecursEveryDay : " *";
+                if(ScheduleBackup.ActionType == true)
+                {
+                    var sec = FirstDate.ToString("ss");
+                    var Min = FirstDate.ToString("mm");
+                    var hou = FirstDate.ToString("HH");
+                    var everstring = "/" + ScheduleBackup.FreqSubdayInterval;
+                    var EndTimeMin = ScheduleBackup.EndTime.ToString("mm");
+                    var EndTimeHou = ScheduleBackup.EndTime.ToString("HH");
+                    switch (ScheduleBackup.FreqSubdayType)
+                    {
+                        case FreqSubdayType.Seconds: 
+                            sec = sec + everstring;
+                            Min = $"{Min}-{EndTimeMin}";
+                            hou = $"{hou}-{EndTimeHou}";
+                            break;
+                        case FreqSubdayType.Minutes:
+                            var MinToSec = ScheduleBackup.FreqSubdayInterval * 60;
+                            Min = $"{Min}-{EndTimeMin}{everstring}";
+                            hou = $"{hou}-{EndTimeHou}";
+                            break;
+                        case FreqSubdayType.Hours:
+                            Min = $"{Min}-{EndTimeMin}";
+                            hou = $"{hou }-{EndTimeHou}{everstring}"; 
+                            break;
+                    }
+                    CronString = $"{sec} {Min} {hou}";
+                }
+                
                 CronString += templ + " * ?";
                 return CronString;
             }

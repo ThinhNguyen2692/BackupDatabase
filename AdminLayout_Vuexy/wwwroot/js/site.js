@@ -1,4 +1,15 @@
 ﻿$(document).ready(function () {
+    $(".Day-ActionType").change(function () {
+        var IsCheckTime = $(this).val();
+        if (IsCheckTime == "True") {
+            $(".EndTime-Only").show()
+        } else {
+            $(".EndTime-Only").css("display", "none")
+        }
+       
+    });
+
+
     $(".job-item").on('click', function (event) {
         
     });

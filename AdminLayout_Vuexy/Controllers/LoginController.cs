@@ -51,7 +51,7 @@ namespace AdminLayout_Vuexy.Controllers
                         var callbackUrl = Url.ActionLink("ConfirmedEmail","Login", new { userId = result.UserId, code = result.Code}) ?? string.Empty;
                         await _emailSender.SendEmailAsync(MailSettingCreate.Email, "Confirm your email",
                       $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-                        return LocalRedirect("CheckMail");
+                        return LocalRedirect("/CheckMail");
                     }
                 }
                 else
