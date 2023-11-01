@@ -33,7 +33,6 @@ namespace ModelProject.Func
                             hou = $"{hou}-{EndTimeHou}";
                             break;
                         case FreqSubdayType.Minutes:
-                            var MinToSec = ScheduleBackup.FreqSubdayInterval * 60;
                             Min = $"{Min}-{EndTimeMin}{everstring}";
                             hou = $"{hou}-{EndTimeHou}";
                             break;

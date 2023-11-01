@@ -27,20 +27,17 @@ public class AdminLayout_VuexyContext : IdentityDbContext<AdminLayout_VuexyUser>
         //});
         var hasher = new PasswordHasher<IdentityUser>();
         var user = Activator.CreateInstance<AdminLayout_VuexyUser>();
-        user.UserName = "Admin";
-        user.Email  = "thinh48691953@gmail.com";
-        user.NormalizedUserName = "ADMIN";
-        user.NormalizedEmail = "THINH48691953@GMAIL.COM";
+        user.UserName = MailSettingCreate.UserName;
+        user.Email  = MailSettingCreate.Email;
+        user.NormalizedUserName = MailSettingCreate.UserName.ToUpper();
+        user.NormalizedEmail = MailSettingCreate.Email.ToUpper();
         user.LockoutEnabled = true;
         user.EmailConfirmed = false;
-        user.PasswordHash = hasher.HashPassword(user, "Vnr@123");
-
+        user.PasswordHash = hasher.HashPassword(user, MailSettingCreate.PassWordDefault);
 
         builder.Entity<AdminLayout_VuexyUser>()
         .HasData(
             user
-        );
-       
+        );   
     }
-
 }

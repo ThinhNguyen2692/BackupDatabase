@@ -27,7 +27,7 @@ namespace Bus_IdentityUser
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Khóa 5 phút
                 options.Lockout.MaxFailedAccessAttempts = 5; // Thất bại 5 lầ thì khóa
                 options.Lockout.AllowedForNewUsers = true;
-                options.SignIn.RequireConfirmedEmail = true;            // Cấu hình xác thực địa chỉ email (email phải tồn tại)
+                options.SignIn.RequireConfirmedEmail = false;            // Cấu hình xác thực địa chỉ email (email phải tồn tại)
                 options.SignIn.RequireConfirmedPhoneNumber = false;
             });
             services.ConfigureApplicationCookie(options => {

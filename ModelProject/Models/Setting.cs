@@ -22,7 +22,5 @@ namespace ModelProject.Models
         public static string Email { get; set; }
         public static string PassEmail { get; set; }
         public static string SubjectEmailNoti { get; set; }
-
-        
     }
 }

@@ -20,9 +20,12 @@ var connectionString = builder.Configuration.GetConnectionString("AdminLayout_Vu
 
 
 
-SettingEmail.Email = builder.Configuration.GetValue<string>("SettingEmail:Email") ?? string.Empty;
-SettingEmail.PassEmail = builder.Configuration.GetValue<string>("SettingEmail:PassEmail") ?? string.Empty;
-SettingEmail.SubjectEmailNoti = builder.Configuration.GetValue<string>("SettingEmail:SubjectEmailNoti") ?? string.Empty;
+SettingEmail.Email = builder.Configuration.GetValue<string>("SettingEmailNoti:Email") ?? string.Empty;
+SettingEmail.PassEmail = builder.Configuration.GetValue<string>("SettingEmailNoti:PassEmail") ?? string.Empty;
+SettingEmail.SubjectEmailNoti = builder.Configuration.GetValue<string>("SettingEmailNoti:SubjectEmailNoti") ?? string.Empty;
+MailSettingCreate.Email = builder.Configuration.GetValue<string>("MailSettingCreate:Email") ?? string.Empty;
+MailSettingCreate.UserName = builder.Configuration.GetValue<string>("MailSettingCreate:UserName") ?? string.Empty;
+MailSettingCreate.PassWordDefault = builder.Configuration.GetValue<string>("MailSettingCreate:PassWordDefault") ?? string.Empty;
 
 builder.Services.serviceDescriptorsAsync(builder.Configuration);
 builder.Services.serviceDescriptorsAsync(builder.Configuration, connectionString);
