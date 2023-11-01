@@ -76,16 +76,20 @@
 
 <body>
     <!-- BEGIN: Content-->
-    <div class="container-xxl">
+    <div class="container-xxl" style="display: flex;flex-direction: column;justify-content: center;text-align: center;height: 100%; ">
         <div class="authentication-wrapper authentication-basic container-p-y" style="justify-content: center;display: flex;">
             <div class="authentication-inner py-4" style="max-width: 400px; position: relative;width: 100%;">
                 <!-- Reset Password -->
                 <div class="card">
                     <div class="card-body">
                         <!-- Logo -->
-                       <div>
-                           <span>@Model.Message</span>
-                       </div>
+                        <div>
+                            <span>@Model.Message</span>
+                           <br />
+                            <span>
+                                @Html.ActionLink("Back to Home", "Index", "Home")
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <!-- /Reset Password -->
@@ -94,6 +98,7 @@
     </div>
     <!-- END: Content-->
     <!-- BEGIN: Vendor JS-->
+
     <script src="app-assets/vendors/js/vendors.min.js"></script>
     <!-- BEGIN Vendor JS-->
     <!-- BEGIN: Page Vendor JS-->

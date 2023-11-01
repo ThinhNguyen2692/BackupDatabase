@@ -48,6 +48,7 @@ namespace AdminLayout_Vuexy.Controllers
                 configurationBackUpViewModel.BackUpSetting.Path = Setting.PathbackUp;
                 configurationBackUpViewModel.BackupName = BackUpViewModel.Name;
                 configurationBackUpViewModel.IsEnabled = true;
+                configurationBackUpViewModel.JobHistoryViewModels = new List<JobHistoryViewModel>();
                 configurationBackUpViewModel.IsScheduleBackup = true;
                 configurationBackUpViewModel.BackUpViewModels.Add(BackUpViewModel);
                 configurationBackUpViewModel.BackUpViewModels.AddRange(ListConfig.Select(x => new BackUpViewModel() { Id = x.Id, Name = x.BackupName }).ToList());

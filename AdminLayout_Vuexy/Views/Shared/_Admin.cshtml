@@ -5,6 +5,32 @@
 
 <head>
     @await Html.PartialAsync("_AD_Header")
+
+    <style>
+        .RunStatus-Failed {
+            color: #e73d3e;
+        }
+
+        .RunStatus-Succeeded {
+            color: #24b263;
+        }
+
+        .RunStatus-Retry {
+            color: #7367f0;
+        }
+
+        .RunStatus-Canceled {
+            color: #e73d3e;
+        }
+
+        .RunStatus-InProgress {
+            color: #fbbc05;
+        }
+
+        .RunStatus-Unknown {
+            color: #7367f0;
+        }
+    </style>
 </head>
 <!-- END: Head-->
 <!-- BEGIN: Body-->
@@ -12,9 +38,9 @@
 <body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="">
 
     @await Html.PartialAsync("_AD_layout_head")
-    @await Html.PartialAsync("_AD_MainMenu")
+    
     <!-- BEGIN: Content-->
-    <div class="app-content content ">
+    <div class="app-content content " style="margin-left:0;">
         @RenderBody()
     </div>
     <!-- END: Content-->

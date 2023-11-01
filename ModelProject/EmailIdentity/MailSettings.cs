@@ -17,7 +17,8 @@ namespace ModelProject.EmailIdentity
 
     public static class MailSettingCreate
     {
+        public static string UserName { get; set; }
         public static string Email { get; set; }
-        public static string PassWordDefault { get; set; } = "Vnr@123";
+        public static string PassWordDefault { get; set; }
     }
 }

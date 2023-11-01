@@ -69,12 +69,12 @@ namespace AdminLayout_Vuexy.Controllers
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
-                    ModelState.AddModelError(string.Empty, "User account locked out.");
+                    ModelState.AddModelError("InvalidAuth", "User account locked out.");
                     return View();
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError("InvalidAuth", "Invalid login attempt.");
                     return View();
                 }
             }
@@ -85,7 +85,7 @@ namespace AdminLayout_Vuexy.Controllers
         public IActionResult CheckMail()
         {
             var ViewModel = new ConfirmedEmailViewModel();
-            ViewModel.Message = "Check email";
+            ViewModel.Message = "Please check your account verification email";
             return View(ViewModel);
         }
         [HttpGet]

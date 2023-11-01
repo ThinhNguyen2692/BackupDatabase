@@ -89,9 +89,11 @@ namespace Bus_backUpData.Services
                         while (reader.Read())
                         {
                             var JobHistoryViewModel = new JobHistoryViewModel();
+                            JobHistoryViewModel.instance_id = int.Parse(reader[0].ToString());
                             JobHistoryViewModel.job_id = Guid.Parse(reader[1].ToString());
                             JobHistoryViewModel.job_name = reader[2].ToString();
-                            JobHistoryViewModel.run_status = int.Parse(reader[8].ToString());
+                            JobHistoryViewModel.message = reader[7].ToString();
+                            JobHistoryViewModel.run_status = (RunStatus)int.Parse(reader[8].ToString());
                             JobHistoryViewModel.run_date = int.Parse(reader[9].ToString());
                             JobHistoryViewModel.run_time = int.Parse(reader[10].ToString());
                             JobHistoryViewModel.run_duration = int.Parse(reader[11].ToString());

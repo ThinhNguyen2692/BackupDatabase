@@ -1,10 +1,11 @@
 ﻿@using ModelProject.Models;
 @using ModelProject.ViewModels;
 @using AdminLayout_Vuexy.Models;
+@using ModelProject.Func;
 @model ConfigurationBackUpViewModel;
 
 <div class="row row-main">
-    <div class="card col-2 " style="width: 17%;">
+    <div class="card col-2 " style="width: 15%;">
         <div class="card-body">
             <div class="tab-jobs tab">
                 <div class="tab-tilte border-bottom"> <span>Jobs</span> <a asp-action="Index" asp-controller="Home" asp-route-JobName=""><i class="fas fa-plus icon-add icon-right float-end"></i></a></div>
@@ -28,7 +29,7 @@
             </div>
         </div>
     </div>
-    <div class="card  col-8" style="width: 64%;margin-left: 10px;margin-right: 10px;">
+    <div class="card  col-10" style="width: 84%; margin-left:1%;">
         <div class="card-body">
             <div class="main">
 
@@ -54,12 +55,13 @@
                                         <div class="valid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
                                     }
 
-                                    if(Model.Id == Guid.Empty){
+                                    if (Model.Id == Guid.Empty)
+                                    {
                                         <i class="fas fa-pen icon-blue text-success" id="editButton" style="position:absolute; right:0; z-index:10; top:0;"></i>
                                     }
                                 }
-                                
-                               
+
+
                             </div>
 
                         </div>
@@ -354,15 +356,15 @@
                                                                 @Html.LabelFor(x => x.ScheduleBackup.ActionType, new{@class="col-sm-2 col-form-label"})
                                                                 <div class="form-check form-switch col-sm-10 " style="padding-left: 65px;">
                                                                     <div class="mb row">
-                                                                    <div class="col-sm-4">
+                                                                        <div class="col-sm-4">
                                                                             @Html.RadioButtonFor(x => x.ScheduleBackup.ActionType, true, new {@class="form-check-input Day-ActionType", type="checkbox"})
-                                                                    </div>
-                                                                    <div class="col-sm-4">
-                                                                        @Html.TextBoxFor(x => x.ScheduleBackup.FreqSubdayInterval, new {type="number", @class="form-control"})
-                                                                    </div>
-                                                                    <div class="col-sm-4">
-                                                                        @Html.DropDownListFor(x => x.ScheduleBackup.FreqSubdayType, Html.GetEnumSelectList<FreqSubdayType>(), new{@class="form-select"})
-                                                                    </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            @Html.TextBoxFor(x => x.ScheduleBackup.FreqSubdayInterval, new {type="number", @class="form-control"})
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            @Html.DropDownListFor(x => x.ScheduleBackup.FreqSubdayType, Html.GetEnumSelectList<FreqSubdayType>(), new{@class="form-select"})
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -374,7 +376,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                   
+
                                                     <div class="Weekly-Group Occurs-Group" style="display:none;">
                                                         <div class="mb-1 row">
                                                             @Html.LabelFor(x => x.ScheduleBackup.RecursEveryWeekly, new{@class="col-sm-2 col-form-label"})
@@ -638,7 +640,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary float-end">Apply</button>
-                       
+
                         if (Model.Id != Guid.Empty)
                         {
                             <a asp-action="DeleteJob" asp-controller="Home" asp-route-JobName="@Model.BackupName" class="btn btn-danger waves-effect waves-light float-end mx-1">Delete</a>
@@ -650,36 +652,45 @@
             </div>
         </div>
     </div>
-    <div class="card col-2 " style="width: 17%;">
-        <div class="card-body">
+    <div class="card">
+        <h5 class="card-header">History backup</h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr class="text-nowrap">
+                        <th>Instance id</th>
+                        <th>Job name</th>
+                        <th>Run Status</th>
+                        <th>Run date</th>
+                        <th>Run time</th>
+                        <th>Server</th>
+                        <th>Message</th>
 
-            <div class="tab-history  tab">
-                <div class="tab-tilte border-bottom">  <span>History backup</span></div>
-                <div class="pt-1">
-                    <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
-                        @{
-                            if (Model.JobHistoryViewModels != null)
-                            {
-                                foreach (var item in Model.JobHistoryViewModels)
-                                {
-                                    if (item.run_status == 1)
-                                    {
-                                        <li class="history-item list-group-item"><div><label> <i class="fa-solid fa-clock-rotate-left fa-bounce"></i> @item.run_date-@item.run_time  </label><i class="fa-solid fa-check float-end" style="color:#3d9e3f;"></i></div></li>
-                                    }
-                                    else
-                                    {
-                                        <li class="history-item list-group-item"><div><label> <i class="fa-solid fa-clock-rotate-left fa-bounce"></i> @item.run_date-@item.run_time </label><i class="fa-solid fa-xmark float-end" style="color: #fa0000;"></i></div></li>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var item in Model.JobHistoryViewModels)
+                        {
+                            <tr>
 
-                                    }
-
+                                <th scope="row">@item.instance_id</th>
+                                <td>@item.job_name</td>
+                                @{
+                                    short value = (short)item.run_status;
                                 }
-                            }
+                                <td class="RunStatus-@item.run_status">@Extensions.GetEnumDisplayName((RunStatus)value)</td>
+                                <td>@item.run_date</td>
+                                <td>@item.run_time</td>
+                                <td>@item.server</td>
+                                <td>@item.message</td>
+
+
+                            </tr>
                         }
-
-                    </ul>
-                </div>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
-
     </div>
 </div>

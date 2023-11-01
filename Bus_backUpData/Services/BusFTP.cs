@@ -209,7 +209,7 @@ namespace Bus_backUpData.Services
 
                     while(checkLog == false)
                     {
-                        if (LogNew.run_status == 4)
+                        if (LogNew.run_status == RunStatus.InProgress)
                         {
                             await Task.Delay(180000);
                             var listLogJob = _BusConfig.GetJobHistoryViewModels(JobName);
@@ -227,7 +227,7 @@ namespace Bus_backUpData.Services
 
                     string tilte = string.Empty;
                     string EmailTo = string.Empty;
-                    if (LogNew.run_status == 1)
+                    if (LogNew.run_status == RunStatus.Succeeded)
                     {
                         PushFPT(null, configurationBackUp);
                         tilte = $"{JobName} Backup Database Success";
