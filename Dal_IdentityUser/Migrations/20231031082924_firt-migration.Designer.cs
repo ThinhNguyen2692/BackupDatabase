@@ -3,6 +3,7 @@ using System;
 using Dal_IdentityUser.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dal_IdentityUser.Migrations
 {
     [DbContext(typeof(AdminLayout_VuexyContext))]
-    partial class AdminLayout_VuexyContextModelSnapshot : ModelSnapshot
+    [Migration("20231031082924_firt-migration")]
+    partial class firtmigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.13");
