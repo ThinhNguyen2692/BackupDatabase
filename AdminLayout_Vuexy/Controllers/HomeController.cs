@@ -6,6 +6,7 @@ using ModelProject.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 
 namespace AdminLayout_Vuexy.Controllers
 {
@@ -31,6 +32,8 @@ namespace AdminLayout_Vuexy.Controllers
             if (!string.IsNullOrEmpty(JobName))
             {
                 configurationBackUpViewModel = _BusConfig.GetConfigurationBackUpViewModelByJobName(JobName);
+                if (configurationBackUpViewModel.Id != Guid.Empty)
+                    configurationBackUpViewModel.JobHistoryViewModels = configurationBackUpViewModel.JobHistoryViewModels.Take(10).ToList();
             }
             if (configurationBackUpViewModel.Id == Guid.Empty)
             {
