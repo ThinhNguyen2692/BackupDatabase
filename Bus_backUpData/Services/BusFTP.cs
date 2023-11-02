@@ -58,7 +58,7 @@ namespace Bus_backUpData.Services
                 ServerNameStr = ServerNameStr.Replace("\\", "$");
                 string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{Setting.DatabaseName}";
                 var directory = new DirectoryInfo(pathLocation);
-                string fileNamePush = $"{Setting.DatabaseName}_{ConfigurationBackUp.BackUpSetting.BackUpType}_{ConfigurationBackUp.ScheduleBackup.FirstDate.ToString("yyyyMMdd")}";
+                string fileNamePush = $"{Setting.DatabaseName}_{ConfigurationBackUp.BackUpSetting.BackUpType}";
                 var myFiledirectory = directory.GetFiles().Where(x => x.Name.ToString().ToLower().Contains(fileNamePush.ToLower())).ToList();
 
                 var myFile = myFiledirectory.OrderByDescending(x => x.LastWriteTime).FirstOrDefault();

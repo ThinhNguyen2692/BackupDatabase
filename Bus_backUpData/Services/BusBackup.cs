@@ -309,5 +309,83 @@ namespace Bus_backUpData.Services
                  "StartJobNow_End--------------" + jobname + "--------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderBackUp);
             return MessageBusViewModel;
         }
+
+        public MessageBusViewModel RestoreBackUp(string jobname)
+        {
+            WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")),
+                  "RestoreBackUp_Start--------------" + jobname + "--------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderBackUp);
+            var MessageBusViewModel = new MessageBusViewModel();
+            try
+            {
+                var config = _busConfigurationBackUp.LoadJsonBackUp();
+                var configJobName = config.FirstOrDefault(x => x.BackupName == jobname);
+                
+                if (configJobName != null)
+                {
+                    var ServerName = busConfigViewModel.GetServerName();
+                    if (string.IsNullOrEmpty(ServerName.Result)) {
+                        MessageBusViewModel.MessageStatus = MessageStatus.Error;
+                        MessageBusViewModel.Message = "Not get server name";
+                        return MessageBusViewModel;
+                    }
+                    var ServerNameStr = ServerName.Result;
+                    ServerNameStr = ServerNameStr.Replace("\\", "$");
+                    string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{Setting.DatabaseName}";
+                    var directory = new DirectoryInfo(pathLocation);
+                    string fileNamePush = $"{Setting.DatabaseName}_{configJobName.BackUpSetting.BackUpType}";
+                    var myFiledirectory = directory.GetFiles().Where(x => x.Name.ToString().ToLower().Contains(fileNamePush.ToLower())).ToList();
+
+                    var myFile = myFiledirectory.OrderByDescending(x => x.LastWriteTime).FirstOrDefault();
+                    if(myFile != null)
+                    {
+                        using (SqlConnection conn = new SqlConnection(Setting.ConnectionStrings))
+                        {
+                            conn.Open();
+                            string UseMaster = "USE master";
+                            SqlCommand UseMasterCommand = new SqlCommand(UseMaster, conn);
+                            UseMasterCommand.ExecuteNonQuery();
+
+                            string Alter1 = @"ALTER DATABASE ["+Setting.DatabaseName+"] SET Single_User WITH Rollback Immediate";
+                            SqlCommand Alter1Cmd = new SqlCommand(Alter1, conn);
+                            Alter1Cmd.ExecuteNonQuery();
+
+                            string Restore = @"exec RESTOREDATABASE @DISKFILEBACKUP, @DATABASENAME";
+                            
+                            using (SqlCommand RestoreCmd = new SqlCommand(Restore, conn))
+                            {
+                                RestoreCmd.Parameters.AddWithValue("@DISKFILEBACKUP", myFile.FullName);
+                                RestoreCmd.Parameters.AddWithValue("@DATABASENAME", Setting.DatabaseName);
+
+                                RestoreCmd.ExecuteNonQuery();
+                            }
+
+                            string Alter2 = @"ALTER DATABASE ["+Setting.DatabaseName+"] SET Multi_User";
+                            SqlCommand Alter2Cmd = new SqlCommand(Alter2, conn);
+                            Alter2Cmd.ExecuteNonQuery();
+                            conn.Close();
+                            
+
+                        }
+                    } else WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")),
+                  "RestoreBackUp--------------File restore not--------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderBackUp);
+                    //var FileName = configJobName.FTPSetting.Path + "\\" + myFile.Name;
+                }
+                else
+                {
+                    MessageBusViewModel.MessageStatus = MessageStatus.Error;
+                    MessageBusViewModel.Message = "Error";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")), "DeleteJob_Error: " + ex.Message, Setting.FoderBackUp);
+                MessageBusViewModel.MessageStatus = MessageStatus.Error;
+                MessageBusViewModel.Message = "Error";
+            }
+            WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")),
+                "RestoreBackUp_End--------------" + jobname + "--------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderBackUp);
+            return MessageBusViewModel;
+        }
     }
 }

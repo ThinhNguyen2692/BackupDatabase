@@ -103,6 +103,13 @@ namespace AdminLayout_Vuexy.Controllers
             return Redirect("/" + JobName);
         }
 
+        [Route("RestoreBackUp/{JobName?}")]
+        [HttpGet]
+        public IActionResult RestoreBackUp(string JobName) {
+            var MessageBusViewModel = _BusBackup.RestoreBackUp(JobName);
+            return Redirect("/" + JobName);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

@@ -14,5 +14,6 @@ namespace Bus_backUpData.Interface
         public MessageBusViewModel CreateJob(ConfigurationBackUpViewModel configurationBackUpViewModel);
         public MessageBusViewModel DeleteJob(string JobName);
         public MessageBusViewModel StartJobNow(string jobname);
+        public MessageBusViewModel RestoreBackUp(string jobname);
     }
 }
