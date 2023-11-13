@@ -1,4 +1,4 @@
-﻿using Dal_IdentityUser.Data;
+﻿using DalBackup.Data;
 using Microsoft.AspNetCore.Identity;
 using ModelProject.ViewModels.ViewModelIdentity;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dal_IdentityUser.Interface
+namespace DalBackup.Interface
 {
     public interface IDalUser
     {

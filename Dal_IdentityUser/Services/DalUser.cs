@@ -1,5 +1,5 @@
-﻿using Dal_IdentityUser.Data;
-using Dal_IdentityUser.Interface;
+﻿using DalBackup.Data;
+using DalBackup.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Elfie.Model.Strings;
 using ModelProject.ViewModels.ViewModelIdentity;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dal_IdentityUser.Services
+namespace DalBackup.Services
 {
     public class DalUser : IDalUser
     {

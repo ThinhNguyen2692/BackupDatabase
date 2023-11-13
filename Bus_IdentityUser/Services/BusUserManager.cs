@@ -1,5 +1,5 @@
 ﻿using Bus_IdentityUser.Interface;
-using Dal_IdentityUser.Data;
+using DalBackup.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication;
@@ -14,7 +14,7 @@ using ModelProject.ViewModels.ViewModelIdentity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Policy;
-using Dal_IdentityUser.Interface;
+using DalBackup.Interface;
 using ModelProject.EmailIdentity;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 

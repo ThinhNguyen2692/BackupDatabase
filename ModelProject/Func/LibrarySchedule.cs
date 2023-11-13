@@ -50,29 +50,29 @@ namespace ModelProject.Func
             if (ScheduleBackup.Occurs == Occurs.Weekly)
             {
                 var Weekly = string.Empty;
-                foreach (var item in ScheduleBackup.Weeklies)
+                foreach (var item in ScheduleBackup.ScheduleBackupWeeklies)
                 {
-                    switch (item)
+                    switch (item.Weekly.Value)
                     {
-                        case ModelProject.Models.Weekly.Monday:
+                        case 2:
                             Weekly += ",MON";
                             break;
-                        case ModelProject.Models.Weekly.Tuesday:
+                        case 4:
                             Weekly += ",TUE";
                             break;
-                        case ModelProject.Models.Weekly.Wednesday:
+                        case 8:
                             Weekly += ",WED";
                             break;
-                        case ModelProject.Models.Weekly.Thursday:
+                        case 16:
                             Weekly += ",THU";
                             break;
-                        case ModelProject.Models.Weekly.Friday:
+                        case 32:
                             Weekly += ",FRI";
                             break;
-                        case ModelProject.Models.Weekly.Saturday:
+                        case 64:
                             Weekly += ",SAT";
                             break;
-                        case ModelProject.Models.Weekly.Sunday:
+                        case 1:
                             Weekly += ",SUN";
                             break;
                     }

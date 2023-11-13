@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ModelProject.Models
 {
-    public class HistoryFTP
+    public class HistoryFTP : Entity
     {
         public HistoryFTP() { }
         public string JobName { get; set; }

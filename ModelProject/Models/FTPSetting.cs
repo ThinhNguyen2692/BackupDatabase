@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace ModelProject.Models
         Passive,
         Active
     }
-    public class FTPSetting
+    public class FTPSetting : Entity
     {
         public string HostName { get; set; }
         public Protocol Protocol { get; set; }
@@ -33,7 +34,10 @@ namespace ModelProject.Models
         public string Path { get; set; }
         public bool IsAutoDelete { get; set; }
         public int Months { get; set; }
-        public int Days { get; set; }    
+        public int Days { get; set; }
+        public Guid ConfigurationBackUpId { get; set; }
+        [ForeignKey("ConfigurationBackUpId")]
+        public virtual ConfigurationBackUp ConfigurationBackUp { get; set; }
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using ModelProject.Models;
+using ModelProject.Models.Enum;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,7 +18,7 @@ namespace ModelProject.ViewModels
         public int RecursEveryDay { get; set; }
         [DisplayName("Recurs every")]
         public int RecursEveryWeekly { get; set; }
-        public List<Weekly> Weeklies { get; set; }
+        public List<int> Weeklies { get; set; }
         public bool MonthlyDay { get; set; }
         public int DayEvery { get; set; }
         public int DayMonth { get; set; }

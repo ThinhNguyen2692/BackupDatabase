@@ -33,7 +33,6 @@ namespace Bus_backUpData.Services
         {
             _context = Context;
             _BusFTP = BusFTP;
-            Setting.DatabaseName = _context.Database.GetDbConnection().Database;
             _busConfigurationBackUp = busConfigurationBackUp;
             _busScheduleTask = busScheduleTask;
             this.busConfigViewModel = busConfigViewModel;
@@ -124,7 +123,7 @@ namespace Bus_backUpData.Services
                 }
                 else if (ConfigurationBackUp.ScheduleBackup.Occurs == ModelProject.Models.Occurs.Weekly)
                 {
-                    freq_interval = ConfigurationBackUp.ScheduleBackup.Weeklies.Sum(x => ((int)x));
+                    freq_interval = ConfigurationBackUp.ScheduleBackup.ScheduleBackupWeeklies.Sum(x => x.Weekly.Value);
                     freq_recurrence_factor = ConfigurationBackUp.ScheduleBackup.RecursEveryWeekly;
                 }
                 else

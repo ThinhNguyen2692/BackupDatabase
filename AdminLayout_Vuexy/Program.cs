@@ -7,7 +7,7 @@ using Quartz;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AdminLayout_Vuexy;
-using Dal_IdentityUser.Data;
+using DalBackup.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Bus_IdentityUser.Services;
 
@@ -53,6 +53,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=ConfigSetting}/{action=Index}/{id?}");
 app.MapRazorPages();
 app.Run();

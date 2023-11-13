@@ -60,20 +60,14 @@
                                         <i class="fas fa-pen icon-blue text-success" id="editButton" style="position:absolute; right:0; z-index:10; top:0;"></i>
                                     }
                                 }
-
-
                             </div>
-
                         </div>
-
-
                         <div>
                             <div class="mb row" style=" margin-top: 10px; font:bold;">
                                 <label style="margin-left: 10px; font-size: 1.1rem;" for="staticEmail" class="col-sm-2 col-form-label">Active Job</label>
                                 <div class="form-check form-switch col-sm-6" style="padding-left: 65px;">
                                     @Html.RadioButtonFor(x => x.IsEnabled, true, new {@class="form-check-input", type="checkbox", id="flexSwitchCheckChecked"})
                                 </div>
-
                             </div>
                             <div class="accordion accordion-flush" id="accordionFlushExample">
                                 <div class="accordion-item">
@@ -86,7 +80,6 @@
                                     <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                         <div class="accordion-body">
                                             <div class="modal-body">
-
                                                 <div class="mb-1 row">
                                                     @Html.LabelFor(x => x.BackUpSetting.Name, new{@class="col-sm-4 col-form-label"})
                                                     <div class="col-sm-8">
@@ -105,9 +98,7 @@
                                                         @Html.TextBoxFor(x => x.BackUpSetting.Path, new {@class="form-control", @readonly="true"})
                                                     </div>
                                                 </div>
-
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -144,7 +135,6 @@
                                                                             var tem = Html.GetEnumSelectList<Protocol>();
                                                                         }
                                                                         @Html.DropDownListFor(x => x.FTPSetting.Protocol, Html.GetEnumSelectList<Protocol>(), new{@class="form-select"})
-
                                                                     </div>
                                                                     <div class="col-sm-3">
                                                                         <div class="mb-1 row">
@@ -153,13 +143,9 @@
                                                                                 @Html.TextBoxFor(x => x.FTPSetting.Port, new { @class="form-control", type="number"})
                                                                             </div>
                                                                         </div>
-
-
                                                                     </div>
-
                                                                 </div>
                                                                 <div class="mb-1 row">
-
                                                                     @Html.LabelFor(x => x.FTPSetting.UserName, new{@class="col-sm-4 col-form-label"})
                                                                     <div class="col-sm-8">
                                                                         @Html.TextBoxFor(x => x.FTPSetting.UserName, new { @class="form-control"})
@@ -187,11 +173,9 @@
                                                                 </div>
                                                                 <div class="mb-1 row">
                                                                     <label for="staticEmail" class="col-sm-4 col-form-label">Auto delete old backups after</label>
-
                                                                     <div class="col-sm-4">
                                                                         @Html.LabelFor(x => x.FTPSetting.Months)
                                                                         @Html.TextBoxFor(x => x.FTPSetting.Months, new {type="number", @class="form-control"})
-
                                                                     </div>
                                                                     <div class="col-sm-4">
                                                                         @Html.LabelFor(x => x.FTPSetting.Days)
@@ -657,7 +641,7 @@
                         {
                             <a asp-action="DeleteJob" asp-controller="Home" asp-route-JobName="@Model.BackupName" class="btn btn-danger waves-effect waves-light float-end mx-1">Delete</a>
                             <a asp-action="RunJobNow" asp-controller="Home" asp-route-JobName="@Model.BackupName" class="btn btn-success waves-effect waves-light float-end mx-1">Run Now</a>
-                            <a asp-action="RestoreBackUp" asp-controller="Home" asp-route-JobName="@Model.BackupName" class="btn btn-success waves-effect waves-light float-end mx-1">Restore</a>
+                            <a asp-action="RestoreBackUp" asp-controller="Home" asp-route-JobName="@Model.BackupName" style="    background-color: #7367f0; border-color: #7367f0;color: #fff;" class="btn waves-effect waves-light float-end mx-1">Restore</a>
 
                         }
                     }

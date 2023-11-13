@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminLayout_Vuexy", "AdminL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bus_backUpData", "Bus_backUpData\Bus_backUpData.csproj", "{A256BB2F-D636-4ED7-A4DB-395AF1EEE943}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dal_IdentityUser", "Dal_IdentityUser\Dal_IdentityUser.csproj", "{33988FFC-AF99-4FE3-8BE1-B320F59D5754}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DalBackup", "Dal_IdentityUser\DalBackup.csproj", "{33988FFC-AF99-4FE3-8BE1-B320F59D5754}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bus_IdentityUser", "Bus_IdentityUser\Bus_IdentityUser.csproj", "{7BB53901-40FD-48AE-B74C-3BA38A514DFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bus_IdentityUser", "Bus_IdentityUser\Bus_IdentityUser.csproj", "{7BB53901-40FD-48AE-B74C-3BA38A514DFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelProject", "ModelProject\ModelProject.csproj", "{50DAAE70-28C4-4024-8FA3-E1BB88FC5248}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelProject", "ModelProject\ModelProject.csproj", "{50DAAE70-28C4-4024-8FA3-E1BB88FC5248}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
