@@ -24,9 +24,9 @@ namespace AdminLayout_Vuexy.Controllers
             _BusConfig = busConfig;
         }
 
-        [Route("/{JobName?}")]
+        [Route("/{DatabaseName}/{JobName?}")]
         [HttpGet]
-        public IActionResult Index(string JobName = "")
+        public IActionResult Index(string DatabaseName,string JobName = "")
         {
             ConfigurationBackUpViewModel configurationBackUpViewModel = new ConfigurationBackUpViewModel();
             if (!string.IsNullOrEmpty(JobName))
@@ -37,7 +37,7 @@ namespace AdminLayout_Vuexy.Controllers
             }
             if (configurationBackUpViewModel.Id == Guid.Empty)
             {
-                var ListConfig = _BusConfig.GetConfigurationBackUpViewModel().ToList();
+                var ListConfig = _BusConfig.GetConfigurationBackUpViewModel(DatabaseName).ToList();
                 var BackUpViewModel = new BackUpViewModel();
                 BackUpViewModel.Name = string.IsNullOrEmpty(JobName) ? "JobNew" : JobName;
                 BackUpViewModel.Id = Guid.Empty;

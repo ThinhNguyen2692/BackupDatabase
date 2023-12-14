@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Bus_backUpData.Services.AutoModelMapper;
+using DalBackup.Interface;
 
 namespace Bus_backUpData.Services
 {
@@ -19,22 +20,24 @@ namespace Bus_backUpData.Services
     {
 
         public Context _context { get; set; }
-        private IBusConfigurationBackUp _BusconfigurationBackUp { get; set; }
-        public BusConfigViewModel(Context Context, IBusConfigurationBackUp busconfigurationBackUp)
+        private IDalConfigurationBackUp _dalConfigurationBackUp { get; set; }
+        public BusConfigViewModel(Context Context,  IDalConfigurationBackUp dalConfigurationBackUp)
         {
             _context = Context;
             Setting.DatabaseName = _context.Database.GetDbConnection().Database;
-            _BusconfigurationBackUp = busconfigurationBackUp;   
+            _dalConfigurationBackUp = dalConfigurationBackUp;
         }
         /// <summary>
         /// Get all danh sach cau hinh
         /// </summary>
         /// <returns></returns>
-        public List<ConfigurationBackUpViewModel> GetConfigurationBackUpViewModel()
+        public List<ConfigurationBackUpViewModel> GetConfigurationBackUpViewModel(string DatabaseName = null)
         {
-            var ConfigurationBackUp = _BusconfigurationBackUp.LoadJsonBackUp();
+            var data = _dalConfigurationBackUp.GetData();
+            if(!string.IsNullOrEmpty(DatabaseName))
+            data = data.Where(x => x.DatabaseConnect.DatabaseName == DatabaseName).ToList();
             var mapper = MapperConfig<ConfigurationBackUp, ConfigurationBackUpViewModel>.InitializeAutomapper();
-            var ConfigurationBackUpViewModel = mapper.Map<List<ConfigurationBackUp>, List<ConfigurationBackUpViewModel>>(ConfigurationBackUp);
+            var ConfigurationBackUpViewModel = mapper.Map<List<ConfigurationBackUp>, List<ConfigurationBackUpViewModel>>(data);
             ConfigurationBackUpViewModel.ForEach(x => { x.BackUpSetting.Name = _context.Database.GetDbConnection().Database; });
             return ConfigurationBackUpViewModel;
         }
@@ -108,7 +111,7 @@ namespace Bus_backUpData.Services
         }
         public bool IsJob(string JobName)
         {
-            var SysJobListName = _context.Database.SqlQueryRaw<string>("select name from msdb.dbo.sysjobs").ToList();
+            var SysJobListName = _context.Database.SqlQueryRaw<string>(StringSql.SQlsysjobs).ToList();
             var SysJobName = SysJobListName.FirstOrDefault(x => x.ToLower() == JobName.ToLower());
             if (SysJobName == null) { return false; }
             return true;
@@ -116,7 +119,7 @@ namespace Bus_backUpData.Services
         
         public async Task<string> GetServerName()
         {
-            var servername = await _context.Database.SqlQueryRaw<string>("SELECT @@servername").ToListAsync();
+            var servername = await _context.Database.SqlQueryRaw<string>(StringSql.SQlServerName).ToListAsync();
             return servername.FirstOrDefault() ?? string.Empty;
         }
         

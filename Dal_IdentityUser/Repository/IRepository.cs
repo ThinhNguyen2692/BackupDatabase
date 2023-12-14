@@ -11,6 +11,7 @@ namespace DalBackup.Repository
     public interface IRepository<T> where T : class
     {
         T FirstOrDefault(Func<T, bool> predicate);
+        T FirstOrDefaultAsNoTracking(Func<T, bool> predicate);
         IEnumerable<T> List();
         IEnumerable<T> List(Expression<Func<T, bool>> predicate);
         void Add(T entity);

@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bus_IdentityUser", "Bus_Ide
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelProject", "ModelProject\ModelProject.csproj", "{50DAAE70-28C4-4024-8FA3-E1BB88FC5248}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DalStoredProcedure", "DalStoredProcedure\DalStoredProcedure.csproj", "{7AA9A631-4713-41B4-8343-210089328AF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{50DAAE70-28C4-4024-8FA3-E1BB88FC5248}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50DAAE70-28C4-4024-8FA3-E1BB88FC5248}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50DAAE70-28C4-4024-8FA3-E1BB88FC5248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AA9A631-4713-41B4-8343-210089328AF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AA9A631-4713-41B4-8343-210089328AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AA9A631-4713-41B4-8343-210089328AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AA9A631-4713-41B4-8343-210089328AF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

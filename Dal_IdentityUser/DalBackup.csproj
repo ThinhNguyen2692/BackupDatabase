@@ -31,4 +31,10 @@
     <ProjectReference Include="..\ModelProject\ModelProject.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="HRM.SC.Core.Security">
+      <HintPath>..\..\..\..\backup_20231204\HRM.SC.Core.Security.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

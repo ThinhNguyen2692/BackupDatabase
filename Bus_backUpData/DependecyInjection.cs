@@ -16,24 +16,65 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DalStoredProcedure.Interface;
+using DalStoredProcedure.Services;
+using DalBackup.Interface;
+using DalBackup.Services;
+using DalBackup.Repository;
+using NuGet.Protocol.Core.Types;
+using DalBackup.Data;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Identity;
+using ModelProject.EmailIdentity;
 
 namespace Bus_backUpData
 {
     public static class DependecyInjection
     {
-        public static async Task<IServiceCollection> serviceDescriptorsAsync(this IServiceCollection services, IConfiguration configuration)
+        public static async Task<IServiceCollection> serviceDescriptorsAsync(this IServiceCollection services, IConfiguration configuration, string connectionString)
         {
             services.AddTransient<Context>();
-            services.AddSingleton<IBusBackup, BusBackup>();
-            services.AddSingleton<IBusFTP, BusFTP>();
-            services.AddSingleton<IBusConfigViewModel, BusConfigViewModel>();
+            services.AddDbContext<AdminLayout_VuexyContext>(options => options.UseSqlite(connectionString));
+            services.AddDefaultIdentity<AdminLayout_VuexyUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AdminLayout_VuexyContext>();
+            services.Configure<IdentityOptions>(options => {
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Khóa 5 phút
+                options.Lockout.MaxFailedAccessAttempts = 5; // Thất bại 5 lầ thì khóa
+                options.Lockout.AllowedForNewUsers = true;
+                options.SignIn.RequireConfirmedEmail = false; // Cấu hình xác thực địa chỉ email (email phải tồn tại)
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+            });
+            services.ConfigureApplicationCookie(options => {
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                options.LoginPath = "/login";
+                options.LogoutPath = "/logout";
+                options.SlidingExpiration = true;
+            });
+            services.AddOptions();                                        // Kích hoạt Options
+
+            // đọc config
+
+
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IDalStoredProcedureServices, DalStoredProcedureServices>();
+            services.AddScoped<IDalServerConnect, DalServerConnect>();
+            services.AddScoped<IDalConfigurationBackUp, DalConfigurationBackUp>();
+            services.AddScoped<IDalDatabaseConnect, DalDatabaseConnect>();
+            services.AddScoped<IBusConfigViewModel, BusConfigViewModel>();
+            services.AddScoped<IBusFTP, BusFTP>();
             services.AddSingleton<IBusConfigurationBackUp, BusConfigurationBackUp>();
+           
+            services.AddScoped<IBusBackup, BusBackup>();
             services.AddSingleton<IBusHistoryFTP, BusHistoryFTP>();
             services.AddSingleton<IBusScheduleTask, BusScheduleTask>();
             services.AddScoped<JobTask>();
-            services.AddSingleton<JobTaskDeleteFTP>();
-            services.AddSingleton<JobTaskDeleteFTP>();
-
+            services.AddScoped<JobTaskDeleteFTP>();
+       
+           
+            services.AddSingleton<IBusStoredProcedureServices, BusStoredProcedureServices>();
+            services.AddScoped<IBusConfig, BusConfig>();
+           
             Setting.TypeConfigbackup = "config.json";
             Setting.TypeConfigFileFTP = "HistoryFTP.json";
             Setting.FoderBackUp = "BackUp";

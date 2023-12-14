@@ -1,5 +1,4 @@
 ﻿using Bus_backUpData.Interface;
-using Bus_backUpData.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,29 +8,24 @@ using ModelProject.ViewModels;
 using ModelProject.Models;
 using static Bus_backUpData.Services.AutoModelMapper;
 using ModelProject.Func;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using System.Globalization;
-using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Data;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Runtime.Intrinsics.Arm;
 using HRM.SC.Core.Security;
-using Azure;
+using Microsoft.Data.SqlClient;
 
 namespace Bus_backUpData.Services
 {
     public class BusBackup : IBusBackup
     {
-        private Context _context;
         private IBusFTP _BusFTP;
         private IBusConfigurationBackUp _busConfigurationBackUp;
         private IBusScheduleTask _busScheduleTask;
         private IBusConfigViewModel busConfigViewModel;
-        public BusBackup(Context Context, IBusFTP BusFTP, IBusConfigurationBackUp busConfigurationBackUp, IBusScheduleTask busScheduleTask, IBusConfigViewModel busConfigViewModel)
+        public BusBackup( IBusFTP BusFTP, IBusConfigurationBackUp busConfigurationBackUp, IBusScheduleTask busScheduleTask, IBusConfigViewModel busConfigViewModel)
         {
-            _context = Context;
             _BusFTP = BusFTP;
             _busConfigurationBackUp = busConfigurationBackUp;
             _busScheduleTask = busScheduleTask;
@@ -162,7 +156,7 @@ namespace Bus_backUpData.Services
 
                 //SqlParameters gọi stored
                 var SqlParameters = new List<SqlParameter>();
-                SqlParameters.Add(new SqlParameter("@DatabaseName", _context.Database.GetDbConnection().Database));
+                SqlParameters.Add(new SqlParameter("@DatabaseName", ""));
                 SqlParameters.Add(new SqlParameter("@BackupName", ConfigurationBackUp.BackupName));
                 SqlParameters.Add(new SqlParameter("@BackupType", ConfigurationBackUp.BackUpSetting.BackUpType.ToString()));
                 SqlParameters.Add(new SqlParameter("@BackupPath", ConfigurationBackUp.BackUpSetting.Path));
@@ -191,23 +185,23 @@ namespace Bus_backUpData.Services
                 {
                     if (ConfigurationBackUp.Id != Guid.Empty) //update
                     {
-                        _context.Database
-                        .ExecuteSqlRaw("BackupUpdate @DatabaseName , @BackupName , @BackupType, @BackupPath , @enabled, @Occurs_freq_type, @freq_relative_interval_parameters, @Day_Recurs_every , @freq_recurrence_factor1, @start_date , @end_date, @start_time, @IsenabledJob, @freqSubdayType,@freqSubdayInterval, @end_time",
-                        SqlParameters);
+                        //_context.Database
+                        //.ExecuteSqlRaw(StringSql.SQlBackupUpdate,
+                        //SqlParameters);
                     }
                     else //create
                     {
-                        var SysJobListName = _context.Database.SqlQueryRaw<string>("select name from msdb.dbo.sysjobs").ToList();
-                        var SysJobName = SysJobListName.FirstOrDefault(x => x.ToLower() == ConfigurationBackUp.BackupName.ToLower());
-                        if (SysJobName != null)
-                        {
-                            MessageBus.MessageStatus = MessageStatus.Error;
-                            MessageBus.Message = "The name Job already exists";
-                            return MessageBus;
-                        }
-                       _context.Database
-                      .ExecuteSqlRaw("BackupDemo @DatabaseName , @BackupName , @BackupType, @BackupPath , @enabled, @Occurs_freq_type, @freq_relative_interval_parameters, @Day_Recurs_every , @freq_recurrence_factor1, @start_date , @end_date, @start_time, @IsenabledJob,@freqSubdayType ,@freqSubdayInterval,@end_time",
-                      SqlParameters);
+                      //  var SysJobListName = /*_context.Database.SqlQueryRaw<string>(StringSql.SQlsysjobs).ToList();*/
+                      //  var SysJobName = SysJobListName.FirstOrDefault(x => x.ToLower() == ConfigurationBackUp.BackupName.ToLower());
+                      //  if (SysJobName != null)
+                      //  {
+                      //      MessageBus.MessageStatus = MessageStatus.Error;
+                      //      MessageBus.Message = "The name Job already exists";
+                      //      return MessageBus;
+                      //  }
+                      // _context.Database
+                      //.ExecuteSqlRaw(StringSql.SQlBackupDemo,
+                      //SqlParameters);
                     }
                 }
                 catch (Exception ex)
@@ -254,9 +248,9 @@ namespace Bus_backUpData.Services
                         "DeleteJob_Start--------------" + JobName + "--------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderBackUp);
                     var SqlParameters = new List<SqlParameter>();
                     SqlParameters.Add(new SqlParameter("@job_name", JobName));
-                    _context.Database
-                     .ExecuteSqlRaw("msdb.dbo.sp_delete_job null, @job_name", SqlParameters);
-                    _busScheduleTask.DeleteScheduleTask(JobName);
+                    //_context.Database
+                    // .ExecuteSqlRaw(StringSql.SQlsp_delete_job, SqlParameters);
+                    //_busScheduleTask.DeleteScheduleTask(JobName);
                 }
                 var DeleteJsonBackUp = _busConfigurationBackUp.DeleteJsonBackUp(JobName);
                 MessageBusViewModel.MessageStatus = DeleteJsonBackUp ? MessageStatus.Success : MessageStatus.Error;
@@ -285,8 +279,8 @@ namespace Bus_backUpData.Services
             {
                 var SqlParameters = new List<SqlParameter>();
                 SqlParameters.Add(new SqlParameter("@job_name", jobname));
-                _context.Database
-                 .ExecuteSqlRaw("msdb.dbo.sp_start_job @job_name", SqlParameters);
+                //_context.Database
+                // .ExecuteSqlRaw(StringSql.SQlsp_start_job, SqlParameters);
                 var conFig = _busConfigurationBackUp.LoadJsonBackUp().FirstOrDefault(x => x.BackupName.ToLower() == jobname.ToLower());
                 
                 if (conFig != null)

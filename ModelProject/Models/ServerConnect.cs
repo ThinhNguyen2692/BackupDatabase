@@ -8,7 +8,7 @@ namespace ModelProject.Models
 {
     public class ServerConnect : Entity
     {
-        public string SeverName { get; set; }
+        public string ServerName { get; set; }
         public string UserName { get; set; }
         public string PassWord { get; set; }
         public virtual ICollection<DatabaseConnect> DatabaseConnects { get; set; }

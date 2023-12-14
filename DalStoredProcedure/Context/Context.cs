@@ -6,13 +6,16 @@ namespace Bus_backUpData.Data
 {
     public class Context : DbContext
     {
-        public Context()
+        private string _con = Setting.ConnectionStrings;
+        public Context() { }
+        public Context(string ConnectionStrings)
         {
+            _con = ConnectionStrings;
         }
         public Context(DbContextOptions<Context> options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(Setting.ConnectionStrings);
+            optionsBuilder.UseSqlServer(_con);
         }    
     }
 }

@@ -20,7 +20,7 @@ namespace DalBackup.Repository
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            _context.Dispose();
         }
 
         public Repository<T> Repository<T>() where T : class

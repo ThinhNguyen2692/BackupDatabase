@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -8,12 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="MailKit" Version="4.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.13" />
     <PackageReference Include="MimeKit" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DalBackup\DalBackup.csproj" />
+    <ProjectReference Include="..\Dal_IdentityUser\DalBackup.csproj" />
     <ProjectReference Include="..\ModelProject\ModelProject.csproj" />
   </ItemGroup>
 

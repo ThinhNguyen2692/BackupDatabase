@@ -49,6 +49,13 @@ namespace DalBackup.Repository
             return entity;
         }
 
+        public T FirstOrDefaultAsNoTracking(Func<T, bool> predicate)
+        {
+            var entity = _context.Set<T>().AsNoTracking().FirstOrDefault(predicate);
+            if (entity == null) return null;
+            return entity;
+        }
+
         public IEnumerable<T> List()
         {
             return _context.Set<T>().ToList();
@@ -103,7 +110,6 @@ namespace DalBackup.Repository
 
         public void Detached(T entity)
         {
-
             _context.Entry(entity).State = EntityState.Detached;
         }
     }
