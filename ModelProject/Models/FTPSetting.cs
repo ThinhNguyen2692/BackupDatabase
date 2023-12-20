@@ -36,8 +36,6 @@ namespace ModelProject.Models
         public int Months { get; set; }
         public int Days { get; set; }
         public Guid ConfigurationBackUpId { get; set; }
-        [ForeignKey("ConfigurationBackUpId")]
-        public virtual ConfigurationBackUp ConfigurationBackUp { get; set; }
     }
 
 }

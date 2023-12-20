@@ -20,5 +20,11 @@ namespace ModelProject.Func
             connection = string.Format(connection, servername, databaseName, login, password);
             return connection;
         }
-    }
+		public static string GetConnection(DatabaseConnect databaseConnect)
+		{
+			var connection = Setting.ConnectionDefaut;
+			connection = string.Format(connection, databaseConnect.ServerConnects.ServerName, databaseConnect.DatabaseName, databaseConnect.ServerConnects.UserName, databaseConnect.ServerConnects.PassWord);
+			return connection;
+		}
+	}
 }

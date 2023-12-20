@@ -15,40 +15,55 @@ using System.Data;
 using System.Runtime.Intrinsics.Arm;
 using HRM.SC.Core.Security;
 using Microsoft.Data.SqlClient;
+using DalStoredProcedure.Interface;
+using ModelProject.ViewModels.ViewModelSeverConfig;
+using DalBackup.Interface;
+using ModelProject.ViewModels.ViewModelConnect;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Bus_backUpData.Services
 {
     public class BusBackup : IBusBackup
     {
-        private IBusFTP _BusFTP;
-        private IBusConfigurationBackUp _busConfigurationBackUp;
-        private IBusScheduleTask _busScheduleTask;
-        private IBusConfigViewModel busConfigViewModel;
-        public BusBackup( IBusFTP BusFTP, IBusConfigurationBackUp busConfigurationBackUp, IBusScheduleTask busScheduleTask, IBusConfigViewModel busConfigViewModel)
+        private readonly IBusFTP _BusFTP;
+        private readonly IBusConfigurationInformation _busConfigurationInformation;
+        private readonly IBusScheduleTask _busScheduleTask;
+        private readonly IBusConfigViewModel busConfigViewModel;
+        private readonly IDalStoredProcedureServices _dalStoredProcedureServices;
+        private readonly IDalDatabaseConnect _dalDatabaseConnect;
+        private readonly IDalConfigurationBackUp _dalConfigurationBackUp;
+		private readonly IMapper _mapper;
+		public BusBackup( IBusFTP BusFTP, IBusConfigurationInformation busConfigurationInformation, 
+            IBusScheduleTask busScheduleTask, IBusConfigViewModel busConfigViewModel, 
+            IDalStoredProcedureServices dalStoredProcedureServices, 
+            IDalDatabaseConnect dalDatabaseConnect,
+			IDalConfigurationBackUp dalConfigurationBackUp,
+			 IMapper mapper)
         {
             _BusFTP = BusFTP;
-            _busConfigurationBackUp = busConfigurationBackUp;
+            _busConfigurationInformation = busConfigurationInformation;
             _busScheduleTask = busScheduleTask;
             this.busConfigViewModel = busConfigViewModel;
+            _dalStoredProcedureServices = dalStoredProcedureServices;
+            _dalDatabaseConnect = dalDatabaseConnect;
+            _dalConfigurationBackUp = dalConfigurationBackUp;
+            _mapper = mapper;
         }
         /// <summary>
         /// Lưu cấu hình
         /// </summary>
         /// <param name="configurationBackUpViewModel"></param>
         /// <returns></returns>
-        public bool SaveSetting(ConfigurationBackUpViewModel configurationBackUpViewModel)
+        public bool SaveSetting(ConfigurationBackUp ConfigurationBackUp)
         {
             var LogName = string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy"));
-            List<ConfigurationBackUp> configurationBackUps = new List<ConfigurationBackUp>();
-            configurationBackUps = _busConfigurationBackUp.LoadJsonBackUp();
             var mapper = MapperConfig<ConfigurationBackUpViewModel, ConfigurationBackUp>.InitializeAutomapper();
-            var ConfigurationBackUp = mapper.Map<ConfigurationBackUpViewModel, ConfigurationBackUp>(configurationBackUpViewModel);
             //mã hóa mật khẩu
-            if(!string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.PassWord)) ConfigurationBackUp.FTPSetting.PassWord = Encryption.EncryptV2(ConfigurationBackUp.FTPSetting.PassWord);
+           // if(!string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.PassWord)) ConfigurationBackUp.FTPSetting.PassWord = Encryption.EncryptV2(ConfigurationBackUp.FTPSetting.PassWord);
             //cập nhật hoặc thêm mới cấu hình
             if (ConfigurationBackUp.Id != Guid.Empty)
             {
-                WriteLogFile.WriteLog(LogName, string.Format("SaveSetting_{0}: {1}", configurationBackUpViewModel, "Update Schedule task"), Setting.FoderBackUp);
+                WriteLogFile.WriteLog(LogName, string.Format("SaveSetting_{0}: {1}", ConfigurationBackUp, "Update Schedule task"), Setting.FoderBackUp);
 
                 if (ConfigurationBackUp.IsScheduleBackup == true)
                 {
@@ -58,17 +73,14 @@ namespace Bus_backUpData.Services
                     if (ConfigurationBackUp.FTPSetting.IsAutoDelete)
                     {
                         var UpdateScheduleTaskDeleteFTPAsync = _busScheduleTask.UpdateScheduleTaskDeleteFTPAsync(ConfigurationBackUp.FTPSetting.Months, ConfigurationBackUp.FTPSetting.Days, ConfigurationBackUp.BackupName);
-
                     }
                 }
-
-                _busConfigurationBackUp.DeleteJsonBackUp(configurationBackUpViewModel.BackupName);
             }
             else
             {
-                WriteLogFile.WriteLog(LogName, string.Format("SaveSetting_{0}: {1}", configurationBackUpViewModel, "Create Schedule task"), Setting.FoderBackUp);
+                WriteLogFile.WriteLog(LogName, string.Format("SaveSetting_{0}: {1}", ConfigurationBackUp, "Create Schedule task"), Setting.FoderBackUp);
                 // tạo mới Schedule Task
-                ConfigurationBackUp.Id = Guid.NewGuid();
+                //ConfigurationBackUp.Id = Guid.NewGuid();
                 if (ConfigurationBackUp.IsScheduleBackup == true)
                 {
                     var createScheduleTask = _busScheduleTask.CreateScheduleTaskAsync(ConfigurationBackUp.ScheduleBackup, ConfigurationBackUp.BackupName);
@@ -78,8 +90,8 @@ namespace Bus_backUpData.Services
                     }
                 }
             }
-            _busConfigurationBackUp.AddJsonBackUp(ConfigurationBackUp);
-            return true;
+            _dalConfigurationBackUp.AddOrUpdate(ConfigurationBackUp);
+			return true;
         }
 
         //Tạo job backup
@@ -95,11 +107,9 @@ namespace Bus_backUpData.Services
             try
             {
               
-                var mapper = MapperConfig<ConfigurationBackUpViewModel, ConfigurationBackUp>.InitializeAutomapper();
-                var ConfigurationBackUp = mapper.Map<ConfigurationBackUpViewModel, ConfigurationBackUp>(configurationBackUpViewModel);
-
-                #region set dữ liệu cấu hình để gọi SQL Server Agent stored procedures
-                var enabled = ConfigurationBackUp.IsScheduleBackup ? 1 : 0;
+				var ConfigurationBackUp = _mapper.Map<ConfigurationBackUp>(configurationBackUpViewModel);
+				#region set dữ liệu cấu hình để gọi SQL Server Agent stored procedures
+				var enabled = ConfigurationBackUp.IsScheduleBackup ? 1 : 0;
                 var IsenabledJob = ConfigurationBackUp.IsEnabled ? 1 : 0;
                 var Occurs = ConfigurationBackUp.ScheduleBackup.Occurs.ToString();
                 int freq_interval = 0;
@@ -156,7 +166,7 @@ namespace Bus_backUpData.Services
 
                 //SqlParameters gọi stored
                 var SqlParameters = new List<SqlParameter>();
-                SqlParameters.Add(new SqlParameter("@DatabaseName", ""));
+                SqlParameters.Add(new SqlParameter("@DatabaseName", configurationBackUpViewModel.DatabaseConnectViewModel.DatabaseName.ToString()));
                 SqlParameters.Add(new SqlParameter("@BackupName", ConfigurationBackUp.BackupName));
                 SqlParameters.Add(new SqlParameter("@BackupType", ConfigurationBackUp.BackUpSetting.BackUpType.ToString()));
                 SqlParameters.Add(new SqlParameter("@BackupPath", ConfigurationBackUp.BackUpSetting.Path));
@@ -183,26 +193,34 @@ namespace Bus_backUpData.Services
                 //update or create backup
                 try
                 {
-                    if (ConfigurationBackUp.Id != Guid.Empty) //update
+					var databaseConnect = _dalDatabaseConnect.FirstOrDefault(configurationBackUpViewModel.DatabaseConnectViewModel.DatabaseName);
+					if (databaseConnect == null)
+					{
+						MessageBus.MessageStatus = MessageStatus.Error;
+						MessageBus.Message = "Database Connect Error";
+						return MessageBus;
+					}
+                    ConfigurationBackUp.DatabaseConnectId = databaseConnect.Id;					
+					var connectionstring = SettingConnection.GetConnection(databaseConnect);
+					if (ConfigurationBackUp.Id != Guid.Empty) //update
                     {
-                        //_context.Database
-                        //.ExecuteSqlRaw(StringSql.SQlBackupUpdate,
-                        //SqlParameters);
-                    }
-                    else //create
-                    {
-                      //  var SysJobListName = /*_context.Database.SqlQueryRaw<string>(StringSql.SQlsysjobs).ToList();*/
-                      //  var SysJobName = SysJobListName.FirstOrDefault(x => x.ToLower() == ConfigurationBackUp.BackupName.ToLower());
-                      //  if (SysJobName != null)
-                      //  {
-                      //      MessageBus.MessageStatus = MessageStatus.Error;
-                      //      MessageBus.Message = "The name Job already exists";
-                      //      return MessageBus;
-                      //  }
-                      // _context.Database
-                      //.ExecuteSqlRaw(StringSql.SQlBackupDemo,
-                      //SqlParameters);
-                    }
+						_dalStoredProcedureServices.ExecuteSqlRaw(connectionstring,StringSql.SQlBackupUpdate, SqlParameters);
+					}
+					else //create
+					{
+                        var SysJobListName = _dalStoredProcedureServices.SqlQueryRaw(connectionstring, StringSql.SQlsysjobs).ToList();
+						var SysJobName = SysJobListName.FirstOrDefault(x => x.ToLower() == ConfigurationBackUp.BackupName.ToLower());
+						if (SysJobName != null)
+						 {
+					        MessageBus.MessageStatus = MessageStatus.Error;
+						    MessageBus.Message = "The name Job already exists";
+						    return MessageBus;
+						 }
+
+						string sp_executesql = $"EXEC sp_executesql N'{StringSql.SQlBackup}', N'{string.Join(",", SqlParameters.Select(p => $"@{p.ParameterName}"))}', {string.Join(",", SqlParameters.Select(p => $"@{p.ParameterName}"))}";
+
+						_dalStoredProcedureServices.ExecuteSqlRaw(connectionstring, StringSql.SQlBackup, SqlParameters);
+					}
                 }
                 catch (Exception ex)
                 {
@@ -213,7 +231,7 @@ namespace Bus_backUpData.Services
                 WriteLogFile.WriteLog(LogName, Log, Setting.FoderBackUp);
                 Log = new List<string>();
                
-                SaveSetting(configurationBackUpViewModel);
+                SaveSetting(ConfigurationBackUp);
                
                 Log.Add("SaveSetting_End-----------------------" + configurationBackUpViewModel.BackupName + "--------" + DateTime.Now.ToString("ddMMyyyy"));
                 MessageBus.MessageStatus = MessageStatus.Success;
@@ -242,7 +260,7 @@ namespace Bus_backUpData.Services
             var MessageBusViewModel = new MessageBusViewModel();
             try
             {
-                if (busConfigViewModel.IsJob(JobName))
+                if (_busConfigurationInformation.IsJob(JobName))
                 {
                     WriteLogFile.WriteLog(string.Format("{0}{1}", "LogBackUp", DateTime.Now.ToString("ddMMyyyy")),
                         "DeleteJob_Start--------------" + JobName + "--------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderBackUp);
@@ -252,8 +270,9 @@ namespace Bus_backUpData.Services
                     // .ExecuteSqlRaw(StringSql.SQlsp_delete_job, SqlParameters);
                     //_busScheduleTask.DeleteScheduleTask(JobName);
                 }
-                var DeleteJsonBackUp = _busConfigurationBackUp.DeleteJsonBackUp(JobName);
-                MessageBusViewModel.MessageStatus = DeleteJsonBackUp ? MessageStatus.Success : MessageStatus.Error;
+                var DeleteJsonBackUp = _busConfigurationInformation.DeleteJsonBackUp(JobName);
+
+				MessageBusViewModel.MessageStatus = DeleteJsonBackUp ? MessageStatus.Success : MessageStatus.Error;
                 MessageBusViewModel.Message = DeleteJsonBackUp ? "Success" : "Error";
 
             }
@@ -281,11 +300,10 @@ namespace Bus_backUpData.Services
                 SqlParameters.Add(new SqlParameter("@job_name", jobname));
                 //_context.Database
                 // .ExecuteSqlRaw(StringSql.SQlsp_start_job, SqlParameters);
-                var conFig = _busConfigurationBackUp.LoadJsonBackUp().FirstOrDefault(x => x.BackupName.ToLower() == jobname.ToLower());
+                var conFig = _dalConfigurationBackUp.GetData().FirstOrDefault(x => x.BackupName.ToLower() == jobname.ToLower());
                 
                 if (conFig != null)
-                {
-                     conFig.FTPSetting.PassWord = Encryption.DecryptV2(conFig.FTPSetting.PassWord);
+                {                   
                     _BusFTP.PushFPT(conFig,null);
                 }
                
@@ -310,18 +328,18 @@ namespace Bus_backUpData.Services
             var MessageBusViewModel = new MessageBusViewModel();
             try
             {
-                var config = _busConfigurationBackUp.LoadJsonBackUp();
+                var config = _dalConfigurationBackUp.GetData();
                 var configJobName = config.FirstOrDefault(x => x.BackupName == jobname);
                 
                 if (configJobName != null)
                 {
-                    var ServerName = busConfigViewModel.GetServerName();
-                    if (string.IsNullOrEmpty(ServerName.Result)) {
+                    var ServerName = _busConfigurationInformation.GetServerNameByJobName(jobname);
+                    if (string.IsNullOrEmpty(ServerName)) {
                         MessageBusViewModel.MessageStatus = MessageStatus.Error;
                         MessageBusViewModel.Message = "Not get server name";
                         return MessageBusViewModel;
                     }
-                    var ServerNameStr = ServerName.Result;
+                    var ServerNameStr = ServerName;
                     ServerNameStr = ServerNameStr.Replace("\\", "$");
                     string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{Setting.DatabaseName}";
                     var directory = new DirectoryInfo(pathLocation);
@@ -380,5 +398,6 @@ namespace Bus_backUpData.Services
                 "RestoreBackUp_End--------------" + jobname + "--------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderBackUp);
             return MessageBusViewModel;
         }
+
     }
 }

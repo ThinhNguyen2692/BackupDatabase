@@ -53,7 +53,7 @@ namespace Bus_backUpData.Job
 
             // add our bindings as we normally would (these are  kernel.Bind<IOptions<SettingEmail>>();
             kernel.Bind<IBusHistoryFTP>().To<BusHistoryFTP>();
-            kernel.Bind<IBusConfigurationBackUp>().To<BusConfigurationBackUp>();
+            kernel.Bind<IBusConfigurationInformation>().To<BusConfigurationInformation>();
             kernel.Bind<IBusConfigViewModel>().To<BusConfigViewModel>();
             kernel.Bind<IBusFTP>().To<BusFTP>();
            

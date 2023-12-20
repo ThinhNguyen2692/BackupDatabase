@@ -10,7 +10,7 @@ using ModelProject.ViewModels;
 
 namespace Bus_backUpData.Services
 {
-    public class AutoModelMapper
+    public class AutoModelMapper : Profile
     {
         public class MapperConfig<TSource, TDestination> where TDestination : class
         {

@@ -14,21 +14,24 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using static Bus_backUpData.Services.AutoModelMapper;
+using DalBackup.Interface;
 
 namespace Bus_backUpData.Services
 {
     public class BusFTP : IBusFTP
     {
         private readonly IBusConfigViewModel _BusConfig;
-        private readonly IBusConfigurationBackUp _busConfigurationBackUp;
+        private readonly IBusConfigurationInformation _busConfigurationInformation;
+        private readonly IDalConfigurationBackUp _dalConfigurationBackUp;
         private readonly IBusHistoryFTP _busHistoryFTP;
 
-        public BusFTP(IBusConfigViewModel busConfig, IBusConfigurationBackUp busConfigurationBackUp, IBusHistoryFTP busHistoryFTP)
+        public BusFTP(IBusConfigViewModel busConfig, IBusConfigurationInformation busConfigurationBackUp, IBusHistoryFTP busHistoryFTP, IDalConfigurationBackUp dalConfigurationBackUp )
         {
 
             _BusConfig = busConfig;
-            _busConfigurationBackUp = busConfigurationBackUp;
+            _busConfigurationInformation = busConfigurationBackUp;
             _busHistoryFTP = busHistoryFTP;
+            _dalConfigurationBackUp = dalConfigurationBackUp;
         }
         /// <summary>
         /// Đẩy File sang FTP
@@ -52,9 +55,10 @@ namespace Bus_backUpData.Services
             if (string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.UserName) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.PassWord) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.Path) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.HostName)) return true;
             try
             {
-                var ServerName = _BusConfig.GetServerName();
-                if (string.IsNullOrEmpty(ServerName.Result)) return false;
-                var ServerNameStr = ServerName.Result;
+                var ServerName = _busConfigurationInformation.GetServerNameByJobName(ConfigurationBackUp.BackupName);
+
+                if (string.IsNullOrEmpty(ServerName)) return false;
+                var ServerNameStr = ServerName;
                 ServerNameStr = ServerNameStr.Replace("\\", "$");
                 string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{Setting.DatabaseName}";
                 var directory = new DirectoryInfo(pathLocation);
@@ -81,7 +85,7 @@ namespace Bus_backUpData.Services
 
             var LogName = string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy"));
             WriteLogFile.WriteLog(LogName, "JobTask_DeleteFTP_Start---------------" + JobName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
-            var settingConfogbackup = _busConfigurationBackUp.LoadJsonBackUp().FirstOrDefault(x => x.BackupName == JobName);
+            var settingConfogbackup = _dalConfigurationBackUp.GetData().FirstOrDefault(x => x.BackupName == JobName);
             var settingConfogbackupJson = System.Text.Json.JsonSerializer.Serialize(settingConfogbackup);
             WriteLogFile.WriteLog(LogName, string.Format("JobTask_DeleteFTP__DataRun__Jobname: {0}. Data: {1}", JobName, settingConfogbackupJson), Setting.FoderTask);
 
@@ -92,7 +96,7 @@ namespace Bus_backUpData.Services
                     || string.IsNullOrEmpty(settingConfogbackup.FTPSetting.Path)
                     || string.IsNullOrEmpty(settingConfogbackup.FTPSetting.HostName)) return true;
 
-                var ListFileFTP = _busHistoryFTP.LoadJsonFileFTP();
+                var ListFileFTP = _busHistoryFTP.LoadFileFTP();
                 var ListFileNameFTP = ListFileFTP.Where(x => x.JobName.Contains(JobName)).ToList();
                 var ListFileNameFTPJson = System.Text.Json.JsonSerializer.Serialize(ListFileNameFTP);
                 WriteLogFile.WriteLog(LogName, string.Format("JobTask_DeleteFTP___DataDelete__JobName: {0}. UserName: {1}. PassWord: {2}.ListFileNameFTP: {3} ",
@@ -104,7 +108,7 @@ namespace Bus_backUpData.Services
 
                 var listJobName = DeleteFiles(settingConfogbackup.FTPSetting.UserName, settingConfogbackup.FTPSetting.PassWord, ListFileNameFTP);
 
-                _busHistoryFTP.DeleteJsonFTPRange(listJobName);
+                _busHistoryFTP.DeleteFTPRange(listJobName);
                 if (listJobName.Count != ListFileNameFTP.Count)
                 {
                     var listJobNameJson = System.Text.Json.JsonSerializer.Serialize(listJobName);
@@ -180,7 +184,7 @@ namespace Bus_backUpData.Services
             try
             {
                 var FileFTP = new HistoryFTP() { JobName = JobName, FullFilePathName = FileName };
-                _busHistoryFTP.AddJsonFTP(FileFTP);
+                _busHistoryFTP.AddHistoryFTP(FileFTP);
                 return true;
             }
             catch (Exception)
@@ -190,7 +194,7 @@ namespace Bus_backUpData.Services
         }
         public List<HistoryFTP> GetHistoryFTPS(string JobName)
         {
-            var historFTP = _busHistoryFTP.LoadJsonFileFTP();
+            var historFTP = _busHistoryFTP.LoadFileFTP();
             historFTP = historFTP.Where(x => x.JobName == JobName).ToList();
             return historFTP;
         }

@@ -8,60 +8,51 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using DalBackup.Interface;
+using DalBackup.Services;
 
 namespace Bus_backUpData.Services
 {
     public class BusHistoryFTP : IBusHistoryFTP
     {
-        public List<HistoryFTP> LoadJsonFileFTP()
+        private readonly IDalHistoryFTP _dalHistoryFTP;
+
+        public BusHistoryFTP(IDalHistoryFTP dalHistoryFTP)
         {
-            try
-            {
-                string pathLocation = Path.GetFullPath("Config\\" + Setting.TypeConfigFileFTP);
-                using (StreamReader r = new StreamReader(pathLocation))
-                {
-                    string json = r.ReadToEnd();
-                    if(string.IsNullOrEmpty(json)) return new List<HistoryFTP>();
-                    List<HistoryFTP> items = JsonConvert.DeserializeObject<List<HistoryFTP>>(json);
-                    if (items == null) items = new List<HistoryFTP>();
-                    return items;
-                }
-            }
-            catch (Exception)
-            {
-                return new List<HistoryFTP>();
-            }
+            _dalHistoryFTP = dalHistoryFTP;
+        }
+
+		public List<HistoryFTP> LoadFileFTP()
+        {
+            var data = _dalHistoryFTP.GetHistoryFTPs();
+            return data;
 
         }
 
-        public bool DeleteJsonFTP(string jobname)
+        public bool DeleteFTP(string jobname)
         {
-            var data = LoadJsonFileFTP();
-            var ConfigurationDelete = data.FirstOrDefault(x => x.JobName == jobname);
+            var ConfigurationDelete = _dalHistoryFTP.FirstOrDefault(jobname);
             if (ConfigurationDelete != null)
             {
-                data.Remove(ConfigurationDelete);
-                LibrarySettingFileConfig.SaveConfig(data, Setting.TypeConfigFileFTP);
+				ConfigurationDelete.IsDeleted = true;
+                _dalHistoryFTP.Update(ConfigurationDelete);
                 return true;
             }
             return false;
         }
 
-        public void DeleteJsonFTPRange(List<HistoryFTP> historyFTPs)
+        public void DeleteFTPRange(List<HistoryFTP> historyFTPs)
         {
-            var data = LoadJsonFileFTP();
             foreach (var item in historyFTPs)
             {
-                DeleteJsonFTP(item.JobName);
+                DeleteFTP(item.JobName);
             }
-            LibrarySettingFileConfig.SaveConfig(data, Setting.TypeConfigFileFTP);
         }
 
-        public void AddJsonFTP(HistoryFTP HistoryFTP)
+        public HistoryFTP AddHistoryFTP(HistoryFTP HistoryFTP)
         {
-            var data = LoadJsonFileFTP();
-            data.Add(HistoryFTP);
-            LibrarySettingFileConfig.SaveConfig(data, Setting.TypeConfigFileFTP);
+			HistoryFTP = _dalHistoryFTP.Add(HistoryFTP);
+            return HistoryFTP;
         }
 
     }

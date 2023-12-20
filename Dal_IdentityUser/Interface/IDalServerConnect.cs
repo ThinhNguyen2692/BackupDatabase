@@ -13,5 +13,6 @@ namespace DalBackup.Interface
         public ServerConnect FirstOrDefault(Guid id);
         public ServerConnect FirstOrDefault(string Servername);
         public ServerConnect Update(ServerConnect model);
+        public List<ServerConnect> GetServerConnects();
     }
 }

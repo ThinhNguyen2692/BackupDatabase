@@ -10,7 +10,7 @@ namespace DalBackup.Interface
     public interface IDalDatabaseConnect
     {
         public DatabaseConnect Add(DatabaseConnect model);
-        public DatabaseConnect FirstOrDefault(Guid id);
-        public DatabaseConnect FirstOrDefault(string DatabaseName);
+        public DatabaseConnect? FirstOrDefault(Guid id);
+        public DatabaseConnect? FirstOrDefault(string DatabaseName);
     }
 }

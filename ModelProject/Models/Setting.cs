@@ -18,6 +18,7 @@ namespace ModelProject.Models
         public static string FoderLogStartUp { get;set; }
         public static string ConnectionDefaut { get;set; }
         public static string UsingMaster { get; set; } = "master";
+        public static bool IsLog { get; set; }
     }
     public class SettingEmail
     {

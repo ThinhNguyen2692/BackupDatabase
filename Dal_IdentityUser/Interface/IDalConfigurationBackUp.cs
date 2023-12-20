@@ -14,5 +14,7 @@ namespace DalBackup.Interface
         public List<ConfigurationBackUp> GetData();
         public ConfigurationBackUp Update(ConfigurationBackUp model);
         public ConfigurationBackUp Delete(ConfigurationBackUp model);
-    }
+        public ConfigurationBackUp AddOrUpdate(ConfigurationBackUp model);
+
+	}
 }

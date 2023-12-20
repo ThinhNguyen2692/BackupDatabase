@@ -12,7 +12,5 @@ namespace ModelProject.Models
         public string EmailSuccess { get; set; }
         public string EmailFailure { get; set; }
         public Guid ConfigurationBackUpId { get; set; }
-        [ForeignKey("ConfigurationBackUpId")]
-        public virtual ConfigurationBackUp ConfigurationBackUp { get; set; }
     }
 }

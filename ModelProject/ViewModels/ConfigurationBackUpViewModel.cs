@@ -1,4 +1,5 @@
 ﻿using ModelProject.Models;
+using ModelProject.ViewModels.ViewModelConnect;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,8 @@ namespace ModelProject.ViewModels
             ScheduleBackup = new ScheduleBackupViewModel();
             EmailConfirmation = new EmailConfirmationViewModel();
             MessageBusViewModel = new MessageBusViewModel();
-        }
+            DatabaseConnectViewModel = new DatabaseConnectViewModel();
+		}
         public Guid Id { get; set; }
         public string BackupName { get; set; }
 
@@ -28,6 +30,7 @@ namespace ModelProject.ViewModels
         public EmailConfirmationViewModel EmailConfirmation { get; set; }
         public List<JobHistoryViewModel> JobHistoryViewModels { get; set; }
         public MessageBusViewModel MessageBusViewModel { get; set; }
+        public DatabaseConnectViewModel DatabaseConnectViewModel { get; set; }
         public bool IsScheduleBackup { get; set; }
         public bool IsEmailConfirmation { get; set; }
         public bool IsEnabled { get; set; }

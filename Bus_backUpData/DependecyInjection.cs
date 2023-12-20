@@ -26,14 +26,16 @@ using DalBackup.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Identity;
 using ModelProject.EmailIdentity;
-
+using AutoMapper;
 namespace Bus_backUpData
 {
     public static class DependecyInjection
     {
         public static async Task<IServiceCollection> serviceDescriptorsAsync(this IServiceCollection services, IConfiguration configuration, string connectionString)
         {
-            services.AddTransient<Context>();
+			var LogName = string.Format("{0}{1}", "LogAddQuartzStartUp", DateTime.Now.ToString("ddMMyyyy"));
+			WriteLogFile.WriteLog(LogName, "Create_build_Start---------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderLogStartUp);
+			services.AddTransient<Context>();
             services.AddDbContext<AdminLayout_VuexyContext>(options => options.UseSqlite(connectionString));
             services.AddDefaultIdentity<AdminLayout_VuexyUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AdminLayout_VuexyContext>();
             services.Configure<IdentityOptions>(options => {
@@ -53,79 +55,97 @@ namespace Bus_backUpData
             services.AddOptions();                                        // Kích hoạt Options
 
             // đọc config
-
-
-
+            services.AddAutoMapper(typeof(Services.AutoMapper));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IDalStoredProcedureServices, DalStoredProcedureServices>();
             services.AddScoped<IDalServerConnect, DalServerConnect>();
+            services.AddScoped<IDalHistoryFTP, DalHistoryFTP>();
             services.AddScoped<IDalConfigurationBackUp, DalConfigurationBackUp>();
             services.AddScoped<IDalDatabaseConnect, DalDatabaseConnect>();
-            services.AddScoped<IBusConfigViewModel, BusConfigViewModel>();
-            services.AddScoped<IBusFTP, BusFTP>();
-            services.AddSingleton<IBusConfigurationBackUp, BusConfigurationBackUp>();
-           
+			services.AddScoped<IBusConfigurationInformation, BusConfigurationInformation>();
+			services.AddScoped<IBusConfigViewModel, BusConfigViewModel>();
+			services.AddScoped<IBusHistoryFTP, BusHistoryFTP>();
+			services.AddScoped<IBusFTP, BusFTP>();
             services.AddScoped<IBusBackup, BusBackup>();
-            services.AddSingleton<IBusHistoryFTP, BusHistoryFTP>();
             services.AddSingleton<IBusScheduleTask, BusScheduleTask>();
             services.AddScoped<JobTask>();
             services.AddScoped<JobTaskDeleteFTP>();
-       
-           
             services.AddSingleton<IBusStoredProcedureServices, BusStoredProcedureServices>();
-            services.AddScoped<IBusConfig, BusConfig>();
-           
+            services.AddScoped<IBusConfigServer, BusConfigServer>();
+
+
+
             Setting.TypeConfigbackup = "config.json";
             Setting.TypeConfigFileFTP = "HistoryFTP.json";
             Setting.FoderBackUp = "BackUp";
             Setting.FoderTask = "Task";
             Setting.FoderLogStartUp = "LogStartUp";
             Setting.PathbackUp = Path.GetFullPath("BackUpSql");
-            IBusConfigurationBackUp busConfigurationBackUp = new BusConfigurationBackUp();
-            List<ConfigurationBackUp> configurationBackUps = busConfigurationBackUp.LoadJsonBackUp();
-            var LogName = string.Format("{0}{1}", "LogAddQuartzStartUp", DateTime.Now.ToString("ddMMyyyy"));
-            WriteLogFile.WriteLog(LogName, "Create_build_Start---------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderLogStartUp);
-            try
-            {
-                if (configurationBackUps != null)
-                {
-                    string log = "JobName:_{0}. JobNameKey: {1}.CronSchedule: {2}. WithIdentity: {3}";
-                    services.AddQuartz(q =>
-                    {
-                        configurationBackUps.ForEach(b =>
-                        {
-                            var jobKey = new JobKey(b.BackupName);
-                            if (b.IsScheduleBackup == true)
-                            {
-                                string CronString = LibrarySchedule.GetCronString(b.ScheduleBackup);
-                                WriteLogFile.WriteLog(LogName, string.Format(log, b.BackupName, jobKey, CronString, jobKey + "-trigger"), Setting.FoderLogStartUp);
-                                q.AddJob<JobTask>(opts => { opts.WithIdentity(jobKey); opts.UsingJobData("jobName", b.BackupName); opts.StoreDurably(true); });
-                                q.AddTrigger(opts => opts
-                                    .ForJob(jobKey)
-                                    .WithIdentity(jobKey + "-trigger")
-                                    .WithCronSchedule(CronString));
-                            }
-                            if (b.FTPSetting.IsAutoDelete == true)
-                            {
-                                string CronStringDetele = LibrarySchedule.GetCronString(b.FTPSetting.Months, b.FTPSetting.Days);
-                                var jobKeyDelete = jobKey + "DeleteFTP";
-                                WriteLogFile.WriteLog(LogName, string.Format(log, b.BackupName, jobKeyDelete, CronStringDetele, jobKeyDelete + "-trigger"), Setting.FoderLogStartUp);
-                                q.AddJob<JobTaskDeleteFTP>(opts => { opts.WithIdentity(jobKeyDelete); opts.UsingJobData("jobName", b.BackupName); opts.StoreDurably(true); });
-                                q.AddTrigger(opts => opts
-                                    .ForJob(jobKey)
-                                    .WithIdentity(jobKeyDelete + "-trigger")
-                                    .WithCronSchedule(CronStringDetele));
-                            }
-                        });
-                    });
-                    services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-                }
-            }
-            catch (Exception ex)
-            {
-                WriteLogFile.WriteLog(LogName, string.Format("Create_build_Error_______________:{0}",ex.Message), Setting.FoderLogStartUp);
-                throw;
-            }
+
+           
+			services.AddQuartz(q =>
+			{
+				q.UsePersistentStore(s =>
+				{
+					s.PerformSchemaValidation = true; // default
+					s.UseProperties = true; // preferred, but not default
+					s.RetryInterval = TimeSpan.FromSeconds(15);
+					s.UseSqlServer(sqlServer =>
+					{
+						sqlServer.ConnectionString = connectionString;
+						// this is the default
+						sqlServer.TablePrefix = "QRTZ_";
+					});
+					s.UseJsonSerializer();
+					s.UseClustering(c =>
+					{
+						c.CheckinMisfireThreshold = TimeSpan.FromSeconds(20);
+						c.CheckinInterval = TimeSpan.FromSeconds(10);
+					});
+				});
+			});
+
+            //try
+            //{
+            //if (configurationBackUps != null)
+            //{
+            //    string log = "JobName:_{0}. JobNameKey: {1}.CronSchedule: {2}. WithIdentity: {3}";
+            //    services.AddQuartz(q =>
+            //    {
+            //        configurationBackUps.ForEach(b =>
+            //        {
+            //            var jobKey = new JobKey(b.BackupName);
+            //            if (b.IsScheduleBackup == true)
+            //            {
+            //                string CronString = LibrarySchedule.GetCronString(b.ScheduleBackup);
+            //                WriteLogFile.WriteLog(LogName, string.Format(log, b.BackupName, jobKey, CronString, jobKey + "-trigger"), Setting.FoderLogStartUp);
+            //                q.AddJob<JobTask>(opts => { opts.WithIdentity(jobKey); opts.UsingJobData("jobName", b.BackupName); opts.StoreDurably(true); });
+            //                q.AddTrigger(opts => opts
+            //                    .ForJob(jobKey)
+            //                    .WithIdentity(jobKey + "-trigger")
+            //                    .WithCronSchedule(CronString));
+            //            }
+            //            if (b.FTPSetting.IsAutoDelete == true)
+            //            {
+            //                string CronStringDetele = LibrarySchedule.GetCronString(b.FTPSetting.Months, b.FTPSetting.Days);
+            //                var jobKeyDelete = jobKey + "DeleteFTP";
+            //                WriteLogFile.WriteLog(LogName, string.Format(log, b.BackupName, jobKeyDelete, CronStringDetele, jobKeyDelete + "-trigger"), Setting.FoderLogStartUp);
+            //                q.AddJob<JobTaskDeleteFTP>(opts => { opts.WithIdentity(jobKeyDelete); opts.UsingJobData("jobName", b.BackupName); opts.StoreDurably(true); });
+            //                q.AddTrigger(opts => opts
+            //                    .ForJob(jobKey)
+            //                    .WithIdentity(jobKeyDelete + "-trigger")
+            //                    .WithCronSchedule(CronStringDetele));
+            //            }
+            //        });
+            //    });
+            //    services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+            //}
+            //}
+            //catch (Exception ex)
+            //{
+            //    WriteLogFile.WriteLog(LogName, string.Format("Create_build_Error_______________:{0}",ex.Message), Setting.FoderLogStartUp);
+            //    throw;
+            //}
             WriteLogFile.WriteLog(LogName, "Create_build_End--------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderLogStartUp);
             return services;
         }

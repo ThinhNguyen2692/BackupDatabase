@@ -1,10 +1,13 @@
-﻿using Bus_backUpData.Interface;
+﻿using AutoMapper;
+using Bus_backUpData.Interface;
 using DalBackup.Interface;
 using DalBackup.Services;
+using Elfie.Serialization;
 using HRM.SC.Core.Security;
 using Microsoft.Extensions.Logging;
 using ModelProject.Models;
 using ModelProject.ViewModels;
+using ModelProject.ViewModels.ViewModelConnect;
 using ModelProject.ViewModels.ViewModelSeverConfig;
 using System;
 using System.Collections.Generic;
@@ -16,14 +19,17 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Bus_backUpData.Services
 {
-    public class BusConfig : IBusConfig
+    public class BusConfigServer : IBusConfigServer
     {
         private readonly IBusStoredProcedureServices _busStoredProcedureServices;
         private readonly IDalServerConnect _dalServerConnect;
-        public BusConfig(IBusStoredProcedureServices busStoredProcedureServices, IDalServerConnect dalServerConnect)
+        private readonly IMapper _mapper;
+        public BusConfigServer(IBusStoredProcedureServices busStoredProcedureServices, IDalServerConnect dalServerConnect, IMapper mapper)
         {
             _busStoredProcedureServices = busStoredProcedureServices;
             _dalServerConnect = dalServerConnect;
+            _mapper = mapper;
+
         }
         public ServerConnectionViewModel SaveConnection(ServerConnectionViewModel serverConnectionViewModel)
         {
@@ -49,17 +55,33 @@ namespace Bus_backUpData.Services
             else
             {
                 dataCheck.ServerName = serverConnectionViewModel.ServerName;
-                dataCheck.UserName = serverConnectionViewModel.ServerName;
+                dataCheck.UserName = serverConnectionViewModel.UserName;
                 dataCheck.PassWord = serverConnectionViewModel.Password;
                 var DatabaseConnect = new DatabaseConnect();
                 DatabaseConnect.DatabaseName = serverConnectionViewModel.DatabaseName;
+                DatabaseConnect.ServerConnectId = dataCheck.Id;
                 dataCheck.DatabaseConnects.Add(DatabaseConnect);
                 var repo = _dalServerConnect.Update(dataCheck);
                 serverConnectionViewModel.Id = repo.Id;
 
             }
-            
-            return serverConnectionViewModel;
+            if (serverConnectionViewModel.Id != Guid.Empty)
+            {
+                _busStoredProcedureServices.CreateSettingDatabase(serverConnectionViewModel);
+			}
+
+			return serverConnectionViewModel;
+        }
+
+        public List<ServerConnectViewModel> GetServerConnectViewModel(string ServerName = null)
+        {
+            var data = _dalServerConnect.GetServerConnects();
+            var viewModel = _mapper.Map<List<ServerConnectViewModel>>(data);
+            if (!string.IsNullOrEmpty(ServerName))
+            {
+                viewModel = viewModel.Where(x => x.ServerName == ServerName).ToList();
+            }
+            return viewModel;
         }
     }
 }

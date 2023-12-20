@@ -10,7 +10,7 @@ namespace Bus_backUpData.Interface
 {
     public interface IBusBackup
     {
-        public bool SaveSetting(ConfigurationBackUpViewModel configurationBackUpViewModel);
+        public bool SaveSetting(ConfigurationBackUp ConfigurationBackUp);
         public MessageBusViewModel CreateJob(ConfigurationBackUpViewModel configurationBackUpViewModel);
         public MessageBusViewModel DeleteJob(string JobName);
         public MessageBusViewModel StartJobNow(string jobname);

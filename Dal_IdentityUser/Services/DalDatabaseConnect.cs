@@ -1,5 +1,7 @@
 ﻿using DalBackup.Interface;
 using DalBackup.Repository;
+using Microsoft.EntityFrameworkCore;
+using ModelProject.Func;
 using ModelProject.Models;
 using System;
 using System.Collections.Generic;
@@ -30,15 +32,23 @@ namespace DalBackup.Services
             return model;
         }
 
-        public DatabaseConnect FirstOrDefault(Guid id)
+        public DatabaseConnect? FirstOrDefault(Guid id)
         {
-            var data = repository.FirstOrDefaultAsNoTracking(x => x.Id == id);
-            return data;
+            var data = repository.Where(x => x.Id == id, include: x => x.Include(p => p.ServerConnects)).FirstOrDefault();
+			if (data != null)
+			{
+				data.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(data.ServerConnects.PassWord);
+			}
+			return data;
         }
-        public DatabaseConnect FirstOrDefault(string DatabaseName)
+        public DatabaseConnect? FirstOrDefault(string DatabaseName)
         {
-            var data = repository.FirstOrDefaultAsNoTracking(x => x.DatabaseName == DatabaseName);
-            return data;
+            var data = repository.Where(x => x.DatabaseName == DatabaseName, include: x => x.Include(p => p.ServerConnects)).FirstOrDefault();
+			if (data != null)
+			{
+				data.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(data.ServerConnects.PassWord);
+			}
+			return data;
         }
 
     }

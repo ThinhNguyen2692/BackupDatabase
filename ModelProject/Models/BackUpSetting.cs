@@ -14,8 +14,6 @@ namespace ModelProject.Models
         public BackUpType BackUpType { get; set; }
         public string Path { get; set; }
         public Guid ConfigurationBackUpId { get; set; }
-        [ForeignKey("ConfigurationBackUpId")]
-        public virtual ConfigurationBackUp ConfigurationBackUp { get; set; }
        
     }
 

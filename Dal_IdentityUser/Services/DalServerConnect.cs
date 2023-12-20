@@ -2,6 +2,7 @@
 using DalBackup.Repository;
 using HRM.SC.Core.Security;
 using Microsoft.EntityFrameworkCore;
+using ModelProject.Func;
 using ModelProject.Models;
 using ModelProject.ViewModels.ViewModelSeverConfig;
 using System;
@@ -28,7 +29,7 @@ namespace DalBackup.Services
             if (data == null)
             {
                 //mã hóa mật khẩu
-                model.PassWord = EncryptV2(model.PassWord);
+                model.PassWord = EncryptionSecurity.EncryptV2(model.PassWord);
                 repository.Add(model);
                 _uniOfWork.SaveChanges();
             }
@@ -38,9 +39,9 @@ namespace DalBackup.Services
         public ServerConnect Update(ServerConnect model)
         {
             var data = FirstOrDefault(model.ServerName);
-            if (data == null)
+            if (data != null)
             {
-                model.PassWord = DecryptV2(model.PassWord);
+                model.PassWord = EncryptionSecurity.EncryptV2(model.PassWord);
                 repository.Update(model);
                 _uniOfWork.SaveChanges();
             }
@@ -52,7 +53,7 @@ namespace DalBackup.Services
             var data = repository.FirstOrDefaultAsNoTracking(x => x.Id == id);
             if(data != null)
             {
-                data.PassWord = DecryptV2(data.PassWord);
+                data.PassWord = EncryptionSecurity.DecryptV2(data.PassWord);
             }
             return data;
         }
@@ -61,20 +62,17 @@ namespace DalBackup.Services
             var data = repository.Where(predicate: x => x.ServerName == Servername, disableTracking: true, include: x => x.Include(p => p.DatabaseConnects)).FirstOrDefault();
             if (data != null)
             {
-                data.PassWord = DecryptV2(data.PassWord);
+                data.PassWord = EncryptionSecurity.DecryptV2(data.PassWord);
             }
             return data;
         }
 
-       private string DecryptV2(string input)
+        public List<ServerConnect> GetServerConnects()
         {
-            var outPut = Encryption.DecryptV2(input);
-            return outPut;
+            var data = repository.Where(predicate: x => !x.IsDeleted, disableTracking: true, include: x => x.Include(p => p.DatabaseConnects)).ToList();
+            return data;
         }
-        private string EncryptV2(string input)
-        {
-            var outPut = Encryption.EncryptV2(input);
-            return outPut;
-        }
+
+
     }
 }

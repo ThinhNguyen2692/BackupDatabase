@@ -10,6 +10,7 @@ using AdminLayout_Vuexy;
 using DalBackup.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Bus_IdentityUser.Services;
+using Bus_backUpData.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,10 @@ builder.Services.AddControllers();
 
 Setting.ConnectionStrings = builder.Configuration.GetConnectionString("Connection");
 Setting.ConnectionDefaut = builder.Configuration.GetConnectionString("ConnectionDefaut");
+var isLog = false;
+bool.TryParse(builder.Configuration.GetValue<string>("Setting:IsLog"), out isLog);
+Setting.IsLog = isLog;
+
 var connectionString = builder.Configuration.GetConnectionString("AdminLayout_VuexyContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication6ContextConnection' not found.");
 
 
@@ -30,6 +35,9 @@ SettingEmail.SubjectEmailNoti = builder.Configuration.GetValue<string>("SettingE
 MailSettingCreate.Email = builder.Configuration.GetValue<string>("MailSettingCreate:Email") ?? string.Empty;
 MailSettingCreate.UserName = builder.Configuration.GetValue<string>("MailSettingCreate:UserName") ?? string.Empty;
 MailSettingCreate.PassWordDefault = builder.Configuration.GetValue<string>("MailSettingCreate:PassWordDefault") ?? string.Empty;
+
+
+
 
 builder.Services.serviceDescriptorsAsync(builder.Configuration, connectionString);
 builder.Services.serviceDescriptorsAsync(builder.Configuration);

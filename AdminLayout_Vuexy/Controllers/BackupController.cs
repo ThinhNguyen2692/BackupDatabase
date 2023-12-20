@@ -11,12 +11,12 @@ namespace AdminLayout_Vuexy.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IBusStoredProcedureServices _busStoredProcedureServices;
-        private readonly IBusConfig _busConfig;
-        public BackupController(ILogger<HomeController> logger, IBusStoredProcedureServices busStoredProcedureServices, IBusConfig busConfig)
+        private readonly IBusConfigServer _busConfigServer;
+        public BackupController(ILogger<HomeController> logger, IBusStoredProcedureServices busStoredProcedureServices, IBusConfigServer busConfigServer)
         {
             _logger = logger;
             _busStoredProcedureServices = busStoredProcedureServices;
-            _busConfig = busConfig;
+            _busConfigServer = busConfigServer;
         }
 
         [Route("/api/CheckConntion")]
@@ -38,7 +38,7 @@ namespace AdminLayout_Vuexy.Controllers
         [HttpPost]
         public IActionResult SaveConnection([FromBody] ServerConnectionViewModel serverConnectionViewModel)
         {
-            var result = _busConfig.SaveConnection(serverConnectionViewModel);
+            var result = _busConfigServer.SaveConnection(serverConnectionViewModel);
             return Ok(result);
         }
     }

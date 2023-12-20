@@ -13,20 +13,28 @@ using System.Text;
 using System.Threading.Tasks;
 using static Bus_backUpData.Services.AutoModelMapper;
 using DalBackup.Interface;
+using DalStoredProcedure.Interface;
+using AutoMapper;
 
 namespace Bus_backUpData.Services
 {
     public class BusConfigViewModel : IBusConfigViewModel
     {
 
-        public Context _context { get; set; }
-        private IDalConfigurationBackUp _dalConfigurationBackUp { get; set; }
-        public BusConfigViewModel(Context Context,  IDalConfigurationBackUp dalConfigurationBackUp)
+        public Context _context;
+        private readonly IDalConfigurationBackUp _dalConfigurationBackUp;
+        private readonly IDalStoredProcedureServices _dalStoredProcedureServices;
+        private readonly IBusConfigurationInformation _busConfigurationInformation;
+		private readonly IMapper _mapper;
+		public BusConfigViewModel(Context Context,  IDalConfigurationBackUp dalConfigurationBackUp, IDalStoredProcedureServices dalStoredProcedureServices, IBusConfigurationInformation busConfigurationInformation, IMapper mapper)
         {
             _context = Context;
             Setting.DatabaseName = _context.Database.GetDbConnection().Database;
             _dalConfigurationBackUp = dalConfigurationBackUp;
-        }
+			_dalStoredProcedureServices = dalStoredProcedureServices;
+            _busConfigurationInformation = busConfigurationInformation;
+            _mapper = mapper;
+		}
         /// <summary>
         /// Get all danh sach cau hinh
         /// </summary>
@@ -66,7 +74,7 @@ namespace Bus_backUpData.Services
         /// <returns></returns>
         public List<JobHistoryViewModel> GetJobHistoryViewModels(string jobname)
         {
-            if (IsJob(jobname) == false) return new List<JobHistoryViewModel>();
+            if (_busConfigurationInformation.IsJob(jobname) == false) return new List<JobHistoryViewModel>();
             //var SqlParametersJobHistory = new List<SqlParameter>();
             //SqlParametersJobHistory.Add(new SqlParameter("@job_name", jobname));
             //var tesst = new {  };
@@ -109,19 +117,6 @@ namespace Bus_backUpData.Services
             //IQueryable<sysjobhistory> orders = _context.Database.SqlQuery<sysjobhistory>($"select *  from msdb.dbo.sysjobhistory");
             return JobHistoryViewModels;
         }
-        public bool IsJob(string JobName)
-        {
-            var SysJobListName = _context.Database.SqlQueryRaw<string>(StringSql.SQlsysjobs).ToList();
-            var SysJobName = SysJobListName.FirstOrDefault(x => x.ToLower() == JobName.ToLower());
-            if (SysJobName == null) { return false; }
-            return true;
-        }
-        
-        public async Task<string> GetServerName()
-        {
-            var servername = await _context.Database.SqlQueryRaw<string>(StringSql.SQlServerName).ToListAsync();
-            return servername.FirstOrDefault() ?? string.Empty;
-        }
-        
+      
     }
 }

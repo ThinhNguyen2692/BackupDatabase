@@ -11,5 +11,7 @@ namespace Bus_backUpData.Interface
     {
         public bool CheckConnection(ServerConnectionViewModel serverConnectionViewModel);
         public List<string> GetListDatabaseNameServer(ServerConnectionViewModel serverConnectionViewModel);
-    }
+        public void CreateSettingDatabase(ServerConnectionViewModel serverConnectionViewModel);
+
+	}
 }

@@ -9,9 +9,9 @@ namespace Bus_backUpData.Interface
 {
     public interface IBusHistoryFTP
     {
-        public List<HistoryFTP> LoadJsonFileFTP();
-        public bool DeleteJsonFTP(string jobname);
-        public void DeleteJsonFTPRange(List<HistoryFTP> historyFTPs);
-        public void AddJsonFTP(HistoryFTP HistoryFTP);
+        public List<HistoryFTP> LoadFileFTP();
+        public bool DeleteFTP(string jobname);
+        public void DeleteFTPRange(List<HistoryFTP> historyFTPs);
+        public HistoryFTP AddHistoryFTP(HistoryFTP HistoryFTP);
     }
 }

@@ -93,8 +93,6 @@ public class ScheduleBackup : Entity
     public int FreqSubdayInterval { get; set; }
     public TimeOnly EndTime { get; set; }
     public Guid ConfigurationBackUpId { get; set; }
-    [ForeignKey("ConfigurationBackUpId")]
-    public virtual ConfigurationBackUp ConfigurationBackUp { get; set; }
     public virtual ICollection<ScheduleBackupWeekly> ScheduleBackupWeeklies { get; set; }
 
 }

@@ -15,13 +15,13 @@ namespace AdminLayout_Vuexy.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IBusBackup _BusBackup;
-        private readonly IBusConfigViewModel _BusConfig;
+        private readonly IBusConfigViewModel _busConfigViewModel;
 
-        public HomeController(ILogger<HomeController> logger, IBusBackup busBackup, IBusConfigViewModel busConfig)
+        public HomeController(ILogger<HomeController> logger, IBusBackup busBackup, IBusConfigViewModel busConfigViewModel)
         {
             _logger = logger;
             _BusBackup = busBackup;
-            _BusConfig = busConfig;
+            _busConfigViewModel = busConfigViewModel;
         }
 
         [Route("/{DatabaseName}/{JobName?}")]
@@ -31,13 +31,13 @@ namespace AdminLayout_Vuexy.Controllers
             ConfigurationBackUpViewModel configurationBackUpViewModel = new ConfigurationBackUpViewModel();
             if (!string.IsNullOrEmpty(JobName))
             {
-                configurationBackUpViewModel = _BusConfig.GetConfigurationBackUpViewModelByJobName(JobName);
+                configurationBackUpViewModel = _busConfigViewModel.GetConfigurationBackUpViewModelByJobName(JobName);
                 if (configurationBackUpViewModel.Id != Guid.Empty)
                     configurationBackUpViewModel.JobHistoryViewModels = configurationBackUpViewModel.JobHistoryViewModels.Take(10).ToList();
             }
             if (configurationBackUpViewModel.Id == Guid.Empty)
             {
-                var ListConfig = _BusConfig.GetConfigurationBackUpViewModel(DatabaseName).ToList();
+                var ListConfig = _busConfigViewModel.GetConfigurationBackUpViewModel(DatabaseName).ToList();
                 var BackUpViewModel = new BackUpViewModel();
                 BackUpViewModel.Name = string.IsNullOrEmpty(JobName) ? "JobNew" : JobName;
                 BackUpViewModel.Id = Guid.Empty;
@@ -56,8 +56,9 @@ namespace AdminLayout_Vuexy.Controllers
                 configurationBackUpViewModel.BackUpViewModels.Add(BackUpViewModel);
                 configurationBackUpViewModel.BackUpViewModels.AddRange(ListConfig.Select(x => new BackUpViewModel() { Id = x.Id, Name = x.BackupName }).ToList());
                 configurationBackUpViewModel.MessageBusViewModel.MessageStatus = MessageStatus.None;
+				configurationBackUpViewModel.DatabaseConnectViewModel.DatabaseName = DatabaseName;
 
-            }
+			}
             return View("Index", configurationBackUpViewModel);
 
         }
@@ -79,7 +80,7 @@ namespace AdminLayout_Vuexy.Controllers
             else
             {
                 ConfigurationBackUpViewModel configurationBackUpViewModel = new ConfigurationBackUpViewModel();
-                configurationBackUpViewModel = _BusConfig.GetConfigurationBackUpViewModelByJobName(BackUpViewModel.BackupName);
+                configurationBackUpViewModel = _busConfigViewModel.GetConfigurationBackUpViewModelByJobName(BackUpViewModel.BackupName);
                 configurationBackUpViewModel.MessageBusViewModel = CreateJob;
                 return View("Index", configurationBackUpViewModel);
             }
@@ -91,7 +92,7 @@ namespace AdminLayout_Vuexy.Controllers
             var MessageBusViewModel = _BusBackup.DeleteJob(JobName);
             if (MessageBusViewModel.MessageStatus == MessageStatus.Error)
             {
-                var configurationBackUpViewModel = _BusConfig.GetConfigurationBackUpViewModelByJobName(JobName);
+                var configurationBackUpViewModel = _busConfigViewModel.GetConfigurationBackUpViewModelByJobName(JobName);
                 configurationBackUpViewModel.MessageBusViewModel = MessageBusViewModel;
                 return View("Index", configurationBackUpViewModel);
             }

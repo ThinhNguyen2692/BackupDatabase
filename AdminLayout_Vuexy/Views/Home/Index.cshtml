@@ -4,6 +4,12 @@
 @using ModelProject.Func;
 @model ConfigurationBackUpViewModel;
 
+@section js{
+    <script>
+
+    </script>
+}
+
 <div class="row row-main">
     <div class="card col-2 " style="width: 15%;">
         <div class="card-body">
@@ -44,6 +50,8 @@
                                     @Model.BackupName
                                 </label>
                                 @Html.HiddenFor(x => x.BackupName)
+                                @Html.HiddenFor(x => x.DatabaseConnectViewModel.ServerName)
+                                @Html.HiddenFor(x => x.DatabaseConnectViewModel.DatabaseName)
                                 @Html.HiddenFor(x => x.Id)
                                 @{
                                     if (Model.MessageBusViewModel.MessageStatus == MessageStatus.Error)

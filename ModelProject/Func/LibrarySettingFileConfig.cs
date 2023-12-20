@@ -36,5 +36,23 @@ namespace ModelProject.Func
           var file =  Createfilejson(listConfig);
             SaveFileStream(path,file);
         }
-    }
+
+		public static string ReadSqlFile(string filePath)
+		{
+			string sqlScript = string.Empty;
+
+			// Kiểm tra xem tệp có tồn tại không
+			if (File.Exists(filePath))
+			{
+				// Đọc toàn bộ nội dung từ tệp SQL
+				sqlScript = File.ReadAllText(filePath);
+			}
+			else
+			{
+				throw new FileNotFoundException("File not found", filePath);
+			}
+
+			return sqlScript;
+		}
+	}
 }
