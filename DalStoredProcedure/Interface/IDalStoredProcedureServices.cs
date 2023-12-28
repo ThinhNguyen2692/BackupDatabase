@@ -9,9 +9,13 @@ namespace DalStoredProcedure.Interface
 {
     public interface IDalStoredProcedureServices
     {
-        public void ExecuteSqlRaw(string Connection, string Sql, List<SqlParameter> SqlParameters);
-        public List<string> SqlQueryRaw(string Connection, string Sql);
-        public bool CheckConnection(string Connection);
+        public int ExecuteSqlRaw(string Connection, string Sql, List<SqlParameter> SqlParameters);
+        public int ExecuteSqlRaw(string Connection, string Sql);
+
+		public List<string> SqlQueryRaw(string Connection, string Sql);
+        public List<string> SqlQueryRaw(string Connection, string Sql, List<SqlParameter> SqlParameters);
+
+		public bool CheckConnection(string Connection);
 
     }
 }

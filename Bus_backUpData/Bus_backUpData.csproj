@@ -18,9 +18,14 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.13" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Ninject" Version="3.3.6" />
+    <PackageReference Include="Ninject.Extensions.ContextPreservation" Version="3.3.1" />
+    <PackageReference Include="Ninject.Extensions.DependencyInjection" Version="1.0.2" />
+    <PackageReference Include="Ninject.Extensions.NamedScope" Version="3.3.0" />
+    <PackageReference Include="Ninject.Web.Common" Version="3.3.2" />
     <PackageReference Include="Quartz" Version="3.7.0" />
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.7.0" />
     <PackageReference Include="Quartz.Serialization.Json" Version="3.7.0" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
   </ItemGroup>
 
   <ItemGroup>

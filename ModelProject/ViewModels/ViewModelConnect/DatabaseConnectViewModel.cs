@@ -10,5 +10,7 @@ namespace ModelProject.ViewModels.ViewModelConnect
     {
         public string DatabaseName { get; set; }
         public string ServerName { get; set; }
+        public string PassWord { get; set; }
+        public string UserName { get; set; }
     }
 }

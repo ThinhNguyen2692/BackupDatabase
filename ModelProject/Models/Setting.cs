@@ -9,6 +9,7 @@ namespace ModelProject.Models
     public static class Setting
     {
         public static string ConnectionStrings { get;set; }
+        public static string ConnectionSQLite { get;set; }
         public static string DatabaseName { get;set; }
         public static string PathbackUp { get;set; }
         public static string TypeConfigbackup { get;set; }

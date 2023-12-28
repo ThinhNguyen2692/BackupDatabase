@@ -1,6 +1,6 @@
 ﻿@using ModelProject.ViewModels
 @using ModelProject.ViewModels.RestoreViewModel
-@model ManagerFolderViewModel
+@model ManagerFileViewModel
 @{
 	ViewData["Title"] = "Privacy Policy";
 }
@@ -13,6 +13,33 @@
 		.file-manager-application .view-container .file-manager-item {
 			max-width: 19%;
 		}
+
+		.file-manager-application .content-area-wrapper .file-manager-main-content .file-manager-content-body .view-container.list-view .files-header .file-last-modified, .file-manager-application .content-area-wrapper .file-manager-main-content .file-manager-content-body .view-container.list-view .files-header .file-item-size {
+			margin-right: 6rem;
+		}
+
+		.btn-submit{
+			display: block ;
+			max-width: 130px
+		}
+
+		.file-manager-application .content-area-wrapper .file-manager-main-content .file-manager-content-body .view-container.list-view .file-manager-item .file-size{
+			flex-grow: 0;
+			
+		}
+
+		.file-manager-application .content-area-wrapper .file-manager-main-content .file-manager-content-body .view-container .file-manager-item .file-date{
+			flex-grow: 0;
+			width: 10rem;
+		}
+
+		.file-manager-application .content-area-wrapper .file-manager-main-content .file-manager-content-body .view-container.list-view .files-header .file-last-modified{
+			margin-right: 0;
+		}
+
+		.file-manager-application .content-area-wrapper .file-manager-main-content .file-manager-content-body .view-container.list-view .files-header .file-item-size{
+			
+		}
 	</style>
 
 }
@@ -20,33 +47,40 @@
 @section js {
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
+			$(".file-manager-item").on("click", function () {
+				// Thiết lập giá trị của input thành true
+				
+				
+				// Bỏ class "selected" từ tất cả các phần tử có class "file-manager-item"
+				$(".file-manager-item").removeClass("selected");
+				$(".btn-submit").css({
+					'display': 'none'
+				});
+
+				$('input[name="fileBackup"]').prop('checked', false);
+				$(this).find('.form-check-input').prop('checked', true);
+				$(this).find('.btn-submit').css({
+					'display': 'block'
+				});
+				// Thêm class "selected" vào phần tử đã click
+				$(this).addClass("selected");
+			});
 			$('.toast').toast('show')
-		@{
+			@{
 			var databasename = Model.DatabaseConnectViewModel.DatabaseName ?? string.Empty;
 			var servername = Model.DatabaseConnectViewModel.ServerName ?? string.Empty;
 		}
-					var idDatabase = "@databasename";
+			var idDatabase = "@databasename";
 			var serverName = "@servername";
 			activeElementDatabase(idDatabase, serverName)
-
 		});
-		function redirectToNewPage(BackUpTypeName) {
-		@{
+		
+		
+		
 
-			var url = Url.Action("ManagerFile", "Home", new { BackUpTypeName = "BackUpTypeName", DatabaseName = Model.DatabaseConnectViewModel.DatabaseName });
-			var ishref = Model.MessageBusViewModel.MessageStatus != MessageStatus.Error ? true : false;
-		}
-			var ishref = @System.Text.Json.JsonSerializer.Serialize(ishref);
-			var url = '@url';
-			url = url.replace('BackUpTypeName', BackUpTypeName)
-			if (ishref == true){
-				window.location.href = url;
-			}
-		
-		
-		}
 	</script>
-}@{
+} 
+@{
 	if (Model.MessageBusViewModel != null && Model.MessageBusViewModel.MessageStatus != MessageStatus.None)
 	{
 		<div aria-live="polite" aria-atomic="true" class="position-relative">
@@ -65,7 +99,7 @@
 						<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
 					</div>
 					@{
-
+						
 						if (Model.MessageBusViewModel.MessageStatus == MessageStatus.Success)
 						{
 							<div class="toast-body RunStatus-Succeeded" style="background:#fff;">
@@ -79,7 +113,7 @@
 							</div>
 						}
 					}
-
+					
 				</div>
 			</div>
 		</div>
@@ -174,7 +208,7 @@
 											if (!Model.IsRecovery)
 											{
 												<div class="btn-group view-toggle ms-50" role="group">
-													@Html.ActionLink("Recovery", "Recovery", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName}, new { style = " background-color: #7367f0; border-color: #7367f0;color: #fff;", @class = "btn waves-effect waves-light float-end mx-1" })
+													@Html.ActionLink("Recovery", "Recovery", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName, BackUpTypeName = Model.BackUpType.ToString() }, new { style = " background-color: #7367f0; border-color: #7367f0;color: #fff;", @class = "btn waves-effect waves-light float-end mx-1" })
 												</div>
 											}
 										}
@@ -185,78 +219,64 @@
 								<div class="file-manager-content-body">
 
 									<!-- Folders Container Starts -->
-									<div class="view-container">
-										@if (Model.MessageBusViewModel.MessageStatus == MessageStatus.Error)
-										{
-											<div class="invalid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
-										}
-										<h6 class="files-section-title mt-25 mb-75">Folders</h6>
+									<div class="view-container list-view">
+										<h6 class="files-section-title mt-25 mb-75">@Model.PathLocation</h6>
 										<div class="files-header">
 											<h6 class="fw-bold mb-0">Filename</h6>
 											<div>
 												<h6 class="fw-bold file-item-size d-inline-block mb-0">Size</h6>
 												<h6 class="fw-bold file-last-modified d-inline-block mb-0">Last modified</h6>
-												<h6 class="fw-bold d-inline-block me-1 mb-0">Actions</h6>
+												<h6 class="fw-bold d-inline-block me-1 mb-0"></h6>
 											</div>
 										</div>
-										<div class="card file-manager-item folder level-up">
-											<div class="card-img-top file-logo-wrapper">
-												<div class="d-flex align-items-center justify-content-center w-100">
-													<i data-feather="arrow-up"></i>
-												</div>
-											</div>
-											<div class="card-body ps-2 pt-0 pb-1">
-												<div class="content-wrapper">
-													<p class="card-text file-name mb-0">...</p>
-												</div>
-											</div>
-										</div>
-										@{
-											foreach (var value in Model.BackUpTypeFolder)
-											{
-												<div class="card file-manager-item folder" onclick="redirectToNewPage('@value.Name')">
-													<div class="form-check">
-														<input type="checkbox" class="form-check-input" id="customCheck1" />
-														<label class="form-check-label" for="customCheck1"></label>
-													</div>
-													<div class="card-img-top file-logo-wrapper">
-														
-														<div class="d-flex align-items-center justify-content-center w-100">
-															<i data-feather="folder"></i>
-														</div>
-													</div>
-													<div class="card-body">
-														<div class="content-wrapper">
-															<p class="card-text file-name mb-0">@value.Name</p>
-															<p class="card-text file-size mb-0">@value.FolderSize</p>
-															@{
-																if (value.LastUpdateTime != null)
-																{
-																	<p class="card-text file-date"> @value.LastUpdateTime.Value.ToString("dd/MM/yyyy HH:mm")</p>
-																}
-																else
-																{
-																	<p class="card-text file-date"></p>
-																}
-															}
-															
-														</div>
-														@{
-															if (value.LastUpdateTime != null)
-															{
-																<small class="file-accessed text-muted">Last accessed: @value.LastUpdateTime.Value.ToString("dd/MM/yyyy HH:mm")</small>
-															}
-															else
-															{
-																<small class="file-accessed text-muted">Last accessed: </small>
-															}
-														}
-														
-													</div>
-												</div>
-											}
-										}
 										
+										<!-- Files Container Starts -->
+										<div class="view-container list-view">
+											<h6 class="files-section-title mt-2 mb-75">Files</h6>
+											@{
+												foreach (var item in Model.FileInfomationViewModels)
+												{
+
+													var img = item.Extension.ToString() + ".png";
+													@using (Html.BeginForm("RestoreBackUpNow", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+													{
+														<div class="card file-manager-item file">
+															<div class="form-check">
+																<input type="radio" class="form-check-input" name="fileBackup" id="customCheck7" />
+																<input type="hidden" value="@Model.BackUpType" class="form-check-input" name="BackUpTypeName" />																
+																<input type="hidden" value="@Model.DatabaseConnectViewModel.DatabaseName" class="form-check-input" name="DatabaseName" />
+																<input type="hidden" value="@item.FullName" class="form-check-input" name="FileName" />
+																<input type="hidden" value="@Model.PathLocation" class="form-check-input" name="Path" />
+																<label class="form-check-label" for="customCheck7"></label>
+															</div>
+															<div class="card-img-top file-logo-wrapper">
+																<div class="d-flex align-items-center justify-content-center w-100">
+																	<img src="~/app-assets/images/icons/@img" asp-append-version="true" alt="file-icon" height="35" />
+																</div>
+															</div>
+															<div class="card-body">
+																<div class="content-wrapper">
+																	<p class="card-text file-name mb-0">@item.Name</p>
+																	<p class="card-text file-size mb-0">@item.Size</p>
+																	<p class="card-text file-date"> @item.LastUpdateTime.ToString("dd/MM/yyyy HH:mm")</p>
+																	
+																	<p class="card-text btn-submit" style="display: none">
+																	<button class="btn" style="color:#28c76f" type="submit">Restore</button>
+																	</p>
+																</div>
+																<small class="file-accessed text-muted">Last accessed:@item.LastUpdateTime.ToString("dd/MM/yyyy HH:mm")</small>
+															</div>
+														</div>
+													}
+												}
+											}
+
+											<div class="d-none flex-grow-1 align-items-center no-result mb-3">
+												<i data-feather="alert-circle" class="me-50"></i>
+												No Results
+											</div>
+										</div>
+										<!-- /Files Container Ends -->
 
 										<div class="d-none flex-grow-1 align-items-center no-result mb-3">
 											<i data-feather="alert-circle" class="me-50"></i>
@@ -370,6 +390,7 @@
 													</div>
 													<div class="d-flex align-items-center">
 														<div class="avatar avatar-sm bg-light-primary me-50">
+															s
 															<span class="avatar-content">SC</span>
 														</div>
 														<div class="more-info">

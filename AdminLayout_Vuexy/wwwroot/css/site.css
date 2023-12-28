@@ -20,3 +20,17 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+@media (max-width: 575.98px) {
+    
+}
+@media (min-width: 1440px){
+    .container-xxl {
+        max-width: none;
+    }
+}
+@media (max-width: 575.98px){
+    .file-manager-application .content-area-wrapper .view-container.list-view.btn-submit {
+        max-width: 130px;
+    }
+}

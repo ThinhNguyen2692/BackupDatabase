@@ -14,7 +14,7 @@ namespace AdminLayout_Vuexy.Controllers
             _busStoredProcedureServices = busStoredProcedureServices;
         }
         [Authorize]
-        [Route("/ConfigSetting")]
+        [Route("/")]
         [HttpGet]
         public IActionResult Index()
         {

@@ -11,6 +11,8 @@ using DalBackup.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Bus_IdentityUser.Services;
 using Bus_backUpData.Services;
+using Ninject.Extensions.DependencyInjection;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +29,7 @@ Setting.IsLog = isLog;
 
 var connectionString = builder.Configuration.GetConnectionString("AdminLayout_VuexyContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication6ContextConnection' not found.");
 
-
+Setting.ConnectionSQLite = connectionString;
 
 SettingEmail.Email = builder.Configuration.GetValue<string>("SettingEmailNoti:Email") ?? string.Empty;
 SettingEmail.PassEmail = builder.Configuration.GetValue<string>("SettingEmailNoti:PassEmail") ?? string.Empty;
@@ -41,7 +43,7 @@ MailSettingCreate.PassWordDefault = builder.Configuration.GetValue<string>("Mail
 
 builder.Services.serviceDescriptorsAsync(builder.Configuration, connectionString);
 builder.Services.serviceDescriptorsAsync(builder.Configuration);
-
+builder.Services.AddNinject();
 
 
 
@@ -54,6 +56,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     //app.UseHsts();
 }
+
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();

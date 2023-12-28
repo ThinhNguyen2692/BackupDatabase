@@ -27,6 +27,12 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Identity;
 using ModelProject.EmailIdentity;
 using AutoMapper;
+using Ninject;
+using Ninject.Extensions.DependencyInjection;
+using Ninject.Extensions.NamedScope;
+using Quartz.Util;
+using Quartz.Impl.AdoJobStore.Common;
+using Microsoft.Data.Sqlite;
 namespace Bus_backUpData
 {
     public static class DependecyInjection
@@ -55,7 +61,7 @@ namespace Bus_backUpData
             services.AddOptions();                                        // Kích hoạt Options
 
             // đọc config
-            services.AddAutoMapper(typeof(Services.AutoMapper));
+            services.AddAutoMapper(typeof(Services.AutoModelMapperProfile));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IDalStoredProcedureServices, DalStoredProcedureServices>();
             services.AddScoped<IDalServerConnect, DalServerConnect>();
@@ -67,12 +73,12 @@ namespace Bus_backUpData
 			services.AddScoped<IBusHistoryFTP, BusHistoryFTP>();
 			services.AddScoped<IBusFTP, BusFTP>();
             services.AddScoped<IBusBackup, BusBackup>();
-            services.AddSingleton<IBusScheduleTask, BusScheduleTask>();
+            services.AddScoped<IBusScheduleTask, BusScheduleTask>();
             services.AddScoped<JobTask>();
             services.AddScoped<JobTaskDeleteFTP>();
             services.AddSingleton<IBusStoredProcedureServices, BusStoredProcedureServices>();
             services.AddScoped<IBusConfigServer, BusConfigServer>();
-
+            services.AddScoped<Nin>();
 
 
             Setting.TypeConfigbackup = "config.json";
@@ -80,31 +86,29 @@ namespace Bus_backUpData
             Setting.FoderBackUp = "BackUp";
             Setting.FoderTask = "Task";
             Setting.FoderLogStartUp = "LogStartUp";
-            Setting.PathbackUp = Path.GetFullPath("BackUpSql");
+            Setting.PathbackUp = "D:\\BackUpDatabaseHRM";
 
-           
-			services.AddQuartz(q =>
-			{
-				q.UsePersistentStore(s =>
-				{
-					s.PerformSchemaValidation = true; // default
-					s.UseProperties = true; // preferred, but not default
-					s.RetryInterval = TimeSpan.FromSeconds(15);
-					s.UseSqlServer(sqlServer =>
-					{
-						sqlServer.ConnectionString = connectionString;
-						// this is the default
-						sqlServer.TablePrefix = "QRTZ_";
-					});
-					s.UseJsonSerializer();
-					s.UseClustering(c =>
-					{
-						c.CheckinMisfireThreshold = TimeSpan.FromSeconds(20);
-						c.CheckinInterval = TimeSpan.FromSeconds(10);
-					});
-				});
-			});
+            // Đăng ký JobFactory sử dụng DI
 
+            services.AddQuartz(opt =>
+            {
+                opt.UseMicrosoftDependencyInjectionJobFactory();
+                opt.UsePersistentStore(s =>
+                {
+                  
+                    s.UseSQLite(sqlServer =>
+                    {
+                        sqlServer.ConnectionString = Setting.ConnectionSQLite;
+                        // this is the default
+                        sqlServer.TablePrefix = "QRTZ_";
+                    });
+                    s.UseJsonSerializer();
+                });
+            });
+            services.AddQuartzHostedService(options =>
+            {
+                options.WaitForJobsToComplete = true;
+            });
             //try
             //{
             //if (configurationBackUps != null)

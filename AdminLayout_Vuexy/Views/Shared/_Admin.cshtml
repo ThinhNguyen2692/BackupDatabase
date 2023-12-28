@@ -5,7 +5,7 @@
 
 <head>
     @await Html.PartialAsync("_AD_Header")
-
+    @RenderSection("css", false);
     <style>
         .RunStatus-Failed {
             color: #e73d3e;
@@ -60,6 +60,25 @@
 
     @await Html.PartialAsync("_AD_Scripts")
     @RenderSection("js", false);
+    <script>
+        function activeElementDatabase(idDatabase, serverName) {
+            var idDatabase = idDatabase;
+            var serverName = serverName;
+            addClassToElement('Server-database');
+            addClassToElement(serverName);
+            addClassToElement(idDatabase);
+        }
+        function addClassToElement(id) {
+            // Lấy phần tử cần thêm class
+            var myElement = document.getElementById(id);
+
+            // Thêm class vào phần tử
+            if (myElement) {
+                myElement.classList.add('open');
+            }
+        }
+
+    </script>
 </body>
 <!-- END: Body-->
 

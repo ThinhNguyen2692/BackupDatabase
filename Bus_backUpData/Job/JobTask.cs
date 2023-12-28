@@ -27,10 +27,12 @@ namespace Bus_backUpData.Job
             var LogName = string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy"));
 
             JobDataMap dataMap = context.JobDetail.JobDataMap;
-            string jobName = dataMap.GetString("jobName");
-            WriteLogFile.WriteLog(LogName, "JobTask_PushFPT_Start------------" + jobName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
-            _BusFTP.JobTaskPushFTp(jobName);
-            WriteLogFile.WriteLog(LogName, "JobTask_PushFPT_End----------------" + jobName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
+            var jobIdString = dataMap.GetString("jobId");
+            var jobId = Guid.Empty;
+            Guid.TryParse(jobIdString, out jobId);
+            WriteLogFile.WriteLog(LogName, "JobTask_PushFPT_Start------------" + jobIdString + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
+            _BusFTP.JobTaskPushFTp(jobId);
+            WriteLogFile.WriteLog(LogName, "JobTask_PushFPT_End----------------" + jobIdString + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
             //Write your custom code here
         }
     }

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using ModelProject.EmailIdentity;
 using ModelProject.Models;
 using ModelProject.Models.Enum;
-
 namespace DalBackup.Data;
 
 public class AdminLayout_VuexyContext : IdentityDbContext<AdminLayout_VuexyUser>
@@ -13,6 +12,15 @@ public class AdminLayout_VuexyContext : IdentityDbContext<AdminLayout_VuexyUser>
     public AdminLayout_VuexyContext(DbContextOptions<AdminLayout_VuexyContext> options)
         : base(options)
     {
+    }
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlite(Setting.ConnectionSQLite);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

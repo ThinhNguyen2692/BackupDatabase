@@ -1,0 +1,215 @@
+﻿@using ModelProject.ViewModels.RestoreViewModel
+@model ConfigRestoreViewModel
+
+@section js {
+    <script>
+
+        function SetModel() {
+            var Id = $('.Id').val();
+            var ServerName = $('.ServerName').val();
+            var ServerName = $('.ServerName').val();
+            var UserName = $('.UserName').val();
+            var Password = $('.Password').val();
+            var DatabaseName = $('.select-databasename').find(":selected").val();
+            var model = { Id: Id, ServerName: ServerName, UserName: UserName, Password: Password, DatabaseName: DatabaseName ?? '' }
+            return model;
+        }
+
+        $("#next-from-config-server").click(function () {
+            var model = SetModel();
+            var result = CallCheckConntion(model);
+            if (result == true) {
+                $('.Noti-connect').append(` <div class="valid-feedback" style="display:block; font-size:1rem;">Connect  Success</div>`);
+                var resultListDatabaseName = GetDatabaseNameList(model);
+                resultListDatabaseName.forEach(function (item) {
+                    $('.select-databasename').append(`<option value="${item}">
+                                                               ${item}
+                                                  </option>`);
+                })
+            } else {
+                $('.Noti-connect').append(` <div class="invalid-feedback" style="display:block; font-size:1rem;">Connect  error</div>`);
+            }
+        })
+        $("#next-save-server").click(function () {
+
+            var model = SetModel();
+            var result = SaveConnection(model);
+            if (result?.Id && result?.Id != '00000000-0000-0000-0000-000000000000') {
+                $('.Noti-connect').append(` <div class="valid-feedback" style="display:block; font-size:1rem;">Connect Success</div>`);
+            }
+
+        });
+
+        function SaveConnection(model) {
+            var result;
+            $.ajax('/api/SaveConnection', {
+                type: 'POST',  // http method
+                async: false,
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: function (reponse) {
+                    result = reponse
+                },
+                error: function (reponse) {
+                    result = reponse
+                }
+            });
+            return result;
+        }
+
+
+        function GetDatabaseNameList(model) {
+            var result;
+            $.ajax('/api/GetListDatabaseNameServer', {
+                type: 'POST',  // http method
+                async: false,
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: function (reponse) {
+                    result = reponse
+                },
+                error: function (reponse) {
+                    result = reponse
+                }
+            });
+            return result;
+        }
+
+        function CallCheckConntion(model) {
+            var result;
+            $.ajax('/api/CheckConntion', {
+                type: 'POST',  // http method
+                async: false,
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: function (reponse) {
+                    result = reponse
+                },
+                error: function (reponse) {
+                    result = reponse
+                }
+            });
+            return result;
+        }
+    </script>
+}
+
+<div class="card">
+    <div class="card-body">
+        <section class="vertical-wizard">
+            <div class="bs-stepper vertical vertical-wizard-example">
+                <div class="bs-stepper-header">
+                    <div class="step" data-target="#account-details-vertical" role="tab" id="account-details-vertical-trigger">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-box">1</span>
+                            <span class="bs-stepper-label">
+                                <span class="bs-stepper-title">Config Server</span>
+                                <span class="bs-stepper-subtitle">Setup Config Server</span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="step" data-target="#personal-info-vertical" role="tab" id="personal-info-vertical-trigger">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-box">2</span>
+                            <span class="bs-stepper-label">
+                                <span class="bs-stepper-title">Select Database</span>
+                                <span class="bs-stepper-subtitle">Select Database connect</span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="step" data-target="#address-step-vertical" role="tab" id="address-step-vertical-trigger">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-box">3</span>
+                            <span class="bs-stepper-label">
+                                <span class="bs-stepper-title">Address</span>
+                                <span class="bs-stepper-subtitle">Add Address</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bs-stepper-content" style="position:relative;">
+                    <div id="account-details-vertical" class="content" role="tabpanel" aria-labelledby="account-details-vertical-trigger">
+                        <div class="content-header">
+                            <h5 class="mb-0">Config Server</h5>
+                            <small class="text-muted">Enter Your Config Server.</small>
+                        </div>
+                        <div class="row">
+                            <div class="mb-1 col-md-6">
+                                <label class="form-label">ServerName</label>
+                                @Html.TextBoxFor(x => x.DatabaseConnectViewModel.ServerName, new { @class = "form-control ServerName" })
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="mb-1 form-password-toggle col-md-6">
+                                <label class="form-label">UserName</label>
+                                @Html.TextBoxFor(x => x.DatabaseConnectViewModel.UserName, new {  @class  = "form-control UserName" })
+                            </div>
+                            <div class="mb-1 form-password-toggle col-md-6">
+                                <label class="form-label">Password</label>
+                                @Html.TextBoxFor(x => x.DatabaseConnectViewModel.PassWord, new { @class = "form-control Password", type = "password", autocomplete = "new-password" })
+     
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-secondary btn-prev" disabled>
+                                <i data-feather="arrow-left" class="align-middle me-sm-25 me-0"></i>
+                                <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                            </button>
+                            <button class="btn btn-primary btn-next" id="next-from-config-server">
+                                <span class="align-middle d-sm-inline-block d-none">Next</span>
+                                <i data-feather="arrow-right" class="align-middle ms-sm-25 ms-0"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="personal-info-vertical" class="content" role="tabpanel" aria-labelledby="personal-info-vertical-trigger">
+                        <div class="content-header">
+                            <h5 class="mb-0">Select Database</h5>
+                            <small>Select Database.</small>
+                        </div>
+                        <div class="Noti-connect">
+                        </div>
+                        <div class="row">
+
+                            <div class="mb-1 col-md-6">
+                                <label class="form-label">Database</label>
+                                @Html.TextBoxFor(x => x.DatabaseName, new { @class = "form-control" })
+                            </div>
+                            <div class="mb-1 col-md-6">
+                                <label class="form-label" for="vertical-country">List database name</label>
+                                <select class="select2 select-databasename w-100" name="DatabaseName" id="vertical-country">
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="d-flex justify-content-between" style="position: absolute;width: 100%;">
+                            <button class="btn btn-primary btn-prev">
+                                <i data-feather="arrow-left" class="align-middle me-sm-25 me-0"></i>
+                                <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                            </button>
+                            <button class="btn btn-primary btn-next" id="next-save-server">
+                                <span class="align-middle d-sm-inline-block d-none">Next</span>
+                                <i data-feather="arrow-right" class="align-middle ms-sm-25 ms-0"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="address-step-vertical" class="content" role="tabpanel" aria-labelledby="address-step-vertical-trigger">
+                        <div class="content-header">
+                            <h5 class="mb-0">Create Job</h5>
+                        </div>
+                        <div class="Noti-Save-Database-Connect">
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-primary btn-next">
+                                <span class="align-middle d-sm-inline-block d-none">CreateJob</span>
+                                <i data-feather="arrow-right" class="align-middle ms-sm-25 ms-0"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+</div>

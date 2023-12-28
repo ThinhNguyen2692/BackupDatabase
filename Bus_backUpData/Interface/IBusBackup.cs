@@ -1,5 +1,6 @@
 ﻿using ModelProject.Models;
 using ModelProject.ViewModels;
+using ModelProject.ViewModels.ModelRequest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,10 @@ namespace Bus_backUpData.Interface
     {
         public bool SaveSetting(ConfigurationBackUp ConfigurationBackUp);
         public MessageBusViewModel CreateJob(ConfigurationBackUpViewModel configurationBackUpViewModel);
-        public MessageBusViewModel DeleteJob(string JobName);
-        public MessageBusViewModel StartJobNow(string jobname);
-        public MessageBusViewModel RestoreBackUp(string jobname);
-    }
+        public MessageBusViewModel DeleteJob(JobModel jobModel);
+        public MessageBusViewModel StartJobNow(JobModel jobModel);
+        public MessageBusViewModel RestoreBackUpNow(string DatabaseName, string Path, string FileName);
+        public MessageBusViewModel ExecuteRecoveryDatabase(string DatabaseName);
+
+	}
 }

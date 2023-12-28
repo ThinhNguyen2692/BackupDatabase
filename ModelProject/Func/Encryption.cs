@@ -11,11 +11,13 @@ namespace ModelProject.Func
 	{
 		public static string DecryptV2(string input)
 		{
+			if(string.IsNullOrEmpty(input)) return string.Empty;
 			var outPut = Encryption.DecryptV2(input);
 			return outPut;
 		}
 		public static string EncryptV2(string input)
 		{
+			if (string.IsNullOrEmpty(input)) return string.Empty;
 			var outPut = Encryption.EncryptV2(input);
 			return outPut;
 		}

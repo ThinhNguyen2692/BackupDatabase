@@ -11,17 +11,19 @@ using System.Threading.Tasks;
 
 namespace Bus_backUpData.Services
 {
-    public class AutoMapper : Profile
+    public class AutoModelMapperProfile : Profile
     {
-        public AutoMapper()
+        public AutoModelMapperProfile()
         {
             // Định nghĩa các bản đồ ánh xạ giữa các đối tượng
             CreateMap<ServerConnect, ServerConnectViewModel>()
                  .ForMember(dest => dest.DatabaseConnectViewModels, opt => opt.MapFrom(src => GetDatabaseConnectViewModels(src.DatabaseConnects.ToList())));
-			CreateMap<ConfigurationBackUpViewModel, ConfigurationBackUp>();
-			CreateMap<ConfigurationBackUp, ConfigurationBackUpViewModel>();
+            CreateMap<ConfigurationBackUpViewModel, ConfigurationBackUp>();
+                
+			CreateMap<ConfigurationBackUp, ConfigurationBackUpViewModel>()
+                .ForMember(dest => dest.DatabaseConnectViewModel, opt => opt.MapFrom(src => GetDatabaseConnectViewModel(src.DatabaseConnect)));
 
-			CreateMap<BackUpSettingViewModel, BackUpSetting>();
+            CreateMap<BackUpSettingViewModel, BackUpSetting>();
 			CreateMap<FTPSettingViewModel, FTPSetting>();
 			CreateMap<ScheduleBackupViewModel, ScheduleBackup>();
 			CreateMap<EmailConfirmationViewModel, EmailConfirmation>();
@@ -46,5 +48,15 @@ namespace Bus_backUpData.Services
             var res = databaseConnects.Select(x => new DatabaseConnectViewModel() { DatabaseName = x.DatabaseName }).ToList();
             return res;
         }
+        public DatabaseConnectViewModel GetDatabaseConnectViewModel(DatabaseConnect databaseConnect)
+        {
+            var res = new DatabaseConnectViewModel();
+            if(databaseConnect != null )
+            {
+                res.DatabaseName = databaseConnect.DatabaseName;
+               if (databaseConnect.ServerConnects != null) res.ServerName = databaseConnect.ServerConnects.ServerName;
+            }
+            return res;
+        }   
     }
 }

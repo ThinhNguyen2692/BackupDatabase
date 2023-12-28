@@ -25,6 +25,7 @@ namespace DalBackup.Services
 			if (data == null)
 			{
 				repository.Add(model);
+				_uniOfWork.SaveChanges();
 				return model;
 			}
 			return model;
@@ -36,7 +37,8 @@ namespace DalBackup.Services
 			if (data != null)
 			{
 				repository.Update(model);
-				return model;
+                _uniOfWork.SaveChanges();
+                return model;
 			}
 			return model;
 		}

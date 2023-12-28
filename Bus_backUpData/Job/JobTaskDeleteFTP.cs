@@ -25,9 +25,10 @@ namespace Bus_backUpData.Job
           
             JobKey key = context.JobDetail.Key;
             JobDataMap dataMap = context.JobDetail.JobDataMap;
-            string jobName = dataMap.GetString("jobName");
-           
-            _BusFTP.DeleteFTP(jobName);
+            string jobIdString = dataMap.GetString("jobId");
+            var jobId = Guid.Empty;
+            Guid.TryParse(jobIdString, out jobId);
+            _BusFTP.DeleteFTP(jobId);
             
             return Task.FromResult(true);
         }

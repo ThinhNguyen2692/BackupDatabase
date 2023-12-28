@@ -6,7 +6,17 @@
 
 @section js{
     <script>
-
+        document.addEventListener('DOMContentLoaded', function () {
+        @{
+            var databasename = @Model.DatabaseConnectViewModel.DatabaseName ?? string.Empty;
+            var servername = @Model.DatabaseConnectViewModel.ServerName ?? string.Empty;
+        }
+            var idDatabase = "@databasename";
+            var serverName = "@servername";
+            activeElementDatabase(idDatabase, serverName)
+            
+        });
+       
     </script>
 }
 
@@ -14,7 +24,7 @@
     <div class="card col-2 " style="width: 15%;">
         <div class="card-body">
             <div class="tab-jobs tab">
-                <div class="tab-tilte border-bottom"> <span>Jobs</span> <a asp-action="Index" asp-controller="Home" asp-route-JobName=""><i class="fas fa-plus icon-add icon-right float-end"></i></a></div>
+                <div class="tab-tilte border-bottom"> <span>Jobs</span> <a asp-action="Index" asp-controller="Home" asp-route-JobName="" asp-route-DatabaseName="@Model.DatabaseConnectViewModel.DatabaseName"><i class="fas fa-plus icon-add icon-right float-end"></i></a></div>
                 <div class="pt-1">
                     <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
                         @{
@@ -22,11 +32,11 @@
                             {
                                 if (item.Id == Model.Id)
                                 {
-                                    <li class="job-item list-group-item" style="background:#f8f8f8;border-radius:0.428rem;"> @Html.ActionLink(item.Name,"Index", new{jobname = item.Name}) </li>
+                                        <li class="job-item list-group-item" style="background:#f8f8f8;border-radius:0.428rem;">@Html.ActionLink(item.Name, "Index", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName, JobName = item.Name })</li>
                                 }
                                 else
                                 {
-                                    <li class="job-item list-group-item"> @Html.ActionLink(item.Name,"Index", new{jobname = item.Name})</li>
+                                        <li class="job-item list-group-item"> @Html.ActionLink(item.Name, "Index", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName, JobName = item.Name })</li>
                                 }
                             }
                         }
@@ -56,16 +66,16 @@
                                 @{
                                     if (Model.MessageBusViewModel.MessageStatus == MessageStatus.Error)
                                     {
-                                        <div class="invalid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
+                                            <div class="invalid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
                                     }
                                     else if (Model.MessageBusViewModel.MessageStatus == MessageStatus.Success)
                                     {
-                                        <div class="valid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
+                                            <div class="valid-feedback" style="display:block; font-size:1rem;"> @Model.MessageBusViewModel.Message </div>
                                     }
 
                                     if (Model.Id == Guid.Empty)
                                     {
-                                        <i class="fas fa-pen icon-blue text-success" id="editButton" style="position:absolute; right:0; z-index:10; top:0;"></i>
+                                            <i class="fas fa-pen icon-blue text-success" id="editButton" style="position:absolute; right:0; z-index:10; top:0;"></i>
                                     }
                                 }
                             </div>
@@ -647,9 +657,9 @@
 
                         if (Model.Id != Guid.Empty)
                         {
-                            <a asp-action="DeleteJob" asp-controller="Home" asp-route-JobName="@Model.BackupName" class="btn btn-danger waves-effect waves-light float-end mx-1">Delete</a>
-                            <a asp-action="RunJobNow" asp-controller="Home" asp-route-JobName="@Model.BackupName" class="btn btn-success waves-effect waves-light float-end mx-1">Run Now</a>
-                            <a asp-action="RestoreBackUp" asp-controller="Home" asp-route-JobName="@Model.BackupName" style="    background-color: #7367f0; border-color: #7367f0;color: #fff;" class="btn waves-effect waves-light float-end mx-1">Restore</a>
+                            @Html.ActionLink("Delete", "DeleteJob", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName, JobName = Model.BackupName }, new { @class = "btn btn-danger waves-effect waves-light float-end mx-1" })
+                            @Html.ActionLink("Run Now", "RunJobNow", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName, JobName = Model.BackupName }, new { @class = "btn btn-success waves-effect waves-light float-end mx-1" })
+                            @Html.ActionLink("Restore", "RestoreBackUp", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName, JobName = Model.BackupName }, new { style = " background-color: #7367f0; border-color: #7367f0;color: #fff;", @class = "btn waves-effect waves-light float-end mx-1" })
 
                         }
                     }
@@ -677,21 +687,21 @@
                     @{
                         foreach (var item in Model.JobHistoryViewModels)
                         {
-                            <tr>
+                                <tr>
 
-                                <th scope="row">@item.instance_id</th>
-                                <td>@item.job_name</td>
-                                @{
+                                    <th scope="row">@item.instance_id</th>
+                                    <td>@item.job_name</td>
+                                    @{
                                     short value = (short)item.run_status;
-                                }
-                                <td class="RunStatus-@item.run_status">@Extensions.GetEnumDisplayName((RunStatus)value)</td>
-                                <td>@item.run_date</td>
-                                <td>@item.run_time</td>
-                                <td>@item.server</td>
-                                <td>@item.message</td>
+                                    }
+                                    <td class="RunStatus-@item.run_status">@Extensions.GetEnumDisplayName((RunStatus)value)</td>
+                                    <td>@item.run_date</td>
+                                    <td>@item.run_time</td>
+                                    <td>@item.server</td>
+                                    <td>@item.message</td>
 
 
-                            </tr>
+                                </tr>
                         }
                     }
                 </tbody>

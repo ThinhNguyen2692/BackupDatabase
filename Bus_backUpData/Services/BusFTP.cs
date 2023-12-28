@@ -15,6 +15,9 @@ using System.Text;
 using System.Threading.Tasks;
 using static Bus_backUpData.Services.AutoModelMapper;
 using DalBackup.Interface;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using AutoMapper;
+using Azure;
 
 namespace Bus_backUpData.Services
 {
@@ -24,14 +27,16 @@ namespace Bus_backUpData.Services
         private readonly IBusConfigurationInformation _busConfigurationInformation;
         private readonly IDalConfigurationBackUp _dalConfigurationBackUp;
         private readonly IBusHistoryFTP _busHistoryFTP;
+        private readonly IMapper _mapper;
 
-        public BusFTP(IBusConfigViewModel busConfig, IBusConfigurationInformation busConfigurationBackUp, IBusHistoryFTP busHistoryFTP, IDalConfigurationBackUp dalConfigurationBackUp )
+        public BusFTP(IBusConfigViewModel busConfig, IBusConfigurationInformation busConfigurationBackUp, IBusHistoryFTP busHistoryFTP, IDalConfigurationBackUp dalConfigurationBackUp, IMapper mapper)
         {
 
             _BusConfig = busConfig;
             _busConfigurationInformation = busConfigurationBackUp;
             _busHistoryFTP = busHistoryFTP;
             _dalConfigurationBackUp = dalConfigurationBackUp;
+            _mapper = mapper;
         }
         /// <summary>
         /// Đẩy File sang FTP
@@ -44,8 +49,7 @@ namespace Bus_backUpData.Services
             var LogName = string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy"));
             if (ConfigurationBackUpViewModel != null)
             {
-                var mapper = MapperConfig<ConfigurationBackUpViewModel, ConfigurationBackUp>.InitializeAutomapper();
-                ConfigurationBackUp = mapper.Map<ConfigurationBackUpViewModel, ConfigurationBackUp>(ConfigurationBackUpViewModel);
+                 ConfigurationBackUp = _mapper.Map<ConfigurationBackUp>(ConfigurationBackUpViewModel);
             }
             WriteLogFile.WriteLog(LogName, "JobTask_PushFPT--------Run-------" + ConfigurationBackUp.BackupName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
 
@@ -55,22 +59,22 @@ namespace Bus_backUpData.Services
             if (string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.UserName) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.PassWord) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.Path) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.HostName)) return true;
             try
             {
-                var ServerName = _busConfigurationInformation.GetServerNameByJobName(ConfigurationBackUp.BackupName);
+                var ServerName = _busConfigurationInformation.GetServerNameByJobId(ConfigurationBackUp.Id);
 
                 if (string.IsNullOrEmpty(ServerName)) return false;
                 var ServerNameStr = ServerName;
                 ServerNameStr = ServerNameStr.Replace("\\", "$");
-                string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{Setting.DatabaseName}";
+                string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{ConfigurationBackUp.BackUpSetting.Name}\\{ConfigurationBackUp.BackUpSetting.BackUpType}";
                 var directory = new DirectoryInfo(pathLocation);
-                string fileNamePush = $"{Setting.DatabaseName}_{ConfigurationBackUp.BackUpSetting.BackUpType}";
-                var myFiledirectory = directory.GetFiles().Where(x => x.Name.ToString().ToLower().Contains(fileNamePush.ToLower())).ToList();
+                string fileNamePush = $"{ConfigurationBackUp.BackUpSetting.Name}_{ConfigurationBackUp.BackUpSetting.BackUpType}";
+                var myFiledirectory = directory.GetFiles().ToList();
 
                 var myFile = myFiledirectory.OrderByDescending(x => x.LastWriteTime).FirstOrDefault();
                 var FileName = ConfigurationBackUp.FTPSetting.Path + "\\" + myFile.Name;
                 WriteLogFile.WriteLog(LogName, string.Format("JobTask_PushFPT___DataPush__JobName: {0}. FileName: {1}. FullName: {2}. UserName: {3}. Pass: {4}", ConfigurationBackUp.BackupName, FileName, myFile.FullName, ConfigurationBackUp.FTPSetting.UserName, ConfigurationBackUp.FTPSetting.PassWord), Setting.FoderTask);
                 UploadFile(ConfigurationBackUp.FTPSetting.UserName, ConfigurationBackUp.FTPSetting.PassWord, FileName, myFile.FullName);
                 var FileNameHistory = ConfigurationBackUp.FTPSetting.Path + "/" + myFile.Name;
-                SaveFileFTP(ConfigurationBackUp.BackupName, FileNameHistory);
+                SaveFileFTP(ConfigurationBackUp.Id,ConfigurationBackUp.BackupName, FileNameHistory);
             }
             catch (Exception ex)
             {
@@ -80,14 +84,19 @@ namespace Bus_backUpData.Services
             }
             return true;
         }
-        public bool DeleteFTP(string JobName)
+        public bool DeleteFTP(Guid JobId)
         {
 
             var LogName = string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy"));
-            WriteLogFile.WriteLog(LogName, "JobTask_DeleteFTP_Start---------------" + JobName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
-            var settingConfogbackup = _dalConfigurationBackUp.GetData().FirstOrDefault(x => x.BackupName == JobName);
+            var settingConfogbackup = _dalConfigurationBackUp.FirstOrDefault(JobId);
+            if (settingConfogbackup == null)
+            {
+                return false;
+            }
+            WriteLogFile.WriteLog(LogName, "JobTask_DeleteFTP_Start---------------" + settingConfogbackup.BackupName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
+           
             var settingConfogbackupJson = System.Text.Json.JsonSerializer.Serialize(settingConfogbackup);
-            WriteLogFile.WriteLog(LogName, string.Format("JobTask_DeleteFTP__DataRun__Jobname: {0}. Data: {1}", JobName, settingConfogbackupJson), Setting.FoderTask);
+            WriteLogFile.WriteLog(LogName, string.Format("JobTask_DeleteFTP__DataRun__Jobname: {0}. Data: {1}", settingConfogbackup.BackupName, settingConfogbackupJson), Setting.FoderTask);
 
             if (settingConfogbackup != null)
             {
@@ -97,10 +106,10 @@ namespace Bus_backUpData.Services
                     || string.IsNullOrEmpty(settingConfogbackup.FTPSetting.HostName)) return true;
 
                 var ListFileFTP = _busHistoryFTP.LoadFileFTP();
-                var ListFileNameFTP = ListFileFTP.Where(x => x.JobName.Contains(JobName)).ToList();
+                var ListFileNameFTP = ListFileFTP.Where(x => x.JobId == JobId).ToList();
                 var ListFileNameFTPJson = System.Text.Json.JsonSerializer.Serialize(ListFileNameFTP);
                 WriteLogFile.WriteLog(LogName, string.Format("JobTask_DeleteFTP___DataDelete__JobName: {0}. UserName: {1}. PassWord: {2}.ListFileNameFTP: {3} ",
-                    JobName
+                    settingConfogbackup.BackupName
                     , settingConfogbackup.FTPSetting.UserName
                     , settingConfogbackup.FTPSetting.PassWord
                     , ListFileNameFTPJson), Setting.FoderTask);
@@ -113,12 +122,12 @@ namespace Bus_backUpData.Services
                 {
                     var listJobNameJson = System.Text.Json.JsonSerializer.Serialize(listJobName);
                     WriteLogFile.WriteLog(LogName, string.Format("JobTask_DeleteFTP_Data_File_Name_Delete_fail: {0}", listJobNameJson.ToString()), Setting.FoderTask);
-                    WriteLogFile.WriteLog(LogName, "JobTask_DeleteFTP_End-----------------" + JobName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
+                    WriteLogFile.WriteLog(LogName, "JobTask_DeleteFTP_End-----------------" + settingConfogbackup.BackupName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
                     return false;
                 }
 
             }
-            WriteLogFile.WriteLog(LogName, "JobTask_DeleteFTP_End-----------------" + JobName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
+            WriteLogFile.WriteLog(LogName, "JobTask_DeleteFTP_End-----------------" + settingConfogbackup.BackupName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
             return true;
         }
         private void UploadFile(string UserName, string Pass, string host, string From)
@@ -174,16 +183,16 @@ namespace Bus_backUpData.Services
             catch (Exception ex)
             {
                 WriteLogFile.WriteLog(string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy")), "JobTask_DeleteFTP_DeleteFile_Error: " + ex.Message, Setting.FoderTask);
-                throw;
+                return string.Empty;
             }
 
         }
 
-        public bool SaveFileFTP(string JobName, string FileName)
+        public bool SaveFileFTP(Guid JobId,string JobName, string FileName)
         {
             try
             {
-                var FileFTP = new HistoryFTP() { JobName = JobName, FullFilePathName = FileName };
+                var FileFTP = new HistoryFTP() { JobId = JobId, JobName = JobName, FullFilePathName = FileName };
                 _busHistoryFTP.AddHistoryFTP(FileFTP);
                 return true;
             }
@@ -199,13 +208,13 @@ namespace Bus_backUpData.Services
             return historFTP;
         }
 
-        public async void JobTaskPushFTp(string JobName)
+        public async void JobTaskPushFTp(Guid JobId)
         {
             var LogName = string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy"));
-            var configurationBackUp = _BusConfig.GetConfigurationBackUpViewModelByJobName(JobName);
+            var configurationBackUp = _BusConfig.GetConfigurationBackUpViewModelByJobId(JobId);
             if (configurationBackUp != null)
             {
-                var LogNew = configurationBackUp.JobHistoryViewModels.OrderByDescending(x => x.run_date).OrderByDescending(x => x.run_time).FirstOrDefault();
+                var LogNew = configurationBackUp.JobHistoryViewModels.OrderByDescending(x => x.run_date).OrderByDescending(x => x.run_time).ToList().FirstOrDefault();
                 if (LogNew != null)
                 {
                     var instance_id_Job = LogNew.instance_id;
@@ -216,7 +225,7 @@ namespace Bus_backUpData.Services
                         if (LogNew.run_status == RunStatus.InProgress)
                         {
                             await Task.Delay(180000);
-                            var listLogJob = _BusConfig.GetJobHistoryViewModels(JobName);
+                            var listLogJob = _BusConfig.GetJobHistoryViewModels(configurationBackUp);
                             LogNew = listLogJob.FirstOrDefault(x => x.instance_id == instance_id_Job);
                         }
                         else
@@ -234,10 +243,10 @@ namespace Bus_backUpData.Services
                     if (LogNew.run_status == RunStatus.Succeeded)
                     {
                         PushFPT(null, configurationBackUp);
-                        tilte = $"{JobName} Backup Database Success";
+                        tilte = $"{configurationBackUp.BackupName} Backup Database Success";
                         EmailTo = configurationBackUp.EmailConfirmation.EmailSuccess;
                     }
-                    else { tilte = $"{JobName} Backup Database Error"; EmailTo = configurationBackUp.EmailConfirmation.EmailFailure; }
+                    else { tilte = $"{configurationBackUp.BackupName} Backup Database Error"; EmailTo = configurationBackUp.EmailConfirmation.EmailFailure; }
 
                     string body = $"<h1> {tilte}</h1><p>{LogNew.message}</p>";
                     if (configurationBackUp.IsEmailConfirmation)
@@ -247,6 +256,28 @@ namespace Bus_backUpData.Services
                 }
             }
         }
+        public bool CheckFtpConnection(string ftpServer, string ftpUsername, string ftpPassword)
+        {
+            try
+            {
+                // Tạo yêu cầu FTP
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpServer);
+                request.Credentials = new NetworkCredential(ftpUsername, ftpPassword);
+                request.Method = WebRequestMethods.Ftp.PrintWorkingDirectory;
 
+                // Thực hiện yêu cầu và kiểm tra phản hồi
+                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+                {
+                    // Nếu không có lỗi, kết nối thành công
+                    return true;
+                }
+            }
+            catch (WebException ex)
+            {
+                // Xử lý lỗi, ví dụ: không thể kết nối hoặc thông tin đăng nhập không đúng
+                Console.WriteLine($"Lỗi kết nối FTP: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

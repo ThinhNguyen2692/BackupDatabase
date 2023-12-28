@@ -15,6 +15,12 @@ namespace ModelProject.Models
         public const string SQlsysjobs = "select name from msdb.dbo.sysjobs";
         public const string SQlServerName = "SELECT @@servername";
         public const string SQlsysdatabases = "SELECT name FROM master.dbo.sysdatabases";
-        
-    }
+        //Sử dụng database master chạy các lệnh
+        public const string SQlRestoreBackup = "RESTORE DATABASE @DatabaseName FROM DISK = @BackupFilePath WITH REPLACE, NORECOVERY";
+        public const string SQlRestoreBackupRecovery = "RESTORE DATABASE @DatabaseName WITH RECOVERY";
+		public const string SQlSINGLE_USER = "ALTER DATABASE [{0}] SET Single_User WITH Rollback Immediate";
+		public const string SQlMULTI_USER = "ALTER DATABASE [{0}] SET Multi_User";
+		public const string SQlSelectDatabasesStateDesc = "SELECT state_desc FROM sys.databases WHERE database_id = DB_ID(@DatabaseName)";
+		//Sử dụng database master chạy các lệnh
+	}
 }

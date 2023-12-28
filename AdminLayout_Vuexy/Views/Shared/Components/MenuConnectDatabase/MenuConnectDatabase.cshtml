@@ -1,16 +1,16 @@
 ﻿@using ModelProject.ViewModels.ViewModelConnect
 @model List<ServerConnectViewModel>
 
-
 <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
-	<li class=" nav-item">
+	<li class=" nav-item" id="Server-database">
 		<a class="d-flex align-items-center" href="#"><i data-feather="shield"></i><span class="menu-title text-truncate" data-i18n="Server">Server</span></a>
 		@{
-			foreach (var item in Model)
-			{
+			
 				<ul class="menu-content">
+				@foreach (var item in Model)
+				{
 					<!-- list server -->
-					<li class=" nav-item">
+					<li class=" nav-item" id="@item.ServerName">
 						<a class="d-flex align-items-center" href="#">
 						<i data-feather="shield"></i>
 							<span title="@item.ServerName" class="menu-title text-truncate" data-i18n="@item.ServerName">@item.ServerName</span>
@@ -29,7 +29,7 @@
 												<a class="d-flex align-items-center" asp-action="Index" asp-route-DatabaseName="@value.DatabaseName" asp-controller="Home"><i data-feather="circle"></i><span class="menu-item text-truncate" data-i18n="Backup">Backup</span></a>
 											</li>
 											<li>
-												<a class="d-flex align-items-center" href="app-access-permission.html"><i data-feather="circle"></i><span class="menu-item text-truncate" data-i18n="Restore">Restore</span></a>
+												<a class="d-flex align-items-center" asp-action="Privacy" asp-route-DatabaseName="@value.DatabaseName" asp-controller="Home"><i data-feather="circle"></i><span class="menu-item text-truncate" data-i18n="Restore">Restore</span></a>
 											</li>
 										</ul>
 									</li>
@@ -38,8 +38,9 @@
 						</ul>
 					</li>
 					<!-- list server -->
+					}
 				</ul>
-			}
+			
 		}
 	</li>
 

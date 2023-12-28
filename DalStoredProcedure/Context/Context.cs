@@ -15,7 +15,7 @@ namespace Bus_backUpData.Data
         public Context(DbContextOptions<Context> options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_con);
+            optionsBuilder.UseSqlServer(_con);  
         }    
     }
 }

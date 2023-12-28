@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -7,10 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\**" />
-    <Content Remove="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\**" />
-    <EmbeddedResource Remove="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\**" />
-    <None Remove="BackUpSql\SVR-HCM-DEMO%24SQL2019_SEHRM\**" />
+    <Compile Remove="BackUpSql\**" />
+    <Compile Remove="Config\**" />
+    <Content Remove="BackUpSql\**" />
+    <Content Remove="Config\**" />
+    <EmbeddedResource Remove="BackUpSql\**" />
+    <EmbeddedResource Remove="Config\**" />
+    <None Remove="BackUpSql\**" />
+    <None Remove="Config\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,11 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BackUpSql\" />
     <Folder Include="Logs\LogStartUp\" />
     <Folder Include="Logs\Task\" />
     <Folder Include="Logs\Task\" />
-    <Folder Include="Data\" />
   </ItemGroup>
 
 </Project>
