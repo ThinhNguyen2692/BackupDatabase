@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Not Found";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Unexpected error</title>
+
+    <!-- Meta -->
+    <meta name="description" content="Marketplace for Bootstrap Admin Dashboards" />
+    <meta name="author" content="Bootstrap Gallery" />
+    <link rel="canonical" href="https://www.bootstrap.gallery/">
+    <meta property="og:url" content="https://www.bootstrap.gallery">
+    <meta property="og:title" content="Admin Templates - Dashboard Templates | Bootstrap Gallery">
+    <meta property="og:description" content="Marketplace for Bootstrap Admin Dashboards">
+    <meta property="og:type" content="Website">
+    <meta property="og:site_name" content="Bootstrap Gallery">
+    <link rel="shortcut icon" href="~/app-assets/images/ico/Icon-Favicon.png" asp-append-version="true" />
+
+    <!-- *************
+            ************ CSS Files *************
+        ************* -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/main.min.css" asp-append-version="true" />
+</head>
+
+<body class="error-bg">
+
+    <!-- Error container starts -->
+    <div class="error-container">
+
+        <h1 class="mb-4 lh-1">500</h1>
+        <h4 class="fw-bold mb-3">
+            Unexpected error.
+        </h4>
+        <h6 class="mb-4">An internal error has occurred. We are working to resolve this issue. Please try again later.</h6>
+        @Html.ActionLink("Back to Home", "Index", "ConfigSetting", null, new { @class = "btn btn-primary rounded-5 px-4 py-2 fs-5" })
+    </div>
+    <!-- Error container ends -->
+
+</body>
+
+</html>

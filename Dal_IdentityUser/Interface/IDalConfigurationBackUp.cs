@@ -10,10 +10,10 @@ namespace DalBackup.Interface
     public interface IDalConfigurationBackUp
     {
         public ConfigurationBackUp Add(ConfigurationBackUp model);
-        public ConfigurationBackUp FirstOrDefault(string JobName, string DatabaseName);
+        public ConfigurationBackUp FirstOrDefault(string JobName, string DatabaseName, string ServerName);
         public ConfigurationBackUp? FirstOrDefault(Guid Id);
         public List<ConfigurationBackUp> GetData();
-        public List<ConfigurationBackUp> GetData(string DatabaseName);
+        public List<ConfigurationBackUp> GetData(string SeverName,string DatabaseName);
         public List<ConfigurationBackUp> GetData(Guid id);
         public ConfigurationBackUp Update(ConfigurationBackUp model);
         public ConfigurationBackUp Delete(ConfigurationBackUp model);

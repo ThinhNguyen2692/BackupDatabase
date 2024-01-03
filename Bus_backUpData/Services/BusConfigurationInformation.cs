@@ -12,6 +12,7 @@ using ModelProject.ViewModels;
 using DalStoredProcedure.Interface;
 using Microsoft.Data.SqlClient;
 using ModelProject.ViewModels.ModelRequest;
+using DalBackup.Services;
 
 namespace Bus_backUpData.Services
 {
@@ -32,9 +33,9 @@ namespace Bus_backUpData.Services
         /// <param name="jobname"></param>
         /// <param name="dataBaseName"></param>
         /// <returns></returns>
-        public bool DeleteJsonBackUp(string jobname, string dataBaseName)
+        public bool DeleteJsonBackUp(string ServerName, string DatabaseName, string JobName)
         {
-            var ConfigurationBackUpDelete = _dalConfigurationBackUp.FirstOrDefault(jobname, dataBaseName);
+            var ConfigurationBackUpDelete = _dalConfigurationBackUp.FirstOrDefault(JobName, DatabaseName, ServerName);
             var result = DeleteBackUpBy(ConfigurationBackUpDelete);
             return false;
         }
@@ -67,12 +68,19 @@ namespace Bus_backUpData.Services
         /// </summary>
         /// <param name="DatabaseName">thông tin get string</param>
         /// <returns>Chuỗi connectString</returns>
-        public string GetConnectStringByDatabaseName(string DatabaseName)
+        public string GetConnectStringByDatabase(string ServerName, string DatabaseName)
         {
-			var databaseConnect = _dalDatabaseConnect.FirstOrDefault(DatabaseName);
+			var databaseConnect = _dalDatabaseConnect.FirstOrDefault(ServerName,DatabaseName);
 			var connectionstring = GetConnectString(databaseConnect);
             return connectionstring;
 		}
+        public string GetConnectStringByDatabase(Guid Id)
+        {
+            var databaseConnect = _dalDatabaseConnect.FirstOrDefault(Id);
+            var connectionstring = GetConnectString(databaseConnect);
+            return connectionstring;
+        }
+       
         public string GetConnectString(DatabaseConnect? databaseConnect)
         {
             if (databaseConnect == null) return string.Empty;
@@ -84,14 +92,22 @@ namespace Bus_backUpData.Services
         /// </summary>
         /// <param name="JobName">thông tin get string</param>
         /// <returns>Chuỗi connectString</returns>
-        public string GetConnectStringByJobName(string JobName, string DatbaseName)
+        public string GetConnectStringByJob(string ServerName, string DatbaseName,string JobName)
 		{
-            var configurationBackUp = _dalConfigurationBackUp.FirstOrDefault(JobName, DatbaseName);
-           return GetConnectString(configurationBackUp.DatabaseConnect);
-		}
-        public string GetConnectStringByJobId(Guid Id)
+            var configurationBackUp = _dalConfigurationBackUp.FirstOrDefault(JobName, DatbaseName, ServerName);
+            return GetConnectStringByJob(configurationBackUp);
+        }
+        public string GetConnectStringByJob(Guid Id)
         {
             var configurationBackUp = _dalConfigurationBackUp.FirstOrDefault(Id);
+            return GetConnectStringByJob(configurationBackUp);
+        }
+
+        public string GetConnectStringByJob(ConfigurationBackUp? configurationBackUp)
+        {
+            if (configurationBackUp == null || 
+                configurationBackUp.DatabaseConnect == null || 
+                configurationBackUp.DatabaseConnect.ServerConnects == null) return string.Empty;
             return GetConnectString(configurationBackUp.DatabaseConnect);
         }
 
@@ -100,32 +116,48 @@ namespace Bus_backUpData.Services
         /// </summary>
         /// <param name="DatabaseName">thông tin lấy servername</param>
         /// <returns> connectString</returns>
-        public string GetServerNameByDatabaseName(string DatabaseName)
+        public string GetServerNameByDatabase(string ServerName, string DatabaseName)
 		{
-			var Connectstring = GetConnectStringByDatabaseName(DatabaseName);
-			Connectstring = Connectstring.Replace(DatabaseName, Setting.UsingMaster);
-			var servername =  GetServerName(Connectstring);
-			return servername ?? string.Empty;
-		}
-
-		/// <summary>
-		/// Get server name connect 
-		/// </summary>
-		/// <param name="JobName">thông tin lấy servername</param>
-		/// <returns> connectString</returns>
-		public string GetServerNameByJobName(string JobName, string DatabaseName)
+			
+            var databaseConnect = _dalDatabaseConnect.FirstOrDefault(ServerName, DatabaseName);
+            var servername = GetServerNameByDatabase(databaseConnect);
+            return servername ?? string.Empty;
+        }
+        public string GetServerNameByDatabase(Guid Id)
+        {
+            var databaseConnect = _dalDatabaseConnect.FirstOrDefault(Id);
+            var servername = GetServerNameByDatabase(databaseConnect);
+            return servername ?? string.Empty;
+        }
+        public string GetServerNameByDatabase(DatabaseConnect databaseConnect)
+        {
+            if (databaseConnect == null) return string.Empty;
+            var Connectstring = GetConnectString(databaseConnect);
+            Connectstring = Connectstring.Replace(databaseConnect.DatabaseName, Setting.UsingMaster);
+            var servername = GetServerName(Connectstring);
+            return servername ?? string.Empty;
+        }
+        /// <summary>
+        /// Get server name connect 
+        /// </summary>
+        /// <param name="JobName">thông tin lấy servername</param>
+        /// <returns> connectString</returns>
+        public string GetServerNameByJob(string ServerName, string DatabaseName, string JobName)
 		{
-            var configurationBackUp = _dalConfigurationBackUp.FirstOrDefault(JobName, DatabaseName);
+            var configurationBackUp = _dalConfigurationBackUp.FirstOrDefault(JobName, DatabaseName, ServerName);
             if (configurationBackUp == null) return string.Empty;
-            var servername = GetConnectString(configurationBackUp.DatabaseConnect);
-			return servername ?? string.Empty;
+            var ConnectString = GetConnectString(configurationBackUp.DatabaseConnect);
+            var servername = GetServerName(ConnectString);
+
+            return servername ?? string.Empty;
 		}
 
-        public string GetServerNameByJobId(Guid Id)
+        public string GetServerNameByJob(Guid Id)
         {
             var configurationBackUp = _dalConfigurationBackUp.FirstOrDefault(Id);
             if (configurationBackUp == null) return string.Empty;
-            var servername = GetConnectString(configurationBackUp.DatabaseConnect);
+            var ConnectString = GetConnectString(configurationBackUp.DatabaseConnect);
+            var servername = GetServerName(ConnectString);
             return servername ?? string.Empty;
         }
 
@@ -141,16 +173,16 @@ namespace Bus_backUpData.Services
             return servernameString;
 		}
 
-		public bool IsJob(string JobName, string DatbaseName)
+		public bool IsJob(string ServerName, string DatabaseName, string JobName)
 		{
-            var configurationBackUp = _dalConfigurationBackUp.FirstOrDefault(JobName, DatbaseName);
+            var configurationBackUp = _dalConfigurationBackUp.FirstOrDefault(JobName, DatabaseName, ServerName);
             if (configurationBackUp == null) return false;
             return IsJob(configurationBackUp.Id);
 		}
 
         public bool IsJob(Guid Id)
         {
-            var connectString = GetConnectStringByJobId(Id);
+            var connectString = GetConnectStringByJob(Id);
             var ConfigurationBackUpDelete = _dalConfigurationBackUp.FirstOrDefault(Id);
 			if (ConfigurationBackUpDelete == null) { return false; }
             var SysJobListName = _dalStoredProcedureServices.SqlQueryRaw(connectString, StringSql.SQlsysjobs).ToList();
@@ -164,9 +196,9 @@ namespace Bus_backUpData.Services
         /// </summary>
         /// <param name="DatabaseName"></param>
         /// <returns></returns>
-        public bool IsRecovery(string DatabaseName)
+        public bool IsRecovery(string ServerName, string DatabaseName)
 		{
-			var DatabasesStateDesc = StateDescDB(DatabaseName);
+			var DatabasesStateDesc = StateDescDB(ServerName,DatabaseName);
 			var IsRecovery = true;
 			if (string.IsNullOrEmpty(DatabasesStateDesc) || DatabasesStateDesc != "ONLINE")
 			{
@@ -174,36 +206,52 @@ namespace Bus_backUpData.Services
 			}
 			return IsRecovery;
 		}
-		public string? StateDescDB(string DatabaseName)
+		public string? StateDescDB(string ServerName, string DatabaseName)
 		{
 			var SqlParameters = new List<SqlParameter>();
 			SqlParameters.Add(new SqlParameter("@DatabaseName", DatabaseName));
-			var Connectstring = GetConnectStringByDatabaseName(DatabaseName);
+			var Connectstring = GetConnectStringByDatabase(ServerName,DatabaseName);
 			Connectstring = Connectstring.Replace(DatabaseName, Setting.UsingMaster);
 			var DatabasesStateDescs = _dalStoredProcedureServices.SqlQueryRaw(Connectstring, StringSql.SQlSelectDatabasesStateDesc, SqlParameters);
 			var DatabasesStateDesc = DatabasesStateDescs.FirstOrDefault();		
 			return DatabasesStateDesc;
 		}
-
-
-        public JobModel GetFullJobModel(JobModel jobModel)
+        public JobViewModel GetFullJobModel(JobViewModel jobModel)
         {
             var Config = new ConfigurationBackUp();
-            if ((string.IsNullOrEmpty(jobModel.DatabaseName) || string.IsNullOrEmpty(jobModel.JobName)) && jobModel.Id != Guid.Empty)
+            if ((string.IsNullOrEmpty(jobModel.DatabaseName) ||
+                string.IsNullOrEmpty(jobModel.JobName) ||
+                string.IsNullOrEmpty(jobModel.ServerName)) &&
+                jobModel.Id != Guid.Empty)
             {
                 Config = _dalConfigurationBackUp.FirstOrDefault(jobModel.Id);
                 if (Config == null) { return jobModel; }
                 jobModel.DatabaseName = Config.DatabaseConnect.DatabaseName;
                 jobModel.JobName = Config.BackupName;
+                jobModel.ServerName = Config.DatabaseConnect.ServerConnects.ServerName;
             }
-            else if ((!string.IsNullOrEmpty(jobModel.DatabaseName) && !string.IsNullOrEmpty(jobModel.JobName)) && (jobModel.Id == Guid.Empty || jobModel.Id == null))
+            else if ((!string.IsNullOrEmpty(jobModel.DatabaseName) &&
+                !string.IsNullOrEmpty(jobModel.JobName) &&
+                !string.IsNullOrEmpty(jobModel.ServerName)) &&
+                (jobModel.Id == Guid.Empty ||
+                jobModel.Id == null))
             {
-                Config = _dalConfigurationBackUp.FirstOrDefault(jobModel.JobName, jobModel.DatabaseName);
+                Config = _dalConfigurationBackUp.FirstOrDefault(jobModel.JobName, jobModel.DatabaseName, jobModel.ServerName);
                 if (Config == null) { return jobModel; }
                 jobModel.Id = Config.Id;
-            }
+				
+			}
             return jobModel;
         }
-
+        public string GetBackUpSettingPath(string ServerName, string DatabaseName)
+        {
+            var dataConfigurationBackUps = _dalConfigurationBackUp.GetData(ServerName, DatabaseName);
+            var dataConfigurationBackUp = dataConfigurationBackUps.FirstOrDefault();
+            if (dataConfigurationBackUp == null)
+            {
+                return string.Empty;
+            }
+            return dataConfigurationBackUp.BackUpSetting.Path;
+        }
     }
 }

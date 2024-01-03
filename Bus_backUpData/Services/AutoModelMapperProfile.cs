@@ -45,7 +45,12 @@ namespace Bus_backUpData.Services
             if (databaseConnects == null) {
                 return new List<DatabaseConnectViewModel>();
             }
-            var res = databaseConnects.Select(x => new DatabaseConnectViewModel() { DatabaseName = x.DatabaseName }).ToList();
+            var res = databaseConnects.Select(x => new DatabaseConnectViewModel() {
+                DatabaseName = x.DatabaseName,
+                ServerName = x.ServerConnects.ServerName,
+                Id = x.Id
+
+        }).ToList();
             return res;
         }
         public DatabaseConnectViewModel GetDatabaseConnectViewModel(DatabaseConnect databaseConnect)
@@ -54,7 +59,11 @@ namespace Bus_backUpData.Services
             if(databaseConnect != null )
             {
                 res.DatabaseName = databaseConnect.DatabaseName;
-               if (databaseConnect.ServerConnects != null) res.ServerName = databaseConnect.ServerConnects.ServerName;
+                res.Id = databaseConnect.Id;
+                if (databaseConnect.ServerConnects != null) {
+                    res.ServerName = databaseConnect.ServerConnects.ServerName; 
+                    
+                }
             }
             return res;
         }   

@@ -8,6 +8,7 @@ namespace ModelProject.ViewModels.ViewModelConnect
 {
     public class DatabaseConnectViewModel
     {
+        public Guid Id { get; set; }
         public string DatabaseName { get; set; }
         public string ServerName { get; set; }
         public string PassWord { get; set; }

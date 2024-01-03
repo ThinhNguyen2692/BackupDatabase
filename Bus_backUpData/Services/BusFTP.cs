@@ -18,6 +18,7 @@ using DalBackup.Interface;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using AutoMapper;
 using Azure;
+using System.IO;
 
 namespace Bus_backUpData.Services
 {
@@ -59,22 +60,25 @@ namespace Bus_backUpData.Services
             if (string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.UserName) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.PassWord) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.Path) || string.IsNullOrEmpty(ConfigurationBackUp.FTPSetting.HostName)) return true;
             try
             {
-                var ServerName = _busConfigurationInformation.GetServerNameByJobId(ConfigurationBackUp.Id);
+                var ServerName = _busConfigurationInformation.GetServerNameByJob(ConfigurationBackUp.Id);
 
                 if (string.IsNullOrEmpty(ServerName)) return false;
                 var ServerNameStr = ServerName;
                 ServerNameStr = ServerNameStr.Replace("\\", "$");
-                string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{ConfigurationBackUp.BackUpSetting.Name}\\{ConfigurationBackUp.BackUpSetting.BackUpType}";
+                string pathLocation = ConfigurationBackUp.BackUpSetting.Path + $"\\{ServerNameStr}\\{ConfigurationBackUp.BackUpSetting.Name}\\{ConfigurationBackUp.BackUpSetting.BackUpType}";
                 var directory = new DirectoryInfo(pathLocation);
-                string fileNamePush = $"{ConfigurationBackUp.BackUpSetting.Name}_{ConfigurationBackUp.BackUpSetting.BackUpType}";
-                var myFiledirectory = directory.GetFiles().ToList();
+                if (directory.Exists)
+                {
+                    string fileNamePush = $"{ConfigurationBackUp.BackUpSetting.Name}_{ConfigurationBackUp.BackUpSetting.BackUpType}";
+                    var myFiledirectory = directory.GetFiles().ToList();
 
-                var myFile = myFiledirectory.OrderByDescending(x => x.LastWriteTime).FirstOrDefault();
-                var FileName = ConfigurationBackUp.FTPSetting.Path + "\\" + myFile.Name;
-                WriteLogFile.WriteLog(LogName, string.Format("JobTask_PushFPT___DataPush__JobName: {0}. FileName: {1}. FullName: {2}. UserName: {3}. Pass: {4}", ConfigurationBackUp.BackupName, FileName, myFile.FullName, ConfigurationBackUp.FTPSetting.UserName, ConfigurationBackUp.FTPSetting.PassWord), Setting.FoderTask);
-                UploadFile(ConfigurationBackUp.FTPSetting.UserName, ConfigurationBackUp.FTPSetting.PassWord, FileName, myFile.FullName);
-                var FileNameHistory = ConfigurationBackUp.FTPSetting.Path + "/" + myFile.Name;
-                SaveFileFTP(ConfigurationBackUp.Id,ConfigurationBackUp.BackupName, FileNameHistory);
+                    var myFile = myFiledirectory.OrderByDescending(x => x.LastWriteTime).FirstOrDefault();
+                    var FileName = ConfigurationBackUp.FTPSetting.Path + "\\" + myFile.Name;
+                    WriteLogFile.WriteLog(LogName, string.Format("JobTask_PushFPT___DataPush__JobName: {0}. FileName: {1}. FullName: {2}. UserName: {3}. Pass: {4}", ConfigurationBackUp.BackupName, FileName, myFile.FullName, ConfigurationBackUp.FTPSetting.UserName, ConfigurationBackUp.FTPSetting.PassWord), Setting.FoderTask);
+                    UploadFile(ConfigurationBackUp.FTPSetting.UserName, ConfigurationBackUp.FTPSetting.PassWord, FileName, myFile.FullName);
+                    var FileNameHistory = ConfigurationBackUp.FTPSetting.Path + "/" + myFile.Name;
+                    SaveFileFTP(ConfigurationBackUp.Id, ConfigurationBackUp.BackupName, FileNameHistory);
+                }
             }
             catch (Exception ex)
             {
@@ -260,8 +264,9 @@ namespace Bus_backUpData.Services
         {
             try
             {
-                // Tạo yêu cầu FTP
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpServer);
+				// Tạo yêu cầu FTP
+				ftpPassword = EncryptionSecurity.Base64String(ftpPassword);
+				FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpServer);
                 request.Credentials = new NetworkCredential(ftpUsername, ftpPassword);
                 request.Method = WebRequestMethods.Ftp.PrintWorkingDirectory;
 

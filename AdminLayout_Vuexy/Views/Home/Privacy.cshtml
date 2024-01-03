@@ -33,7 +33,7 @@
 		function redirectToNewPage(BackUpTypeName) {
 		@{
 
-			var url = Url.Action("ManagerFile", "Home", new { BackUpTypeName = "BackUpTypeName", DatabaseName = Model.DatabaseConnectViewModel.DatabaseName });
+			var url = Url.Action("ManagerFile", "Home", new { BackUpTypeName = "BackUpTypeName", DatabaseName = databasename, ServerName = servername });
 			var ishref = Model.MessageBusViewModel.MessageStatus != MessageStatus.Error ? true : false;
 		}
 			var ishref = @System.Text.Json.JsonSerializer.Serialize(ishref);
@@ -174,7 +174,11 @@
 											if (!Model.IsRecovery)
 											{
 												<div class="btn-group view-toggle ms-50" role="group">
-													@Html.ActionLink("Recovery", "Recovery", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName}, new { style = " background-color: #7367f0; border-color: #7367f0;color: #fff;", @class = "btn waves-effect waves-light float-end mx-1" })
+													@Html.ActionLink("Recovery", "Recovery", "Home", new
+														{
+															DatabaseName = Model.DatabaseConnectViewModel.DatabaseName,
+															ServerName = Model.DatabaseConnectViewModel.ServerName
+														}, new { style = " background-color: #7367f0; border-color: #7367f0;color: #fff;", @class = "btn waves-effect waves-light float-end mx-1" })
 												</div>
 											}
 										}

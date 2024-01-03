@@ -27,15 +27,28 @@ namespace DalBackup.Services
 		{
 			try
 			{
-
-				if (model.Id == Guid.Empty)
+				var data = FirstOrDefault(model.Id);
+				if (data == null)
 				{
 					Add(model);
 				}
 				else
 				{
+				
 					Update(model);
-				}
+
+                 var datas = repository
+                .Where(predicate: x => x.IsDeleted != true && x.DatabaseConnect.DatabaseName == data.DatabaseConnect.DatabaseName &&
+                x.DatabaseConnect.ServerConnects.ServerName == data.DatabaseConnect.ServerConnects.ServerName,
+                include: x => x.Include(x => x.BackUpSetting)
+                .Include(x => x.DatabaseConnect).ThenInclude(x => x.ServerConnects),
+                disableTracking: false).ToList();
+					datas.ForEach(x => {
+						x.BackUpSetting.Path = model.BackUpSetting.Path;
+
+					}) ;
+                    _uniOfWork.SaveChanges();
+                }
 				return model;
 			}
 			catch (Exception ex)
@@ -51,7 +64,7 @@ namespace DalBackup.Services
 		{
 			try
 			{
-				var data = FirstOrDefault(model.BackupName, model.DatabaseConnect.DatabaseName);
+				var data = FirstOrDefault(model.Id);
 				if (data == null)
 				{
 					if (model.FTPSetting != null)
@@ -74,7 +87,7 @@ namespace DalBackup.Services
 			}
 			return model;
 		}
-		public ConfigurationBackUp? FirstOrDefault(string JobName, string DatabaseName)
+		public ConfigurationBackUp? FirstOrDefault(string JobName, string DatabaseName, string ServerName)
 		{
 			// var data = context.ProductBrands.Where(c => c.BrandId.Contains(id)).FirstOrDefault();
 			var data = repository.Where(predicate: x => x.IsDeleted != true
@@ -83,13 +96,17 @@ namespace DalBackup.Services
 				.Include(x => x.ScheduleBackup)
 				.Include(x => x.EmailConfirmation)
 				.Include(x => x.FTPSetting)
-				.Include(x => x.DatabaseConnect),
+				.Include(x => x.DatabaseConnect).ThenInclude(x => x.ServerConnects),
 				 disableTracking: true)
-				.FirstOrDefault(x => x.DatabaseConnect.DatabaseName == DatabaseName);
+				.FirstOrDefault(x => x.DatabaseConnect.DatabaseName == DatabaseName && x.DatabaseConnect.ServerConnects.ServerName == ServerName);
 			if (data != null)
 			{
 				data.FTPSetting.PassWord = EncryptionSecurity.DecryptV2(data.FTPSetting.PassWord);
-			}
+                if (data.DatabaseConnect != null && data.DatabaseConnect.ServerConnects != null)
+                {
+                    data.DatabaseConnect.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(data.DatabaseConnect.ServerConnects.PassWord);
+                }
+            }
 			return data;
 		}
         public ConfigurationBackUp? FirstOrDefault(Guid Id)
@@ -101,12 +118,16 @@ namespace DalBackup.Services
                 .Include(x => x.ScheduleBackup)
                 .Include(x => x.EmailConfirmation)
                 .Include(x => x.FTPSetting)
-                .Include(x => x.DatabaseConnect),
+                .Include(x => x.DatabaseConnect).ThenInclude(x => x.ServerConnects),
                  disableTracking: true)
                 .FirstOrDefault();
             if (data != null)
             {
                 data.FTPSetting.PassWord = EncryptionSecurity.DecryptV2(data.FTPSetting.PassWord);
+                if(data.DatabaseConnect != null && data.DatabaseConnect.ServerConnects != null)
+				{
+                    data.DatabaseConnect.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(data.DatabaseConnect.ServerConnects.PassWord);
+                }
             }
             return data;
         }
@@ -123,15 +144,20 @@ namespace DalBackup.Services
 			data.ForEach(x =>
 			{
 				x.FTPSetting.PassWord = EncryptionSecurity.DecryptV2(x.FTPSetting.PassWord);
-			});
+                if (x.DatabaseConnect != null && x.DatabaseConnect.ServerConnects != null)
+                {
+                    x.DatabaseConnect.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(x.DatabaseConnect.ServerConnects.PassWord);
+                }
+            });
 
 			return data;
 		}
 
-        public List<ConfigurationBackUp> GetData(string DatabaseName)
+        public List<ConfigurationBackUp> GetData(string SeverName, string DatabaseName)
         {
             var data = repository
-                .Where(predicate: x => x.IsDeleted != true && x.DatabaseConnect.DatabaseName == DatabaseName,
+                .Where(predicate: x => x.IsDeleted != true && x.DatabaseConnect.DatabaseName == DatabaseName &&
+				x.DatabaseConnect.ServerConnects.ServerName == SeverName,
                  include: x => x.Include(x => x.BackUpSetting)
                 .Include(x => x.ScheduleBackup)
                 .Include(x => x.FTPSetting)
@@ -141,6 +167,10 @@ namespace DalBackup.Services
             data.ForEach(x =>
             {
                 x.FTPSetting.PassWord = EncryptionSecurity.DecryptV2(x.FTPSetting.PassWord);
+                if (x.DatabaseConnect != null && x.DatabaseConnect.ServerConnects != null)
+                {
+                    x.DatabaseConnect.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(x.DatabaseConnect.ServerConnects.PassWord);
+                }
             });
 
             return data;
@@ -159,6 +189,10 @@ namespace DalBackup.Services
             data.ForEach(x =>
             {
                 x.FTPSetting.PassWord = EncryptionSecurity.DecryptV2(x.FTPSetting.PassWord);
+                if (x.DatabaseConnect != null && x.DatabaseConnect.ServerConnects != null)
+                {
+                    x.DatabaseConnect.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(x.DatabaseConnect.ServerConnects.PassWord);
+                }
             });
 
             return data;
@@ -170,7 +204,11 @@ namespace DalBackup.Services
             {
                 model.FTPSetting.PassWord = EncryptionSecurity.EncryptV2(model.FTPSetting.PassWord);
             }
-            repository.Update(model);
+			if (model.DatabaseConnect != null && model.DatabaseConnect.ServerConnects != null)
+			{
+				model.DatabaseConnect.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(model.DatabaseConnect.ServerConnects.PassWord);
+			}
+			repository.Update(model);
             _uniOfWork.SaveChanges();
             return model;
 		}

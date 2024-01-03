@@ -11,7 +11,8 @@ namespace ModelProject.ViewModels
         None,
         Success,
         Error,
-        FTPFail
+        FTPFail,
+        NotFound
     }
     public class MessageBusViewModel
     {

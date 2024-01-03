@@ -91,6 +91,8 @@ namespace Bus_backUpData.Job
             kernel.Bind<IBusConfigurationInformation>().To<BusConfigurationInformation>();
             kernel.Bind<IBusConfigViewModel>().To<BusConfigViewModel>();
             kernel.Bind<IBusFTP>().To<BusFTP>();
+            kernel.Bind<IBusConfigServer>().To<BusConfigServer>();
+            kernel.Bind<IBusStoredProcedureServices>().To<BusStoredProcedureServices>();
            
 
             // etc.

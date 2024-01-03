@@ -1,4 +1,5 @@
-﻿using ModelProject.ViewModels.ViewModelSeverConfig;
+﻿using ModelProject.ViewModels;
+using ModelProject.ViewModels.ViewModelSeverConfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,11 @@ namespace Bus_backUpData.Interface
 {
     public interface IBusStoredProcedureServices
     {
-        public bool CheckConnection(ServerConnectionViewModel serverConnectionViewModel);
+        public Task<bool> CheckConnectionAsync(ServerConnectionViewModel serverConnectionViewModel);
         public List<string> GetListDatabaseNameServer(ServerConnectionViewModel serverConnectionViewModel);
-        public void CreateSettingDatabase(ServerConnectionViewModel serverConnectionViewModel);
+        public MessageBusViewModel CreateSettingDatabase(ServerConnectionViewModel serverConnectionViewModel);
+        public MessageBusViewModel ScriptExecute(string sqlScript, string connectionString);
 
-	}
+
+    }
 }

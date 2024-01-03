@@ -1,6 +1,8 @@
 ﻿@using ModelProject.ViewModels.ViewModelSeverConfig
 @model ServerConnectionViewModel
-
+@{
+    var url = Url.Action("Index", "Home", new { DatabaseName = "DatabaseName", ServerName = "ServerName" });
+}
 @section js{
     <script>
 
@@ -16,35 +18,55 @@
         }
 
         $("#next-from-config-server").click(function () {
+            $('.Noti-connect-item').text("Connect...");
+            $("#loader-wrapper").css("display", "flex");
             var model = SetModel();
-            var result = CallCheckConntion(model);
-            if (result == true) {
-                $('.Noti-connect').append(` <div class="valid-feedback" style="display:block; font-size:1rem;">Connect  Success</div>`);
-                var resultListDatabaseName = GetDatabaseNameList(model);
-                resultListDatabaseName.forEach(function (item) {
-                    $('.select-databasename').append(`<option value="${item}">
-                                                       ${item}
-                                          </option>`);
-                })
-            } else {
-                $('.Noti-connect').append(` <div class="invalid-feedback" style="display:block; font-size:1rem;">Connect  error</div>`);
-            }
+            setTimeout(function () {
+                var result = CallCheckConntion(model);
+                if (result == true) {
+                    $('.Noti-connect-item').text("Connect Success");
+                    $('.Noti-connect-item.valid-feedback').css("display", "block");
+                    $('.Noti-connect-item.invalid-feedback').css("display", "none");
+                    var resultListDatabaseName = GetDatabaseNameList(model);
+                    resultListDatabaseName.forEach(function (item) {
+                        $('.select-databasename').append(`<option value="${item}">
+                                                               ${item}
+                                                  </option>`);
+                    })
+                } else {
+                    $('.Noti-connect-item').text("Connect Error");
+                    $('.Noti-connect-item.valid-feedback').css("display", "none");
+                    $('.Noti-connect-item.invalid-feedback').css("display", "block");
+                }
+                $("#loader-wrapper").css("display", "none");
+            }, 20);
+           
+    
         })
         $("#next-save-server").click(function () {
-
+            $("#loader-wrapper").css("display", "flex");
             var model = SetModel();
+            setTimeout(function () {
             var result = SaveConnection(model);
-            if (result?.Id && result?.Id != '00000000-0000-0000-0000-000000000000') {
-                $('.Noti-connect').append(` <div class="valid-feedback" style="display:block; font-size:1rem;">Connect Success</div>`);
+            if (result?.Id && result?.Id != '00000000-0000-0000-0000-000000000000' && result?.MessageBusViewModel.MessageStatus == "Success") {
+                $('.Noti-connect-database-item.valid-feedback').css("display", "block");
+                $('.Noti-connect-database-item.invalid-feedback').css("display", "none");
+            } else {
+                $('.Noti-connect-database-item.valid-feedback').css("display", "none");
+                $('.Noti-connect-database-item.invalid-feedback').css("display", "block");
             }
-
+            if (result?.Message) {
+                $('.Noti-connect-databaset-item').text(result?.Message);
+            }
+            }, 10);
+            $("#loader-wrapper").css("display", "none");
         });
 
         function SaveConnection(model) {
             var result;
             $.ajax('/api/SaveConnection', {
                 type: 'POST',  // http method
-                async: false,
+                async: true,
                 contentType: 'application/json',
                 data: JSON.stringify(model),
                 success: function (reponse) {
@@ -91,11 +113,23 @@
             });
             return result;
         }
+        $('.btn-CreateJob').click(function () {
+            var ServerName = $('.ServerName').val();
+            var Databasename = $('.select-databasename').val();
+            var url = '@url';
+            url = url.replace('ServerName', ServerName)
+            url = url.replace('DatabaseName', Databasename)
+            window.location.href = url;
+
+
+
+        });
     </script>
 }
 
 <div class="card">
     <div class="card-body">
+        
         <section class="vertical-wizard">
             <div class="bs-stepper vertical vertical-wizard-example">
                 <div class="bs-stepper-header">
@@ -121,8 +155,8 @@
                         <button type="button" class="step-trigger">
                             <span class="bs-stepper-box">3</span>
                             <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">Address</span>
-                                <span class="bs-stepper-subtitle">Add Address</span>
+                                <span class="bs-stepper-title">Create Job</span>
+                                <span class="bs-stepper-subtitle">Create Job</span>
                             </span>
                         </button>
                     </div>
@@ -167,6 +201,8 @@
                             <small>Select Database.</small>
                         </div>
                         <div class="Noti-connect">
+                            <div class="Noti-connect-item invalid-feedback" style="display:none; font-size:1rem;"></div>
+                            <div class="Noti-connect-item valid-feedback" style="display:none; font-size:1rem;"></div>
                         </div>
                         <div class="row">
                             <div class="mb-1 col-md-6">
@@ -191,11 +227,14 @@
                         <div class="content-header">
                             <h5 class="mb-0">Create Job</h5>
                         </div>
-                        <div class="Noti-Save-Database-Connect">
+                        <div class="Noti-database-connect">
+                            <div class="Noti-database-connect-item invalid-feedback" style="display:none; font-size:1rem;"></div>
+                            <div class="Noti-database-connect-item valid-feedback" style="display:none; font-size:1rem;"></div>
                         </div>
+                      
                        
-                        <div class="d-flex justify-content-between">        
-                            <button class="btn btn-primary btn-next">
+                        <div class="d-flex justify-content-between">  
+                            <button class="btn btn-primary btn-next btn-CreateJob">
                                 <span class="align-middle d-sm-inline-block d-none">CreateJob</span>
                                 <i data-feather="arrow-right" class="align-middle ms-sm-25 ms-0"></i>
                             </button>

@@ -208,7 +208,11 @@
 											if (!Model.IsRecovery)
 											{
 												<div class="btn-group view-toggle ms-50" role="group">
-													@Html.ActionLink("Recovery", "Recovery", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName, BackUpTypeName = Model.BackUpType.ToString() }, new { style = " background-color: #7367f0; border-color: #7367f0;color: #fff;", @class = "btn waves-effect waves-light float-end mx-1" })
+													@Html.ActionLink("Recovery", "Recovery", "Home", new { DatabaseName = Model.DatabaseConnectViewModel.DatabaseName, 
+														BackUpTypeName = Model.BackUpType.ToString(), 
+														ServerName = Model.DatabaseConnectViewModel.ServerName }, 
+														new { style = " background-color: #7367f0; border-color: #7367f0;color: #fff;", 
+														@class = "btn waves-effect waves-light float-end mx-1" })
 												</div>
 											}
 										}
@@ -242,9 +246,11 @@
 													{
 														<div class="card file-manager-item file">
 															<div class="form-check">
+																@Html.AntiForgeryToken()
 																<input type="radio" class="form-check-input" name="fileBackup" id="customCheck7" />
 																<input type="hidden" value="@Model.BackUpType" class="form-check-input" name="BackUpTypeName" />																
 																<input type="hidden" value="@Model.DatabaseConnectViewModel.DatabaseName" class="form-check-input" name="DatabaseName" />
+																<input type="hidden" value="@Model.DatabaseConnectViewModel.ServerName" class="form-check-input" name="ServerName" />
 																<input type="hidden" value="@item.FullName" class="form-check-input" name="FileName" />
 																<input type="hidden" value="@Model.PathLocation" class="form-check-input" name="Path" />
 																<label class="form-check-label" for="customCheck7"></label>

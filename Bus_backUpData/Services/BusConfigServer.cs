@@ -31,9 +31,9 @@ namespace Bus_backUpData.Services
             _mapper = mapper;
 
         }
-        public ServerConnectionViewModel SaveConnection(ServerConnectionViewModel serverConnectionViewModel)
+        public async Task<ServerConnectionViewModel> SaveConnectionAsync(ServerConnectionViewModel serverConnectionViewModel)
         {
-            var result = _busStoredProcedureServices.CheckConnection(serverConnectionViewModel);
+            var result = await _busStoredProcedureServices.CheckConnectionAsync(serverConnectionViewModel);
             if (result == false)
             {
                 serverConnectionViewModel.Id = Guid.Empty;
@@ -67,8 +67,10 @@ namespace Bus_backUpData.Services
             }
             if (serverConnectionViewModel.Id != Guid.Empty)
             {
-                _busStoredProcedureServices.CreateSettingDatabase(serverConnectionViewModel);
-			}
+               var MessageBusViewModel = _busStoredProcedureServices.CreateSettingDatabase(serverConnectionViewModel);
+                serverConnectionViewModel.MessageBusViewModel = MessageBusViewModel;
+
+            }
 
 			return serverConnectionViewModel;
         }

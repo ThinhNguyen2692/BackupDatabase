@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace ModelProject.ViewModels
         [DisplayName("Backup Type")]
         public BackUpType BackUpType { get; set; }
         [DisplayName("Path")]
+        [Required]
         public string Path { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace Bus_backUpData.Interface
 {
     public interface IBusConfigServer 
     {
-        public ServerConnectionViewModel SaveConnection(ServerConnectionViewModel serverConnectionViewModel);
+        public Task<ServerConnectionViewModel> SaveConnectionAsync(ServerConnectionViewModel serverConnectionViewModel);
         public List<ServerConnectViewModel> GetServerConnectViewModel(string ServerName = null);
     }
 }

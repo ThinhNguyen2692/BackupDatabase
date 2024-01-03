@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Dapper;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using ModelProject.ViewModels;
 
 namespace Bus_backUpData.Services
 {
@@ -22,10 +23,10 @@ namespace Bus_backUpData.Services
             _dalStoredProcedureServices = dalStoredProcedureServices;
         }
 
-        public bool CheckConnection(ServerConnectionViewModel serverConnectionViewModel)
+        public async Task<bool> CheckConnectionAsync(ServerConnectionViewModel serverConnectionViewModel)
         {
             var connectionstring = SettingConnection.GetConnection(serverConnectionViewModel.ServerName, serverConnectionViewModel.DatabaseName, serverConnectionViewModel.UserName, serverConnectionViewModel.Password);
-            var result = _dalStoredProcedureServices.CheckConnection(connectionstring);
+            var result = await _dalStoredProcedureServices.CheckConnectionAsync(connectionstring);
             return result;
         }
 
@@ -36,43 +37,66 @@ namespace Bus_backUpData.Services
             return result.ToList();
         }
 
-        public void CreateSettingDatabase(ServerConnectionViewModel serverConnectionViewModel)
+        public MessageBusViewModel CreateSettingDatabase(ServerConnectionViewModel serverConnectionViewModel)
         {
-			string pathLocation = Path.GetFullPath("Data\\SettingSql.sql");
-            var sqlScript = LibrarySettingFileConfig.ReadSqlFile(pathLocation);
-			sqlScript = sqlScript.Replace("DatabaseNameSetting", serverConnectionViewModel.DatabaseName);
+			string pathLocationSettingSql = Path.GetFullPath("Data\\SettingSql.sql");
+			string pathLocationCleanupDatabase = Path.GetFullPath("Data\\cleanup_database.sql");
+            var sqlScriptSettingSql = LibrarySettingFileConfig.ReadSqlFile(pathLocationSettingSql);
+            var sqlScriptCleanupDatabase = LibrarySettingFileConfig.ReadSqlFile(pathLocationCleanupDatabase);
+            sqlScriptSettingSql = sqlScriptSettingSql.Replace("DatabaseNameSetting", serverConnectionViewModel.DatabaseName);
 			var connectionString = SettingConnection.GetConnection(serverConnectionViewModel.ServerName, serverConnectionViewModel.DatabaseName, serverConnectionViewModel.UserName, serverConnectionViewModel.Password);
-			string[] commands = Regex.Split(sqlScript, @"^\s*GO\s*$", RegexOptions.Multiline);
-			try
-			{
-				// Tạo kết nối đến cơ sở dữ liệu
-				using (IDbConnection connection = new SqlConnection(connectionString))
-				{
-					connection.Open();
-					if (!StoredProcedureExists(connection, "DatabaseBackup"))
-					{
-						// Tạo đối tượng Command để thực hiện lệnh SQL
-						using (IDbCommand command = connection.CreateCommand())
-						{
+            var Messagecleanup_database = ScriptExecute(sqlScriptCleanupDatabase, connectionString);
+            var MessageSettingSql = ScriptExecute(sqlScriptSettingSql, connectionString);
+            if(Messagecleanup_database.MessageStatus == MessageStatus.Error || MessageSettingSql.MessageStatus == MessageStatus.Error)
+            {
+                Messagecleanup_database.MessageStatus = MessageStatus.Error;
+                Messagecleanup_database.Message = $"CleanupDatabase: {Messagecleanup_database.Message}. CreateSettingSql {MessageSettingSql.Message}.";
+            }
+            return Messagecleanup_database;
+        }
 
-							foreach (var cmdText in commands)
-							{
-								if (!string.IsNullOrWhiteSpace(cmdText))
-								{
-									command.CommandText = cmdText;
-									command.ExecuteNonQuery();
-								}
-							}
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error: {ex.Message}");
-			}
-		}
-		public bool VerifyBackupIntegrity(IDbConnection connection, string databaseName, string Pathbak)
+		public MessageBusViewModel ScriptExecute(string sqlScript, string connectionString)
+		{
+            var messageBusViewModel = new MessageBusViewModel();
+            string[] commands = Regex.Split(sqlScript, @"^\s*GO\s*$", RegexOptions.Multiline);
+            try
+            {
+                // Tạo kết nối đến cơ sở dữ liệu
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                   
+                        // Tạo đối tượng Command để thực hiện lệnh SQL
+                        using (IDbCommand command = connection.CreateCommand())
+                        {
+
+                            foreach (var cmdText in commands)
+                            {
+                                if (!string.IsNullOrWhiteSpace(cmdText))
+                                {
+                                    command.CommandText = cmdText;
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    
+                }
+                messageBusViewModel.MessageStatus = MessageStatus.Success;
+                messageBusViewModel.Message = MessageStatus.Success.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                messageBusViewModel.MessageStatus = MessageStatus.Error;
+                messageBusViewModel.Message = ex.Message;
+            }
+            return messageBusViewModel;
+        }
+
+
+
+
+        public bool VerifyBackupIntegrity(IDbConnection connection, string databaseName, string Pathbak)
 		{
 			// Kiểm tra tính toàn vẹn của tệp sao lưu
 			string sql = $@"

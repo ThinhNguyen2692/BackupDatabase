@@ -23,7 +23,7 @@ namespace DalBackup.Services
 
         public DatabaseConnect Add(DatabaseConnect model)
         {
-            var data = FirstOrDefault(model.DatabaseName);
+            var data = FirstOrDefault(model.ServerConnects.ServerName, model.DatabaseName);
             if (data == null)
             {
                 repository.Add(model);
@@ -41,9 +41,12 @@ namespace DalBackup.Services
 			}
 			return data;
         }
-        public DatabaseConnect? FirstOrDefault(string DatabaseName)
+        public DatabaseConnect? FirstOrDefault(string ServerName, string DatabaseName)
         {
-            var data = repository.Where(x => x.DatabaseName == DatabaseName, include: x => x.Include(p => p.ServerConnects)).FirstOrDefault();
+            var data = repository
+                .Where(x => x.DatabaseName == DatabaseName && x.ServerConnects.ServerName == ServerName, 
+                include: x => x.Include(p => p.ServerConnects))
+                .FirstOrDefault();
 			if (data != null)
 			{
 				data.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(data.ServerConnects.PassWord);

@@ -85,13 +85,13 @@ namespace DalStoredProcedure.Services
 			}
 		}
 
-		public bool CheckConnection(string Connection)
+		public async Task<bool> CheckConnectionAsync(string Connection)
 		{
 			try
 			{
 				using (Context context = new Context(Connection))
 				{
-					var result = context.Database.CanConnect();
+					var result = await context.Database.CanConnectAsync();
 					return result;
 				}
 			}

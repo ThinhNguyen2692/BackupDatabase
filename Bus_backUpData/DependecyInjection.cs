@@ -86,7 +86,7 @@ namespace Bus_backUpData
             Setting.FoderBackUp = "BackUp";
             Setting.FoderTask = "Task";
             Setting.FoderLogStartUp = "LogStartUp";
-            Setting.PathbackUp = "D:\\BackUpDatabaseHRM";
+            Setting.PathbackUp = "D:\\";
 
             // Đăng ký JobFactory sử dụng DI
 

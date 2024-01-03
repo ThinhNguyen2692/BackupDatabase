@@ -15,7 +15,7 @@ namespace DalStoredProcedure.Interface
 		public List<string> SqlQueryRaw(string Connection, string Sql);
         public List<string> SqlQueryRaw(string Connection, string Sql, List<SqlParameter> SqlParameters);
 
-		public bool CheckConnection(string Connection);
+        public Task<bool> CheckConnectionAsync(string Connection);
 
     }
 }

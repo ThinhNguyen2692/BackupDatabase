@@ -15,5 +15,6 @@ namespace ModelProject.ViewModels.ViewModelSeverConfig
         public string UserName { get; set; }
         public string Password { get; set; }
         public string DatabaseName { get; set; }
+        public MessageBusViewModel? MessageBusViewModel { get; set; }
     }
 }

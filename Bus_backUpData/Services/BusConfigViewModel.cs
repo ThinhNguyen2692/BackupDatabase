@@ -21,6 +21,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using ModelProject.ViewModels.RestoreViewModel;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using ModelProject.ViewModels.ModelRequest;
 
 namespace Bus_backUpData.Services
 {
@@ -53,27 +54,91 @@ namespace Bus_backUpData.Services
 
         }
         /// <summary>
-        /// Get all danh sach cau hinh
+        /// Get all danh sach cau hinh theo db
         /// </summary>
         /// <returns></returns>
-        public List<ConfigurationBackUpViewModel> GetConfigurationBackUpViewModel(string DatabaseName)
+        public List<ConfigurationBackUpViewModel> GetConfigurationBackUpViewModel(string ServerName,string DatabaseName)
         {
-            var data = _dalConfigurationBackUp.GetData(DatabaseName);
+            var data = _dalConfigurationBackUp.GetData(ServerName,DatabaseName);
             var ConfigurationBackUpViewModel = MapConfigurationBackUpViewModel(data);
             return ConfigurationBackUpViewModel;
         }
+        /// <summary>
+        /// Get all danh sach cau hinh theo db Id
+        /// </summary>
+        /// <param name="id">id database</param>
+        /// <returns></returns>
         public List<ConfigurationBackUpViewModel> GetConfigurationBackUpViewModel(Guid id)
         {
-            var data = _dalConfigurationBackUp.GetData(id);
-            var ConfigurationBackUpViewModel = MapConfigurationBackUpViewModel(data);
-            return ConfigurationBackUpViewModel;
+            var ConfigurationBackUp = _dalConfigurationBackUp.FirstOrDefault(id);
+            if (ConfigurationBackUp == null) return new List<ConfigurationBackUpViewModel>();
+            var data = GetConfigurationBackUpViewModel(ConfigurationBackUp.DatabaseConnect.DatabaseName,
+                ConfigurationBackUp.DatabaseConnect.ServerConnects.ServerName);
+            return data;
         }
+        /// <summary>
+        /// Get all danh sach cau hinh all
+        /// </summary>
+        /// <returns></returns>
         public List<ConfigurationBackUpViewModel> GetConfigurationBackUpViewModel()
         {
             var data = _dalConfigurationBackUp.GetData();
             var ConfigurationBackUpViewModel = MapConfigurationBackUpViewModel(data);
             return ConfigurationBackUpViewModel;
         }
+        /// <summary>
+        /// Get config Job tra ve cho view
+        /// </summary>
+        /// <returns></returns>
+        public ConfigurationBackUpViewModel GetConfigurationBackUpViewModelView(JobViewModel jobModel)
+        {
+            ConfigurationBackUpViewModel configurationBackUpViewModel = new ConfigurationBackUpViewModel();
+            jobModel = _busConfigurationInformation.GetFullJobModel(jobModel);
+            var checKDatabase = GetDatabaseConnectViewModel(jobModel.ServerName, jobModel.DatabaseName);
+            if (checKDatabase == null || checKDatabase.Id == Guid.Empty)
+            {
+                configurationBackUpViewModel.MessageBusViewModel.MessageStatus = MessageStatus.NotFound;
+                return configurationBackUpViewModel;
+            }
+            if (!string.IsNullOrEmpty(jobModel.JobName))
+            {
+                configurationBackUpViewModel = GetConfigurationBackUpViewModelView(jobModel.ServerName, jobModel.DatabaseName, jobModel.JobName);
+                if (configurationBackUpViewModel.Id != Guid.Empty)
+                    configurationBackUpViewModel.JobHistoryViewModels = configurationBackUpViewModel.JobHistoryViewModels.Take(10).ToList();
+            }
+            if (configurationBackUpViewModel.Id == Guid.Empty)
+            {
+                var ListConfig = GetConfigurationBackUpViewModel(jobModel.ServerName, jobModel.DatabaseName).ToList();
+                var DatabaseConnectViewModel = GetDatabaseConnectViewModel(jobModel.ServerName, jobModel.DatabaseName);
+                var BackUpViewModel = new BackUpViewModel();
+                BackUpViewModel.Name = string.IsNullOrEmpty(jobModel.JobName) ? "JobNew" : jobModel.JobName;
+                BackUpViewModel.Id = Guid.Empty;
+                BackUpViewModel.IsSelect = false;
+                configurationBackUpViewModel.ScheduleBackup.RecursEveryWeekly = 1;
+                configurationBackUpViewModel.ScheduleBackup.RecursEveryDay = 1;
+                configurationBackUpViewModel.ScheduleBackup.DayEvery = 1;
+                configurationBackUpViewModel.ScheduleBackup.DayMonth = 1;
+                configurationBackUpViewModel.FTPSetting.Months = 1;
+                configurationBackUpViewModel.BackUpSetting.Name = jobModel.DatabaseName;
+                configurationBackUpViewModel.BackUpSetting.Path = _busConfigurationInformation.GetBackUpSettingPath(jobModel.ServerName, jobModel.DatabaseName);
+                configurationBackUpViewModel.BackupName = BackUpViewModel.Name;
+                configurationBackUpViewModel.IsEnabled = true;
+                configurationBackUpViewModel.JobHistoryViewModels = new List<JobHistoryViewModel>();
+                configurationBackUpViewModel.IsScheduleBackup = true;
+                configurationBackUpViewModel.BackUpViewModels.Add(BackUpViewModel);
+                configurationBackUpViewModel.BackUpViewModels.AddRange(ListConfig.Select(x => new BackUpViewModel() { Id = x.Id, Name = x.BackupName }).ToList());
+                configurationBackUpViewModel.MessageBusViewModel.MessageStatus = MessageStatus.None;
+                configurationBackUpViewModel.DatabaseConnectViewModel = DatabaseConnectViewModel;
+
+
+            }
+            return configurationBackUpViewModel;
+        }
+        /// <summary>
+        /// map danh sach ConfigurationBackUp => List<ConfigurationBackUpViewModel>
+        /// </summary>
+        /// <param name="configurationBackUps">danh sach ConfigurationBackUp</param>
+        /// <returns></returns>
         public List<ConfigurationBackUpViewModel> MapConfigurationBackUpViewModel(List<ConfigurationBackUp> configurationBackUps)
         {
             var ConfigurationBackUpViewModel = _mapper.Map<List<ConfigurationBackUpViewModel>>(configurationBackUps);
@@ -81,13 +146,15 @@ namespace Bus_backUpData.Services
             return ConfigurationBackUpViewModel;
         }
         /// <summary>
-        /// get cấu hình theo JobName
+        /// get cấu hình theo JobName có danh sách job trong cùng database
         /// </summary>
-        /// <param name="JobName"></param>
+        /// <param name="ServerName">server Job</param>
+        /// <param name="DatabaseName"> DatabaseName Job</param>
+        /// <param name="JobName">Job name</param>
         /// <returns></returns>
-        public ConfigurationBackUpViewModel GetConfigurationBackUpViewModelByJobName(string DatabaseName , string JobName)
+        public ConfigurationBackUpViewModel GetConfigurationBackUpViewModelView(string ServerName, string DatabaseName, string JobName)
         {
-            var ConfigurationBackUpViewModels = GetConfigurationBackUpViewModel(DatabaseName);
+            var ConfigurationBackUpViewModels = GetConfigurationBackUpViewModel(ServerName,DatabaseName);
             var ConfigurationBackUpViewModel = ConfigurationBackUpViewModels.FirstOrDefault(x => x.BackupName == JobName);
             if (ConfigurationBackUpViewModel == null) return new ConfigurationBackUpViewModel();
             ConfigurationBackUpViewModel.BackUpViewModels = ConfigurationBackUpViewModels.Select(x => new BackUpViewModel() { Id = x.Id, Name = x.BackupName }).ToList();
@@ -96,7 +163,33 @@ namespace Bus_backUpData.Services
             return ConfigurationBackUpViewModel;
         }
 
+        
 
+
+
+
+        /// <summary> 
+        /// get cấu hình theo JobID có danh sách job trong cùng database
+        /// </summary>
+        /// <param name="Id">Job id</param>
+        /// <returns></returns>
+        public ConfigurationBackUpViewModel GetConfigurationBackUpViewModelView(Guid Id)
+        {
+            var ConfigurationBackUpViewModels = GetConfigurationBackUpViewModel(Id);
+            var ConfigurationBackUpViewModel = ConfigurationBackUpViewModels.FirstOrDefault(x => x.Id == Id);
+            if (ConfigurationBackUpViewModel == null) return new ConfigurationBackUpViewModel();
+            ConfigurationBackUpViewModel.BackUpViewModels = ConfigurationBackUpViewModels.Select(x => new BackUpViewModel() { Id = x.Id, Name = x.BackupName }).ToList();
+            ConfigurationBackUpViewModel.JobHistoryViewModels = GetJobHistoryViewModels(ConfigurationBackUpViewModel);
+            ConfigurationBackUpViewModel.FTPSetting.PassWord = ConfigurationBackUpViewModel.FTPSetting.PassWord;
+            return ConfigurationBackUpViewModel;
+        }
+
+
+        /// <summary>
+        /// Get cấu hình backup Jobid
+        /// </summary>
+        /// <param name="ConfigId">Jobid</param>
+        /// <returns></returns>
         public ConfigurationBackUpViewModel GetConfigurationBackUpViewModelByJobId(Guid ConfigId)
         {
             var ConfigurationBackUpViewModels = GetConfigurationBackUpViewModel();
@@ -107,14 +200,41 @@ namespace Bus_backUpData.Services
             return ConfigurationBackUpViewModel;
         }
 
-        public DatabaseConnectViewModel GetDatabaseNameConnectViewModel(string DatabaseName)
+        /// <summary>
+        /// Get thông tin database connect
+        /// </summary>
+        /// <param name="Id">Id database</param>
+        /// <returns></returns>
+        public DatabaseConnectViewModel GetDatabaseConnectViewModel(Guid Id)
         {
-            var databaseConnect = _dalDatabaseConnect.FirstOrDefault(DatabaseName);
-            if(databaseConnect == null) return new DatabaseConnectViewModel();
-            var viewModel = _mapper.Map<DatabaseConnectViewModel>(databaseConnect);
+            var databaseConnect = _dalDatabaseConnect.FirstOrDefault(Id);
+            var viewModel = GetDatabaseConnectViewModel(databaseConnect);
             return viewModel;
         }
 
+        /// <summary>
+        /// Get thông tin database connect
+        /// </summary>
+        /// <param name="ServerName"></param>
+        /// <param name="DatabaseName"></param>
+        /// <returns></returns>
+        public DatabaseConnectViewModel GetDatabaseConnectViewModel(string ServerName,string DatabaseName)
+        {
+            var databaseConnect = _dalDatabaseConnect.FirstOrDefault(ServerName, DatabaseName);
+            var viewModel = GetDatabaseConnectViewModel(databaseConnect);
+            return viewModel;
+        }
+        /// <summary>
+        /// Get thông tin database connect
+        /// </summary>
+        /// <param name="databaseConnect"></param>
+        /// <returns></returns>
+        public DatabaseConnectViewModel GetDatabaseConnectViewModel(DatabaseConnect databaseConnect)
+        {
+            if (databaseConnect == null) return new DatabaseConnectViewModel();
+            var viewModel = _mapper.Map<DatabaseConnectViewModel>(databaseConnect);
+            return viewModel;
+        }
         /// <summary>
         /// Get viewhistory Job
         /// </summary>
@@ -129,7 +249,7 @@ namespace Bus_backUpData.Services
             // var JobHistory = _context.Database.SqlQueryRaw<>("exec msdb.dbo.sp_help_jobhistory null, @job_name", new SqlParameter("job_name", jobname));
 
             List<JobHistoryViewModel> JobHistoryViewModels = new List<JobHistoryViewModel>();
-			var connectString = _busConfigurationInformation.GetConnectStringByJobId(configurationBackUpViewModel.Id);
+			var connectString = _busConfigurationInformation.GetConnectStringByJob(configurationBackUpViewModel.Id);
 			using (SqlConnection connection = new SqlConnection(connectString))
             {
                 connection.Open();
@@ -166,18 +286,20 @@ namespace Bus_backUpData.Services
             return JobHistoryViewModels;
         }
       
+       
 
-        public ManagerFolderViewModel GetBackUpTypeFolderInformation(string DatabaseName)
+        public ManagerFolderViewModel GetBackUpTypeFolderInformationByDatabase(string serverName, string DatabaseName)
         {
-			var ServerName = _busConfigurationInformation.GetServerNameByDatabaseName(DatabaseName);
+			var ServerName = _busConfigurationInformation.GetServerNameByDatabase(serverName,DatabaseName);
+            var PathbackUp = _busConfigurationInformation.GetBackUpSettingPath(serverName, DatabaseName);
 
-			if (string.IsNullOrEmpty(ServerName)) return new ManagerFolderViewModel();
+            if (string.IsNullOrEmpty(ServerName)) return new ManagerFolderViewModel();
 			var ServerNameStr = ServerName;
 			ServerNameStr = ServerNameStr.Replace("\\", "$");
             var managerFolderViewModel = new ManagerFolderViewModel();
             managerFolderViewModel.DatabaseConnectViewModel.ServerName = ServerNameStr;
             managerFolderViewModel.DatabaseConnectViewModel.DatabaseName = DatabaseName;
-			string pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{DatabaseName}";
+			string pathLocation = PathbackUp + $"\\{ServerNameStr}\\{DatabaseName}";
 			var directoryFolder = new DirectoryInfo(pathLocation);
             if (!directoryFolder.Exists)
             {
@@ -188,7 +310,7 @@ namespace Bus_backUpData.Services
             {
                 var backUpTypeViewModel = new BackUpTypeViewModel();
                 backUpTypeViewModel.Name = value.ToString();
-				 pathLocation = Setting.PathbackUp + $"\\{ServerNameStr}\\{DatabaseName}\\{value.ToString()}";
+				 pathLocation = PathbackUp + $"\\{ServerNameStr}\\{DatabaseName}\\{value.ToString()}";
 				var directoryInfo = new DirectoryInfo(pathLocation);
                 long FolderSize = 0;
 				if (directoryInfo.Exists)
@@ -201,7 +323,7 @@ namespace Bus_backUpData.Services
 				backUpTypeViewModel.FolderSize = FolderSize +" MB";
 				managerFolderViewModel.BackUpTypeFolder.Add(backUpTypeViewModel);
 			}
-			managerFolderViewModel.IsRecovery = _busConfigurationInformation.IsRecovery(DatabaseName);
+			managerFolderViewModel.IsRecovery = _busConfigurationInformation.IsRecovery(serverName, DatabaseName);
 			return managerFolderViewModel;
 		}
 
@@ -243,19 +365,20 @@ namespace Bus_backUpData.Services
         /// <param name="backUpType"></param>
         /// <param name="DatabaseName"></param>
         /// <returns></returns>
-		public ManagerFileViewModel GetBackUpTypeFileInformation(BackUpType backUpType, string DatabaseName)
+		public ManagerFileViewModel GetBackUpTypeFileInformation(BackUpType backUpType, string serverName ,string DatabaseName)
         {
-			var ServerName = _busConfigurationInformation.GetServerNameByDatabaseName(DatabaseName);
+			var ServerName = _busConfigurationInformation.GetServerNameByDatabase(serverName, DatabaseName);
+            var PathbackUp = _busConfigurationInformation.GetBackUpSettingPath(serverName, DatabaseName);
 
-			if (string.IsNullOrEmpty(ServerName)) return new ManagerFileViewModel();
+            if (string.IsNullOrEmpty(ServerName)) return new ManagerFileViewModel();
 			var ServerNameStr = ServerName;
 			ServerNameStr = ServerNameStr.Replace("\\", "$");
 			var managerFolderViewModel = new ManagerFileViewModel();
-			managerFolderViewModel.DatabaseConnectViewModel.ServerName = ServerNameStr;
+			managerFolderViewModel.DatabaseConnectViewModel.ServerName = serverName;
 			managerFolderViewModel.DatabaseConnectViewModel.DatabaseName = DatabaseName;
             string path = $"\\{ServerNameStr}\\{DatabaseName}\\{backUpType.ToString()}";
 			managerFolderViewModel.PathLocation = path;
-			string pathLocation = Setting.PathbackUp + path;
+			string pathLocation = PathbackUp + path;
 			var directoryInfo = new DirectoryInfo(pathLocation);
             if (directoryInfo.Exists)
             {
@@ -265,7 +388,7 @@ namespace Bus_backUpData.Services
 					var fileInfomationViewModel = new FileInfomationViewModel();
 					fileInfomationViewModel.Name = item.Name;
 					fileInfomationViewModel.FullName = item.FullName;
-					fileInfomationViewModel.Size = CalculateFolderSizeMB(item.Length)+ " MB";
+					fileInfomationViewModel.Size = CalculateFolderSizeMB(item.Length)+ " MB"; 
 					fileInfomationViewModel.Extension = string.IsNullOrEmpty(item.Extension) ? string.Empty : item.Extension.Substring(1);
 					fileInfomationViewModel.LastUpdateTime = item.LastWriteTime;
 					managerFolderViewModel.FileInfomationViewModels.Add(fileInfomationViewModel);
@@ -274,16 +397,15 @@ namespace Bus_backUpData.Services
 			}
 
 			managerFolderViewModel.BackUpType = backUpType;
-			managerFolderViewModel.IsRecovery = _busConfigurationInformation.IsRecovery(DatabaseName);
+			managerFolderViewModel.IsRecovery = _busConfigurationInformation.IsRecovery(serverName,DatabaseName);
 			return managerFolderViewModel;
         }
 	
         public ConfigRestoreViewModel GetConfigRestoreViewModel(ConfigRestoreViewModel configRestoreViewModel)
         {
-            var serverConnect = _dalDatabaseConnect.FirstOrDefault(configRestoreViewModel.DatabaseName);
+            var serverConnect = _dalDatabaseConnect.FirstOrDefault("", configRestoreViewModel.DatabaseName);
             if (serverConnect != null)
             {
-                configRestoreViewModel.DatabaseConnectViewModel.ServerName = serverConnect.ServerConnects.ServerName;
                 configRestoreViewModel.DatabaseConnectViewModel.PassWord = serverConnect.ServerConnects.PassWord;
                 configRestoreViewModel.DatabaseConnectViewModel.UserName = serverConnect.ServerConnects.UserName;
             }

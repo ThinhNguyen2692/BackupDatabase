@@ -21,9 +21,9 @@ namespace AdminLayout_Vuexy.Controllers
 
         [Route("/api/CheckConntion")]
         [HttpPost]
-        public IActionResult CheckConntion([FromBody]ServerConnectionViewModel serverConnectionViewModel)
+        public async Task<IActionResult> CheckConntion([FromBody]ServerConnectionViewModel serverConnectionViewModel)
         {
-            var result = _busStoredProcedureServices.CheckConnection(serverConnectionViewModel);
+            var result = await _busStoredProcedureServices.CheckConnectionAsync(serverConnectionViewModel);
             return Ok(result);
         }
         [Route("/api/GetListDatabaseNameServer")]
@@ -36,9 +36,9 @@ namespace AdminLayout_Vuexy.Controllers
 
         [Route("/api/SaveConnection")]
         [HttpPost]
-        public IActionResult SaveConnection([FromBody] ServerConnectionViewModel serverConnectionViewModel)
+        public async Task<IActionResult> SaveConnection([FromBody] ServerConnectionViewModel serverConnectionViewModel)
         {
-            var result = _busConfigServer.SaveConnection(serverConnectionViewModel);
+            var result = await _busConfigServer.SaveConnectionAsync(serverConnectionViewModel);
             return Ok(result);
         }
     }

@@ -3,6 +3,7 @@ using System;
 using DalBackup.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DalBackup.Migrations
 {
     [DbContext(typeof(AdminLayout_VuexyContext))]
-    partial class AdminLayout_VuexyContextModelSnapshot : ModelSnapshot
+    [Migration("20240102012258_add_JobId_colum_HistoryFTP_table")]
+    partial class add_JobId_colum_HistoryFTP_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.14");
@@ -83,17 +86,17 @@ namespace DalBackup.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "678d547d-e0ad-46db-9264-68aff65b4c4b",
+                            Id = "0c015039-4e3c-481b-b002-cc4cd631fcc8",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "f8c01591-1113-47ef-869e-6cbb534b1261",
+                            ConcurrencyStamp = "302382ea-9154-4ed1-95be-16831559a62d",
                             Email = "thinh.nguyenngoc@vnresource.org",
                             EmailConfirmed = false,
                             LockoutEnabled = true,
                             NormalizedEmail = "THINH.NGUYENNGOC@VNRESOURCE.ORG",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAELCVNBGg1fLkRrjVxjJdur5nXX7m03/AdcCx5DoaHLgaaLp1AGZZFr8XLRzRSWb5wQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELWLtzbMBy9QOIDnX1hri5qXHRJ7Fg+vDi2h7bZZqoMKhr+39liGv3bGTSulok+cfQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3645d2de-314e-4bf2-aae7-7256ea46cd7b",
+                            SecurityStamp = "d65adeb6-a93f-4171-8c9c-68be38ca168f",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         });
@@ -443,64 +446,64 @@ namespace DalBackup.Migrations
                         new
                         {
                             Id = new Guid("c8b1413f-2f1d-41cf-96eb-aa7eaf9714e4"),
-                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7949), new TimeSpan(0, 7, 0, 0, 0)),
+                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8440), new TimeSpan(0, 7, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Monday",
-                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7975), new TimeSpan(0, 7, 0, 0, 0)),
+                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8464), new TimeSpan(0, 7, 0, 0, 0)),
                             Value = 2
                         },
                         new
                         {
                             Id = new Guid("a1907086-a621-4a7f-9784-fe7a65a9b01a"),
-                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7979), new TimeSpan(0, 7, 0, 0, 0)),
+                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8468), new TimeSpan(0, 7, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Tuesday",
-                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7980), new TimeSpan(0, 7, 0, 0, 0)),
+                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8469), new TimeSpan(0, 7, 0, 0, 0)),
                             Value = 4
                         },
                         new
                         {
                             Id = new Guid("a35339f6-ab5e-4197-825a-424a3888d7fb"),
-                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7983), new TimeSpan(0, 7, 0, 0, 0)),
+                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8471), new TimeSpan(0, 7, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Wednesday",
-                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7984), new TimeSpan(0, 7, 0, 0, 0)),
+                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8472), new TimeSpan(0, 7, 0, 0, 0)),
                             Value = 8
                         },
                         new
                         {
                             Id = new Guid("3fe18c8d-cfdc-419a-a848-e07d8b383386"),
-                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7987), new TimeSpan(0, 7, 0, 0, 0)),
+                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8474), new TimeSpan(0, 7, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Thursday",
-                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7987), new TimeSpan(0, 7, 0, 0, 0)),
+                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8475), new TimeSpan(0, 7, 0, 0, 0)),
                             Value = 16
                         },
                         new
                         {
                             Id = new Guid("8c6d144e-2fad-4cc2-a1ad-fe7661110f31"),
-                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7990), new TimeSpan(0, 7, 0, 0, 0)),
+                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8477), new TimeSpan(0, 7, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Friday",
-                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7990), new TimeSpan(0, 7, 0, 0, 0)),
+                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8478), new TimeSpan(0, 7, 0, 0, 0)),
                             Value = 32
                         },
                         new
                         {
                             Id = new Guid("44ae543b-1c51-4e79-81f0-e1d99e274162"),
-                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7998), new TimeSpan(0, 7, 0, 0, 0)),
+                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8487), new TimeSpan(0, 7, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Saturday",
-                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(7999), new TimeSpan(0, 7, 0, 0, 0)),
+                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8487), new TimeSpan(0, 7, 0, 0, 0)),
                             Value = 64
                         },
                         new
                         {
                             Id = new Guid("3c2e8836-3745-451b-826d-da952513e0a6"),
-                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(8001), new TimeSpan(0, 7, 0, 0, 0)),
+                            CreatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8490), new TimeSpan(0, 7, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sunday",
-                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 34, 16, 270, DateTimeKind.Unspecified).AddTicks(8002), new TimeSpan(0, 7, 0, 0, 0)),
+                            UpdatedDate = new DateTimeOffset(new DateTime(2024, 1, 2, 8, 22, 58, 500, DateTimeKind.Unspecified).AddTicks(8490), new TimeSpan(0, 7, 0, 0, 0)),
                             Value = 1
                         });
                 });

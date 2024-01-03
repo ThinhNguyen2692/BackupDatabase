@@ -10,23 +10,26 @@ namespace Bus_backUpData.Interface
 {
     public interface IBusConfigurationInformation
     {
-		public bool DeleteJsonBackUp(string jobname, string dataBaseName);
+		public bool DeleteJsonBackUp(string ServerName, string DatabaseName, string JobName);
 		public bool DeleteJsonBackUpByID(Guid id);
         public bool DeleteBackUpBy(ConfigurationBackUp? configurationBackUp);
-
-        public string GetConnectStringByDatabaseName(string DatabaseName);
+        public string GetConnectStringByDatabase(string ServerName, string DatabaseName);
+        public string GetConnectStringByDatabase(Guid Id);
         public string GetConnectString(DatabaseConnect? databaseConnect);
-        public string GetConnectStringByJobName(string JobName, string DatbaseName);
-        public string GetConnectStringByJobId(Guid Id);
-        public string GetServerNameByDatabaseName(string DatabaseName);
-        public string GetServerNameByJobName(string JobName, string DatabaseName);
-        public string GetServerNameByJobId(Guid Id);
+        public string GetConnectStringByJob(string ServerName, string DatbaseName, string JobName);
+        public string GetConnectStringByJob(Guid Id);
+        public string GetConnectStringByJob(ConfigurationBackUp? configurationBackUp);
+        public string GetServerNameByDatabase(string ServerName, string DatabaseName);
+        public string GetServerNameByDatabase(Guid Id);
+        public string GetServerNameByDatabase(DatabaseConnect databaseConnect);
+        public string GetServerNameByJob(string ServerName, string DatabaseName, string JobName);
+        public string GetServerNameByJob(Guid Id);
         public string GetServerName(string Connectstring);
-        public bool IsJob(string JobName, string DatbaseName);
+        public bool IsJob(string ServerName, string DatabaseName, string JobName);
         public bool IsJob(Guid Id);
-        public bool IsRecovery(string DatabaseName);
-        public string? StateDescDB(string DatabaseName);
-
-        public JobModel GetFullJobModel(JobModel jobModel);
+        public bool IsRecovery(string ServerName, string DatabaseName);
+        public string? StateDescDB(string ServerName, string DatabaseName);
+        public JobViewModel GetFullJobModel(JobViewModel jobModel);
+        public string GetBackUpSettingPath(string ServerName, string DatabaseName);
     }
 }

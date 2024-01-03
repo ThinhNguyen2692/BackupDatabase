@@ -11,12 +11,12 @@ namespace Bus_backUpData.Interface
 {
     public interface IBusBackup
     {
-        public bool SaveSetting(ConfigurationBackUp ConfigurationBackUp);
-        public MessageBusViewModel CreateJob(ConfigurationBackUpViewModel configurationBackUpViewModel);
-        public MessageBusViewModel DeleteJob(JobModel jobModel);
-        public MessageBusViewModel StartJobNow(JobModel jobModel);
-        public MessageBusViewModel RestoreBackUpNow(string DatabaseName, string Path, string FileName);
-        public MessageBusViewModel ExecuteRecoveryDatabase(string DatabaseName);
+        public ConfigurationBackUp SaveSetting(ConfigurationBackUp ConfigurationBackUp);
+        public ConfigurationBackUpViewModel CreateJob(ConfigurationBackUpViewModel configurationBackUpViewModel);
+        public MessageBusViewModel DeleteJob(JobViewModel jobModel);
+        public MessageBusViewModel StartJobNow(JobViewModel jobModel);
+        public Task<MessageBusViewModel> RestoreBackUpNowAsync(string ServerName, string DatabaseName, string Path, string FileName);
+        public Task<MessageBusViewModel> ExecuteRecoveryDatabaseAsync(string ServerName, string DatabaseName);
 
 	}
 }
