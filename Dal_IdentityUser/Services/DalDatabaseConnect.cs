@@ -21,6 +21,20 @@ namespace DalBackup.Services
             repository = _uniOfWork.Repository<DatabaseConnect>();
         }
 
+        public DatabaseConnect AddOrUpdate(DatabaseConnect model)
+        {
+            var data = FirstOrDefault(model.ServerConnects.ServerName, model.DatabaseName);
+            if (data == null)
+            {
+                Add(model);
+            }
+            else
+            {
+                Update(model);
+            }
+            return model;
+        }
+
         public DatabaseConnect Add(DatabaseConnect model)
         {
             var data = FirstOrDefault(model.ServerConnects.ServerName, model.DatabaseName);
@@ -30,6 +44,25 @@ namespace DalBackup.Services
                 _uniOfWork.SaveChanges();
             }
             return model;
+        }
+
+        public bool Update(DatabaseConnect model)
+        {
+            try
+            {
+                var data = FirstOrDefault(model.Id);
+                if (data != null)
+                {
+                    repository.Update(model);
+                    _uniOfWork.SaveChanges();
+                    return true;
+                } else
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public DatabaseConnect? FirstOrDefault(Guid id)
@@ -52,6 +85,14 @@ namespace DalBackup.Services
 				data.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(data.ServerConnects.PassWord);
 			}
 			return data;
+        }
+
+        public List<Guid> GetIdByServerId(Guid ServerId)
+        {
+            var data = repository
+               .Where(predicate: x => x.IsDeleted != true && x.ServerConnectId == ServerId,
+                disableTracking: true).Select(x => x.Id).ToList();
+            return data ?? new List<Guid>();
         }
 
     }

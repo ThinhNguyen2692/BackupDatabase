@@ -20,5 +20,12 @@ namespace ModelProject.EmailIdentity
         public static string UserName { get; set; }
         public static string Email { get; set; }
         public static string PassWordDefault { get; set; }
+        public static int DefaultLockoutTimeSpan { get; set; }
+        public static int MaxFailedAccessAttempts { get; set; }
+        public static bool AllowedForNewUsers { get; set; }
+        public static bool RequireConfirmedEmail { get; set; }
+        public static bool RequireConfirmedPhoneNumber { get; set; }
+        public static bool RequireConfirmedAccount { get; set; }
+        public static int ExpireTimeSpan { get; set; }
     }
 }

@@ -11,6 +11,7 @@ namespace ModelProject.ViewModels.ViewModelSeverConfig
         public ServerConnectionViewModel() { }  
 
         public Guid Id { get; set; }
+        public Guid DatabaseId { get; set; }
         public string ServerName { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }

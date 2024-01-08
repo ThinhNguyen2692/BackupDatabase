@@ -97,10 +97,12 @@ namespace AdminLayout_Vuexy.Controllers
 			}
 		}
 
-		[Route("/DeleteJob/{ServerName}/{DatabaseName}/{JobName}/{Id}")]
-		public IActionResult DeleteJob(JobViewModel jobModel)
+		[Route("/DeleteJob")]
+		[HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteJob(JobViewModel jobModel)
 		{
-			var MessageBusViewModel = _BusBackup.DeleteJob(jobModel);
+			var MessageBusViewModel = _BusBackup.DeleteJob(jobModel); 
 			if (MessageBusViewModel.MessageStatus == MessageStatus.Error)
 			{
 				var configurationBackUpViewModel = _busConfigViewModel.GetConfigurationBackUpViewModelView(jobModel.Id);
@@ -114,9 +116,10 @@ namespace AdminLayout_Vuexy.Controllers
             return Redirect(url);
         }
 
-		[Route("RunJobNow/{ServerName}/{DatabaseName}/{JobName}")]
-		[HttpGet]
-		public IActionResult RunJobNow(JobViewModel jobModel)
+		[Route("RunJobNow")]
+		[HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RunJobNow(JobViewModel jobModel)
 		{
 			var MessageBusViewModel = _BusBackup.StartJobNow(jobModel);
             var url = Url.Action("Index", "Home", 
@@ -125,7 +128,24 @@ namespace AdminLayout_Vuexy.Controllers
             return Redirect(url);
 		}
 
-		[Route("RestoreBackUpNow")]
+        [Route("RemoveDatabase")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RemoveDatabase(JobViewModel jobModel)
+        {
+            var MessageBusViewModel = _BusBackup.RemoveDatabase(jobModel.Id);
+            return Redirect(_urlDefaut);
+        }
+
+        [Route("RemoveServer/{Id}")]
+        [HttpGet]
+        public IActionResult RemoveServer(JobViewModel jobModel)
+        {
+            var MessageBusViewModel = _BusBackup.RemoveServer(jobModel.Id);
+            return Redirect(_urlDefaut);
+        }
+
+        [Route("RestoreBackUpNow")]
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> RestoreBackUpNow(BackUpType BackUpTypeName, string ServerName, string DatabaseName, string Path, string FileName)
@@ -176,6 +196,9 @@ namespace AdminLayout_Vuexy.Controllers
 			}
 			return Redirect(url);
 		}
+
+
+
         [Route("/Error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error()

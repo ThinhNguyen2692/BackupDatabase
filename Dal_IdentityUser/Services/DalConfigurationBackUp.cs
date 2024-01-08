@@ -198,19 +198,26 @@ namespace DalBackup.Services
             return data;
         }
 
-        public ConfigurationBackUp Update(ConfigurationBackUp model)
+        public bool Update(ConfigurationBackUp model)
 		{
-            if (model.FTPSetting != null)
-            {
-                model.FTPSetting.PassWord = EncryptionSecurity.EncryptV2(model.FTPSetting.PassWord);
-            }
-			if (model.DatabaseConnect != null && model.DatabaseConnect.ServerConnects != null)
+			try
 			{
-				model.DatabaseConnect.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(model.DatabaseConnect.ServerConnects.PassWord);
+                if (model.FTPSetting != null)
+                {
+                    model.FTPSetting.PassWord = EncryptionSecurity.EncryptV2(model.FTPSetting.PassWord);
+                }
+                if (model.DatabaseConnect != null && model.DatabaseConnect.ServerConnects != null)
+                {
+                    model.DatabaseConnect.ServerConnects.PassWord = EncryptionSecurity.DecryptV2(model.DatabaseConnect.ServerConnects.PassWord);
+                }
+                repository.Update(model);
+                _uniOfWork.SaveChanges();
+            }
+			catch (Exception)
+			{
+				return false;
 			}
-			repository.Update(model);
-            _uniOfWork.SaveChanges();
-            return model;
+            return true;
 		}
 
 		public ConfigurationBackUp Delete(ConfigurationBackUp model)
@@ -219,6 +226,14 @@ namespace DalBackup.Services
             _uniOfWork.SaveChanges();
             return model;
 		}
+
+		public List<Guid> GetIdByDatabaseId(Guid DatabaseId)
+		{
+            var data = repository
+               .Where(predicate: x => x.IsDeleted != true && x.DatabaseConnectId == DatabaseId,
+                disableTracking: true).Select( x => x.Id).ToList();
+			return data ?? new List<Guid>();
+        }
 
 	}
 }

@@ -33,10 +33,17 @@ Setting.ConnectionSQLite = connectionString;
 
 SettingEmail.Email = builder.Configuration.GetValue<string>("MailSettings:Mail") ?? string.Empty;
 SettingEmail.PassEmail = builder.Configuration.GetValue<string>("MailSettings:Password") ?? string.Empty;
-SettingEmail.SubjectEmailNoti = builder.Configuration.GetValue<string>("SettingEmailNoti:SubjectEmailNoti") ?? string.Empty;
+SettingEmail.SubjectEmailNoti = "System Backup Notification";
 MailSettingCreate.Email = builder.Configuration.GetValue<string>("MailSettingCreate:Email") ?? string.Empty;
 MailSettingCreate.UserName = builder.Configuration.GetValue<string>("MailSettingCreate:UserName") ?? string.Empty;
 MailSettingCreate.PassWordDefault = builder.Configuration.GetValue<string>("MailSettingCreate:PassWordDefault") ?? string.Empty;
+MailSettingCreate.DefaultLockoutTimeSpan = builder.Configuration.GetValue<int?>("MailSettingCreate:DefaultLockoutTimeSpan") ?? 5;
+MailSettingCreate.MaxFailedAccessAttempts = builder.Configuration.GetValue<int?>("MailSettingCreate:MaxFailedAccessAttempts") ?? 5;
+MailSettingCreate.AllowedForNewUsers = builder.Configuration.GetValue<bool?>("MailSettingCreate:AllowedForNewUsers") ?? false;
+MailSettingCreate.RequireConfirmedEmail = builder.Configuration.GetValue<bool?>("MailSettingCreate:RequireConfirmedEmail") ?? false;
+MailSettingCreate.RequireConfirmedPhoneNumber = builder.Configuration.GetValue<bool?>("MailSettingCreate:RequireConfirmedPhoneNumber") ?? false;
+MailSettingCreate.RequireConfirmedAccount = builder.Configuration.GetValue<bool?>("MailSettingCreate:RequireConfirmedAccount") ?? false;
+MailSettingCreate.ExpireTimeSpan = builder.Configuration.GetValue<int?>("MailSettingCreate:ExpireTimeSpan") ?? 30;
 
 
 
@@ -52,16 +59,16 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-   
+    app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     //app.UseHsts();
 }
-app.UseExceptionHandler("/Error");
+
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.MigrateDatabase();
 app.UseRouting();
 
 app.UseAuthorization();

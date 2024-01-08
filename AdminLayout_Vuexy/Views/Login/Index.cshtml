@@ -72,6 +72,7 @@
                                 @using (Html.BeginForm("Index", "Login", FormMethod.Post, new {@class = "auth-login-form mt-2" }))
                                 {
                                         @Html.ValidationMessage("InvalidAuth", new { @class = "text-danger" })
+                                        @Html.AntiForgeryToken()
                                         @Html.HiddenFor(x => x.ReturnUrl);
                                         <div class="mb-1">
                                         @Html.LabelFor(x => x.Username, new {@class="form-label", @for="login-email"})

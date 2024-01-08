@@ -43,20 +43,23 @@
            
     
         })
+      
         $("#next-save-server").click(function () {
             $("#loader-wrapper").css("display", "flex");
             var model = SetModel();
             setTimeout(function () {
             var result = SaveConnection(model);
-            if (result?.Id && result?.Id != '00000000-0000-0000-0000-000000000000' && result?.MessageBusViewModel.MessageStatus == "Success") {
+                if (result.id && result.id != '00000000-0000-0000-0000-000000000000' && result.messageBusViewModel.messageStatus == true) {
                 $('.Noti-connect-database-item.valid-feedback').css("display", "block");
+                    $('.Noti-connect-database-item.valid-feedback').text('Connect database' + result.messageBusViewModel.message);
                 $('.Noti-connect-database-item.invalid-feedback').css("display", "none");
+                    $('#id-formdatabase-remove').val(result.databaseId)
+                    $('#serverName-formdatabase-remove').val(result.serverName)
+                    $('#databaseName-formdatabase-remove').val(result.databaseName)
             } else {
                 $('.Noti-connect-database-item.valid-feedback').css("display", "none");
                 $('.Noti-connect-database-item.invalid-feedback').css("display", "block");
-            }
-            if (result?.Message) {
-                $('.Noti-connect-databaset-item').text(result?.Message);
+                    $('.Noti-connect-database-item.invalid-feedback').text('Connect database' + result.messageBusViewModel.message);
             }
             }, 10);
             $("#loader-wrapper").css("display", "none");
@@ -66,7 +69,7 @@
             var result;
             $.ajax('/api/SaveConnection', {
                 type: 'POST',  // http method
-                async: true,
+                async: false,
                 contentType: 'application/json',
                 data: JSON.stringify(model),
                 success: function (reponse) {
@@ -113,6 +116,7 @@
             });
             return result;
         }
+      
         $('.btn-CreateJob').click(function () {
             var ServerName = $('.ServerName').val();
             var Databasename = $('.select-databasename').val();
@@ -155,8 +159,8 @@
                         <button type="button" class="step-trigger">
                             <span class="bs-stepper-box">3</span>
                             <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">Create Job</span>
-                                <span class="bs-stepper-subtitle">Create Job</span>
+                                <span class="bs-stepper-title">Active Database</span>
+                                <span class="bs-stepper-subtitle">Active Database</span>
                             </span>
                         </button>
                     </div>
@@ -225,19 +229,32 @@
                     </div>
                     <div id="address-step-vertical" class="content" role="tabpanel" aria-labelledby="address-step-vertical-trigger">
                         <div class="content-header">
-                            <h5 class="mb-0">Create Job</h5>
+                            <h5 class="mb-0"></h5>
                         </div>
-                        <div class="Noti-database-connect">
-                            <div class="Noti-database-connect-item invalid-feedback" style="display:none; font-size:1rem;"></div>
-                            <div class="Noti-database-connect-item valid-feedback" style="display:none; font-size:1rem;"></div>
+                        <div class="Noti-connect-database-item" style="margin-bottom: 1rem;">
+                            <div class="Noti-connect-database-item invalid-feedback" style="display:none; font-size:1rem;"></div>
+                            <div class="Noti-connect-database-item valid-feedback" style="display:none; font-size:1rem;"></div>
                         </div>
                       
                        
                         <div class="d-flex justify-content-between">  
-                            <button class="btn btn-primary btn-next btn-CreateJob">
-                                <span class="align-middle d-sm-inline-block d-none">CreateJob</span>
+                            <button class="btn btn-primary btn-next btn-CreateJob btn-active">
+                                <span class="align-middle d-sm-inline-block d-none">Create Job</span>
                                 <i data-feather="arrow-right" class="align-middle ms-sm-25 ms-0"></i>
                             </button>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            @using (Html.BeginForm("RemoveDatabase", "Home", FormMethod.Post, new { id = "form-brands", enctype = "multipart/form-data" }))
+                            {
+                                @Html.Hidden("DatabaseName", "", new { id = "databaseName-formdatabase-remove" })
+                                @Html.Hidden("ServerName", "", new { id = "serverName-formdatabase-remove" })
+                                @Html.Hidden("id", "", new { id = "id-formdatabase-remove" })
+                                <button onclick="ConfirmDelete()" class="btn btn-danger btn-next btn-active">
+                                    <span class="align-middle d-sm-inline-block d-none">Remove Database</span>
+                                    <i data-feather="arrow-right" class="align-middle ms-sm-25 ms-0"></i>
+                                </button>             
+                            }
+                           
                         </div>
                     </div>
                 </div>

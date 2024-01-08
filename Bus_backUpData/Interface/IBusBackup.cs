@@ -17,6 +17,8 @@ namespace Bus_backUpData.Interface
         public MessageBusViewModel StartJobNow(JobViewModel jobModel);
         public Task<MessageBusViewModel> RestoreBackUpNowAsync(string ServerName, string DatabaseName, string Path, string FileName);
         public Task<MessageBusViewModel> ExecuteRecoveryDatabaseAsync(string ServerName, string DatabaseName);
+        public MessageBusViewModel RemoveDatabase(Guid Id);
+        public MessageBusViewModel RemoveServer(Guid Id);
 
-	}
+    }
 }

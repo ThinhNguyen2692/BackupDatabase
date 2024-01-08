@@ -33,6 +33,7 @@ using Ninject.Extensions.NamedScope;
 using Quartz.Util;
 using Quartz.Impl.AdoJobStore.Common;
 using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Builder;
 namespace Bus_backUpData
 {
     public static class DependecyInjection
@@ -43,17 +44,17 @@ namespace Bus_backUpData
 			WriteLogFile.WriteLog(LogName, "Create_build_Start---------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderLogStartUp);
 			services.AddTransient<Context>();
             services.AddDbContext<AdminLayout_VuexyContext>(options => options.UseSqlite(connectionString));
-            services.AddDefaultIdentity<AdminLayout_VuexyUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AdminLayout_VuexyContext>();
+            services.AddDefaultIdentity<AdminLayout_VuexyUser>(options => options.SignIn.RequireConfirmedAccount = MailSettingCreate.RequireConfirmedAccount).AddEntityFrameworkStores<AdminLayout_VuexyContext>();
             services.Configure<IdentityOptions>(options => {
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Khóa 5 phút
-                options.Lockout.MaxFailedAccessAttempts = 5; // Thất bại 5 lầ thì khóa
-                options.Lockout.AllowedForNewUsers = true;
-                options.SignIn.RequireConfirmedEmail = false; // Cấu hình xác thực địa chỉ email (email phải tồn tại)
-                options.SignIn.RequireConfirmedPhoneNumber = false;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(MailSettingCreate.DefaultLockoutTimeSpan); // Khóa 5 phút
+                options.Lockout.MaxFailedAccessAttempts = MailSettingCreate.MaxFailedAccessAttempts; // Thất bại 5 lầ thì khóa
+                options.Lockout.AllowedForNewUsers = MailSettingCreate.AllowedForNewUsers;
+                options.SignIn.RequireConfirmedEmail = MailSettingCreate.RequireConfirmedEmail; // Cấu hình xác thực địa chỉ email (email phải tồn tại)
+                options.SignIn.RequireConfirmedPhoneNumber = MailSettingCreate.RequireConfirmedPhoneNumber;
             });
             services.ConfigureApplicationCookie(options => {
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(MailSettingCreate.ExpireTimeSpan);
                 options.LoginPath = "/login";
                 options.LogoutPath = "/logout";
                 options.SlidingExpiration = true;
@@ -152,6 +153,29 @@ namespace Bus_backUpData
             //}
             WriteLogFile.WriteLog(LogName, "Create_build_End--------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderLogStartUp);
             return services;
+        }
+    }
+    public static class MigrationManager
+    {
+        public static WebApplication MigrateDatabase(this WebApplication webApp)
+        {
+            using (var scope = webApp.Services.CreateScope())
+            {
+                using (var appContext = scope.ServiceProvider.GetRequiredService<AdminLayout_VuexyContext>())
+                {
+                    try
+                    {
+                        appContext.Database.Migrate();
+                    }
+                    catch (Exception ex)
+                    {
+                        var LogName = string.Format("{0}{1}", "LogBuild", DateTime.Now.ToString("ddMMyyyy"));
+                        var mess = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        WriteLogFile.WriteLog(LogName, $"MigrateDatabase Error: {mess}" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderLogStartUp);
+                    }
+                }
+            }
+            return webApp;
         }
     }
 }

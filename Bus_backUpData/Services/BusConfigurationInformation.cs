@@ -33,7 +33,7 @@ namespace Bus_backUpData.Services
         /// <param name="jobname"></param>
         /// <param name="dataBaseName"></param>
         /// <returns></returns>
-        public bool DeleteJsonBackUp(string ServerName, string DatabaseName, string JobName)
+        public bool DeleteBackUp(string ServerName, string DatabaseName, string JobName)
         {
             var ConfigurationBackUpDelete = _dalConfigurationBackUp.FirstOrDefault(JobName, DatabaseName, ServerName);
             var result = DeleteBackUpBy(ConfigurationBackUpDelete);
@@ -45,7 +45,7 @@ namespace Bus_backUpData.Services
         /// </summary>
         /// <param name="id">id config</param>
         /// <returns></returns>
-        public bool DeleteJsonBackUpByID(Guid id)
+        public bool DeleteBackUpByID(Guid id)
         {
             var ConfigurationBackUpDelete = _dalConfigurationBackUp.FirstOrDefault(id);
             var result = DeleteBackUpBy(ConfigurationBackUpDelete);

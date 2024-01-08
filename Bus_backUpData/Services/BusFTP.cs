@@ -83,11 +83,15 @@ namespace Bus_backUpData.Services
             catch (Exception ex)
             {
                 WriteLogFile.WriteLog(LogName, string.Format("JobTask_PushFPT___{0}__Error: {1}", ConfigurationBackUp.BackupName, ex.Message), Setting.FoderTask);
-
                 return false;
             }
             return true;
         }
+        /// <summary>
+        /// hàm xử lý logic xóa file
+        /// </summary>
+        /// <param name="JobId"></param>
+        /// <returns></returns>
         public bool DeleteFTP(Guid JobId)
         {
 
@@ -134,6 +138,14 @@ namespace Bus_backUpData.Services
             WriteLogFile.WriteLog(LogName, "JobTask_DeleteFTP_End-----------------" + settingConfogbackup.BackupName + "------------------------" + DateTime.Now.ToString("ddMMyyyy HH:mm:ss"), Setting.FoderTask);
             return true;
         }
+
+        /// <summary>
+        /// hàm thực thi đẩy file
+        /// </summary>
+        /// <param name="UserName"></param>
+        /// <param name="Pass"></param>
+        /// <param name="host"></param>
+        /// <param name="From"></param>
         private void UploadFile(string UserName, string Pass, string host, string From)
         {
             try
@@ -152,6 +164,14 @@ namespace Bus_backUpData.Services
                 throw;
             }
         }
+
+        /// <summary>
+        /// xóa danh sách file đã đẩy ftp
+        /// </summary>
+        /// <param name="UserName"></param>
+        /// <param name="Pass"></param>
+        /// <param name="fileNames"></param>
+        /// <returns></returns>
         private List<HistoryFTP> DeleteFiles(string UserName, string Pass, List<HistoryFTP> fileNames)
         {
             var fileNameDelete = new List<HistoryFTP>();
@@ -171,6 +191,14 @@ namespace Bus_backUpData.Services
             }
 
         }
+
+        /// <summary>
+        /// hàm thực thi xóa file FTp
+        /// </summary>
+        /// <param name="UserName"></param>
+        /// <param name="Pass"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         private string DeleteFile(string UserName, string Pass, HistoryFTP fileName)
         {
             try
@@ -192,6 +220,14 @@ namespace Bus_backUpData.Services
 
         }
 
+
+        /// <summary>
+        /// lưu danh sách các file đã đẩy FTP
+        /// </summary>
+        /// <param name="JobId"></param>
+        /// <param name="JobName"></param>
+        /// <param name="FileName"></param>
+        /// <returns></returns>
         public bool SaveFileFTP(Guid JobId,string JobName, string FileName)
         {
             try
@@ -205,6 +241,12 @@ namespace Bus_backUpData.Services
                 return false;
             }
         }
+
+        /// <summary>
+        /// lấy danh sach file đã đẫy FTP
+        /// </summary>
+        /// <param name="JobName"></param>
+        /// <returns></returns>
         public List<HistoryFTP> GetHistoryFTPS(string JobName)
         {
             var historFTP = _busHistoryFTP.LoadFileFTP();
@@ -212,6 +254,11 @@ namespace Bus_backUpData.Services
             return historFTP;
         }
 
+
+        /// <summary>
+        /// hàm logic jobtask FTP
+        /// </summary>
+        /// <param name="JobId"></param>
         public async void JobTaskPushFTp(Guid JobId)
         {
             var LogName = string.Format("{0}{1}", "LogSchedule", DateTime.Now.ToString("ddMMyyyy"));
@@ -260,6 +307,14 @@ namespace Bus_backUpData.Services
                 }
             }
         }
+
+        /// <summary>
+        /// Check thông tin connect FTP
+        /// </summary>
+        /// <param name="ftpServer"></param>
+        /// <param name="ftpUsername"></param>
+        /// <param name="ftpPassword"></param>
+        /// <returns></returns>
         public bool CheckFtpConnection(string ftpServer, string ftpUsername, string ftpPassword)
         {
             try

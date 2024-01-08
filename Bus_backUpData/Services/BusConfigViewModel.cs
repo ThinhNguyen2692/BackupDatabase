@@ -403,7 +403,7 @@ namespace Bus_backUpData.Services
 	
         public ConfigRestoreViewModel GetConfigRestoreViewModel(ConfigRestoreViewModel configRestoreViewModel)
         {
-            var serverConnect = _dalDatabaseConnect.FirstOrDefault("", configRestoreViewModel.DatabaseName);
+            var serverConnect = _dalDatabaseConnect.FirstOrDefault(configRestoreViewModel.DatabaseConnectViewModel.ServerName, configRestoreViewModel.DatabaseName);
             if (serverConnect != null)
             {
                 configRestoreViewModel.DatabaseConnectViewModel.PassWord = serverConnect.ServerConnects.PassWord;

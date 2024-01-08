@@ -25,27 +25,46 @@ namespace DalBackup.Services
         }
         public ServerConnect Add(ServerConnect model)
         {
-            var data = FirstOrDefault(model.ServerName);
-            if (data == null)
+            try
             {
-                //mã hóa mật khẩu
-                model.PassWord = EncryptionSecurity.EncryptV2(model.PassWord);
-                repository.Add(model);
-                _uniOfWork.SaveChanges();
+                var data = FirstOrDefault(model.ServerName);
+                if (data == null)
+                {
+                    //mã hóa mật khẩu
+                    model.PassWord = EncryptionSecurity.EncryptV2(model.PassWord);
+                    repository.Add(model);             
+                    _uniOfWork.SaveChanges();
+                }
+                return model;
             }
-            return model;
+            catch (Exception ex)
+            {
+              
+                WriteLogFile.WriteLog(string.Format("{0}{1}", "SaveConnectionAsync", DateTime.Now.ToString("ddMMyyyy")),
+                ex.InnerException?.Message, Setting.FoderBackUp);
+                throw;
+            }
         }
 
-        public ServerConnect Update(ServerConnect model)
+        public bool Update(ServerConnect model)
         {
-            var data = FirstOrDefault(model.ServerName);
-            if (data != null)
+            try
             {
-                model.PassWord = EncryptionSecurity.EncryptV2(model.PassWord);
-                repository.Update(model);
-                _uniOfWork.SaveChanges();
+                var data = FirstOrDefault(model.ServerName);
+                if (data != null)
+                {
+                    model.PassWord = EncryptionSecurity.EncryptV2(model.PassWord);
+                    repository.Update(model);
+                    _uniOfWork.SaveChanges();
+                    return true;
+                }
+                else return false;
+               
             }
-            return model;
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public ServerConnect FirstOrDefault(Guid id)
@@ -69,7 +88,7 @@ namespace DalBackup.Services
 
         public List<ServerConnect> GetServerConnects()
         {
-            var data = repository.Where(predicate: x => !x.IsDeleted, disableTracking: true, include: x => x.Include(p => p.DatabaseConnects)).ToList();
+            var data = repository.Where(predicate: x => !x.IsDeleted, disableTracking: true, include: x => x.Include(p => p.DatabaseConnects.Where(y => !y.IsDeleted))).ToList();
             return data;
         }
 

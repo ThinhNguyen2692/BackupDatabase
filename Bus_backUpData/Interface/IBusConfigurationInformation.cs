@@ -10,8 +10,8 @@ namespace Bus_backUpData.Interface
 {
     public interface IBusConfigurationInformation
     {
-		public bool DeleteJsonBackUp(string ServerName, string DatabaseName, string JobName);
-		public bool DeleteJsonBackUpByID(Guid id);
+		public bool DeleteBackUp(string ServerName, string DatabaseName, string JobName);
+		public bool DeleteBackUpByID(Guid id);
         public bool DeleteBackUpBy(ConfigurationBackUp? configurationBackUp);
         public string GetConnectStringByDatabase(string ServerName, string DatabaseName);
         public string GetConnectStringByDatabase(Guid Id);

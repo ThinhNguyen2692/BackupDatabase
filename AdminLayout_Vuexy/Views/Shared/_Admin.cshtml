@@ -31,7 +31,7 @@
             color: #006400;
         }
 
-        .main-menu.menu-light .navigation > li.open:not(.menu-item-closing) > a{
+        .main-menu.menu-light .navigation > li.open:not(.menu-item-closing) > a {
             background: none;
         }
 
@@ -43,47 +43,72 @@
             margin: 0;
             font-family: Arial, sans-serif;
         }
+
         #loader-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #ffffff; /* Background color of the loader */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff; /* Background color of the loader */
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background-color: rgba(255, 255, 255, 0.5);
-}
+        }
 
-#loader {
+        #loader {
             border: 16px solid #006400; /* Loader color */
-  border-radius: 50%;
-  border-top: 16px solid #ffffff; /* Background color of the loader */
-  width: 120px;
-  height: 120px;
-  animation: spin 1s linear infinite;
-}
+            border-radius: 50%;
+            border-top: 16px solid #ffffff; /* Background color of the loader */
+            width: 120px;
+            height: 120px;
+            animation: spin 1s linear infinite;
+        }
 
-.loader-section {
-  position: fixed;
-  width: 50%;
-  height: 100%;
-  background: #ffffff; /* Background color of the loader */
-  z-index: 1000;
-  background-color: rgba(255, 255, 255, 0.5);
+        .loader-section {
+            position: fixed;
+            width: 50%;
+            height: 100%;
+            background: #ffffff; /* Background color of the loader */
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
 
-}
+        .section-left {
+            left: 0;
+        }
 
-.section-left {
-  left: 0;
-}
+        .section-right {
+            right: 0;
+        }
 
-.section-right {
-  right: 0;
-}
+        .main-menu.menu-light .navigation > li ul .active {
+            background: none;
+            box-shadow: none;
+        }
 
+            .main-menu.menu-light .navigation > li ul .active > a{
+                color: #006400;
+            }
 
+        .main-menu a:hover {
+                color: #006400;
+            }
+        a:hover {
+            color: #006400;
+            text-decoration: none;
+        }
+
+        .main-menu.menu-light .navigation > li.active > a {
+             background:none;
+            box-shadow: none;
+            color: #006400;
+        }
+
+        .btn-active{
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <!-- END: Head-->
@@ -114,7 +139,7 @@
             var serverName = serverName;
             addClassToElement('Server-database');
             addClassToElement(serverName);
-            addClassToElement(serverName+'-'+idDatabase);
+            addClassToElement(serverName + '-' + idDatabase);
         }
         function addClassToElement(id) {
             // Lấy phần tử cần thêm class
@@ -128,13 +153,28 @@
         document.addEventListener("DOMContentLoaded", function () {
             // Simulate page loading delay (remove this line in production)
 
-                // Hide loader
-                document.getElementById("loader-wrapper").style.display = "none";
+            // Hide loader
+            document.getElementById("loader-wrapper").style.display = "none";
 
-                // Display page content
-                //document.getElementById("content").style.display = "block";
-          // Adjust the delay time as needed
+            // Display page content
+            //document.getElementById("content").style.display = "block";
+            // Adjust the delay time as needed
         });
+    </script>
+
+    <script>
+        function getAntiForgeryToken() {
+            let token = '@Html.AntiForgeryToken()';
+            token = $(token).val();
+            return token;
+        }
+        function ConfirmDelete() {
+            var x = confirm("Xóa?");
+            if (x)
+                return true;
+            else
+                return false;
+        }
     </script>
 </body>
 <!-- END: Body-->

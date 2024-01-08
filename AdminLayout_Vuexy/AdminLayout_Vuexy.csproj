@@ -33,10 +33,4 @@
     <ProjectReference Include="..\ModelProject\ModelProject.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Logs\LogStartUp\" />
-    <Folder Include="Logs\Task\" />
-    <Folder Include="Logs\Task\" />
-  </ItemGroup>
-
 </Project>

@@ -34,6 +34,7 @@ public class AdminLayout_VuexyContext : IdentityDbContext<AdminLayout_VuexyUser>
         //{
         //    eb.HasNoKey();
         //});
+
         var hasher = new PasswordHasher<IdentityUser>();
         var user = Activator.CreateInstance<AdminLayout_VuexyUser>();
         user.UserName = MailSettingCreate.UserName;

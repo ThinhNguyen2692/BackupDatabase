@@ -15,9 +15,11 @@ namespace DalBackup.Interface
         public List<ConfigurationBackUp> GetData();
         public List<ConfigurationBackUp> GetData(string SeverName,string DatabaseName);
         public List<ConfigurationBackUp> GetData(Guid id);
-        public ConfigurationBackUp Update(ConfigurationBackUp model);
+        public bool Update(ConfigurationBackUp model);
         public ConfigurationBackUp Delete(ConfigurationBackUp model);
         public ConfigurationBackUp AddOrUpdate(ConfigurationBackUp model);
+        public List<Guid> GetIdByDatabaseId(Guid DatabaseId);
 
-	}
+
+    }
 }

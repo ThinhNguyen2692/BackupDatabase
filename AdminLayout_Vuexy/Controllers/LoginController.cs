@@ -36,8 +36,8 @@ namespace AdminLayout_Vuexy.Controllers
             return View("Index", viewModel);
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Route("/Login")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(LoginViewModel loginViewModel)
         {
             if (ModelState.IsValid)

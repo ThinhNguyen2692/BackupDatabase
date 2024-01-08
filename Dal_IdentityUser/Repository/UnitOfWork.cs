@@ -1,4 +1,7 @@
 ﻿using DalBackup.Data;
+using ModelProject.Func;
+using ModelProject.Models;
+using NuGet.Protocol.Core.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +45,21 @@ namespace DalBackup.Repository
 
         public void SaveChanges()
         {
-            _context.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                WriteLogFile.WriteLog(string.Format("{0}{1}", "SaveConnectionAsync", DateTime.Now.ToString("ddMMyyyy")),
+              ex.Message, Setting.FoderBackUp);
+                WriteLogFile.WriteLog(string.Format("{0}{1}", "SaveConnectionAsync", DateTime.Now.ToString("ddMMyyyy")),
+                ex.InnerException?.Message, Setting.FoderBackUp);
+
+              
+                throw;
+            }
+            
         }
     }
 }
